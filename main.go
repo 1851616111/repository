@@ -42,8 +42,10 @@ func main() {
 	})
 
 	m.Group("/subscriptions", func(r martini.Router) {
-		r.Get("/login", auth, login)
-	})
+		r.Get("", getSHandler)
+		r.Get("/login", login)
+
+	}, auth)
 	m.Group("/repositories", func(r martini.Router) {
 		r.Get("", getRHandler)
 		r.Post("/:repname/:itemname", setDHandler)

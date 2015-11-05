@@ -120,3 +120,11 @@ type Result struct {
 	Repaccesstype string     `json:"repaccesstype"`
 	Items         []DataItem `json:"items"`
 }
+type Subscription struct {
+	Subscription_id int     `json:"subscription_id,omitempty"`
+	User_id         int     `json:"user_id,omitempty"`
+	Dataitem_id     int64   `json:"dataitem_id,omitempty"`
+	Amount          int     `json:"amount,omitempty"`
+	Price           float64 `json:"price,omitempty"`
+	Optime          string  `json:"optime,omitempty"`
+}

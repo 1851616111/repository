@@ -55,3 +55,27 @@ func (db *DB) setDataitem_Chosen(d *Dataitem_Chosen) error {
 	_, err := db.InsertOne(d)
 	return err
 }
+
+func (db *DB) getDataitemsByIds(ids []interface{}) []Data {
+	l := []Data{}
+	if len(ids) == 0 {
+		return l
+	}
+	usages_m, err := db.getDataitemUsageByIds(ids...)
+	get(err)
+	items_m, err := db.getDataitemByIds(ids...)
+	get(err)
+
+	m := make(M)
+	for k, item := range items_m {
+		usage := usages_m[k]
+		usage.Refresh_date = buildTime(usage.Refresh_date)
+		d := Data{item, usage}
+		m[k] = d
+	}
+
+	for _, v := range m {
+		l = append(l, v.(Data))
+	}
+	return l
+}

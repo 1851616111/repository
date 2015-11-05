@@ -38,7 +38,7 @@ CREATE TABLE DH_DATAITEM
    SUPPLY_STYLE         INT COMMENT '实时单条；批量； 流',
    PRICEUNIT_TYPE       INT COMMENT '定价单位',
    PRICE                DECIMAL(12,3) COMMENT '定价',
-   OPTIME               DATE COMMENT '初始化或修改时间',
+   OPTIME               TIMESTAMP COMMENT '初始化或修改时间',
    DATA_FORMAT          INT COMMENT '数据格式，1-txt、2-xls、3-ppt、4-doc、...',
    REFRESH_TYPE         INT COMMENT '数据的刷新周期，月、日、时、分、秒',
    REFRESH_NUM          INT COMMENT '刷新周期refresh_type的个数',
@@ -49,6 +49,7 @@ CREATE TABLE DH_DATAITEM
    COMMENT              VARCHAR(1024),
    PRIMARY KEY (DATAITEM_ID)
 )  DEFAULT CHARSET=UTF8;
+
 INSERT INTO DH_DATAITEM VALUES ('NBA', '1004', '1013', 'APP使用情况', 'Apps.png', '2','app;应用', '3', '1', '0.000', '2015-08-01', '2', '1','1', 'meta_apps.doc', 'sample_apps.doc', '统计全国智能终端APP的使用情况。按天统计用户APP的使用情况，包括APP类型、APP名称、独立访客访问次数、访问总次数等信息。');
 
 CREATE TABLE DH_DATAITEM_CHOSEN
@@ -60,8 +61,7 @@ CREATE TABLE DH_DATAITEM_CHOSEN
 CREATE TABLE DH_DATAITEMUSAGE
 (
    DATAITEM_ID          INT NOT NULL,
-   DATAITEM_NAME        VARCHAR(1024) COMMENT '表义的中文名字的
-            在搜索结果页面上展示用',
+   DATAITEM_NAME        VARCHAR(1024) COMMENT '表义的中文名字的在搜索结果页面上展示用',
    VIEWS                INT COMMENT '查看次数',
    FOLLOWS              INT COMMENT '关注人数',
    DOWNLOADS            INT COMMENT '下载次数',
@@ -70,3 +70,16 @@ CREATE TABLE DH_DATAITEMUSAGE
    USABILITY            INT,
    PRIMARY KEY (DATAITEM_ID)
 );
+
+
+INSERT INTO DH_DATAITEM VALUES ('NBA', '1002', '1000001', '全国在网（新增）终端', 'terminal.png', '2', '手机;iphone', '1', '1', '0.000', '2015-08-01', '1', '1', '1','meta_terminal.txt', 'sample_terminal.txt', '对终端使用情况、变化情况进行了全方面的分析。包括分品牌统计市场存量、新增、机型、数量、换机等情况。终端与ARPU、DOU、网龄的映射关系。终端的APP安装情况等。');
+INSERT INTO DH_DATAITEM VALUES ('NBA', '1002', '1000002', '全国终端换机分析', 'terminal.png', '2', '手机;iphone', '1', '1', '0.000', '2015-08-01', '1', '1', '1','meta_terminal2.txt', 'sample_terminal2.txt', '对终端使用情况、变化情况进行了全方面的分析。包括分品牌统计市场存量、新增、机型、数量、换机等情况。终端与ARPU、DOU、网龄的映射关系。终端的APP安装情况等。');
+INSERT INTO DH_DATAITEM VALUES ('NBA', '1002', '1000003', 'APP使用情况', 'Apps.png', '2','app;应用', '3', '1', '0.000', '2015-08-01', '1', '1','1', 'meta_apps.txt', 'sample_apps.txt', '统计全国智能终端APP的使用情况。按天统计用户APP的使用情况，包括APP类型、APP名称、独立访客访问次数、访问总次数等信息。');
+INSERT INTO DH_DATAITEM VALUES ('NBA', '1002', '1000004', '电商访问数据', 'electronic_business.png', '2','电商;网店', '1', '1', '0.000', '2015-08-01', '1', '1', '1','meta_electronic_business.txt', 'sample_electronic_business.txt', '统计全国智能终端访问电商的情况。以天为统计周期，内容包括访问方式、访问对象、访问商品ID，独立访客访访问量、访问总量、购买数、收藏数。');
+INSERT INTO DH_DATAITEM VALUES ('NBA', '1002', '1000005', '股票访问次数', 'stock.png', '2','股票;stock', '1', '1', '0.000', '2015-08-01', '1', '1', '1','meta_stock.txt', 'sample_stock.txt', '统计全国智能终端访问股票的情况。以天为统计周期，包括访问的股票名称、股票代码、浏览次数、WEB浏览次数、搜索次数等。');
+
+
+
+INSERT INTO DH_DATAITEMUSAGE(DATAITEM_ID,DATAITEM_NAME,VIEWS,FOLLOWS,DOWNLOADS,STARS,REFRESH_DATE,USABILITY)
+SELECT DATAITEM_ID,DATAITEM_NAME,100,50,30,1,'2015-10-20 10:10:10',1
+FROM DH_DATAITEM;

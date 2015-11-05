@@ -114,10 +114,11 @@ func getChosenNamesHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 
 //curl http://10.1.51.32:8080/subscriptions/login -u panxy3@asiainfo.com:8ddcff3a80f4189ca1c9d4d902c3c909
 func login(r *http.Request, rsp *Rsp) (int, string) {
-	return rsp.Json(200, "ok")
+	return 200, "ok"
 }
 
 //curl http://10.1.51.32:8080/portal/dataitem?tp=chosen
+//curl http://127.0.0.1:8080/portal/dataitem?tp=chosen\&chosen_name=2
 func getItemsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	tp := r.FormValue("tp")
 	var err error
@@ -136,26 +137,9 @@ func getItemsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 		for _, v := range l_s {
 			l_str = append(l_str, v.Dataitem_id)
 		}
-
-		usages_m, err := db.getDataitemUsageByIds(l_str...)
-		get(err)
-		items_m, err := db.getDataitemByIds(l_str...)
-		get(err)
-
-		m := make(M)
-		for k, item := range items_m {
-			usage := usages_m[k]
-			usage.Refresh_date = buildTime(usage.Refresh_date)
-			d := Data{item, usage}
-			m[k] = d
-		}
-
-		for _, v := range m {
-			l = append(l, v.(Data))
-		}
+		l = db.getDataitemsByIds(l_str)
 
 	}
-
 	return rsp.Json(200, l)
 }
 
