@@ -181,13 +181,7 @@ func md5Passed(passwd string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-type Time struct {
-	Absolute_Time string `json:"absolute,omitempty"`
-	Relative_Time string `json:"relative,omitempty"`
-}
-
 func buildTime(absoluteTime string) string {
-	ret := Time{Absolute_Time: absoluteTime}
 	now := time.Now()
 
 	sevenDayAgo := now.AddDate(0, 0, -7)
@@ -199,12 +193,10 @@ func buildTime(absoluteTime string) string {
 		oneDayAgo := now.AddDate(0, 0, -1)
 
 		if target_time.After(oneDayAgo) {
-			ret.Relative_Time = fmt.Sprintf("%d小时以前", sec/3600)
+			return fmt.Sprintf("%s,%d小时以前", absoluteTime, sec/3600)
 		} else {
-			ret.Relative_Time = fmt.Sprintf("%d天以前", sec/(3600*24))
+			return fmt.Sprintf("%s,%d天以前", absoluteTime, sec/(3600*24))
 		}
 	}
-	d, _ := json.Marshal(ret)
-
-	return string(d)
+	return absoluteTime
 }
