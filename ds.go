@@ -51,10 +51,10 @@ type DataItemUsage struct {
 	Dataitem_name string `json:"dataitem_name,omitempty"`
 	Views         int    `json:"views"`
 	Follows       int    `json:"follows"`
-//	Downloads     int    `json:"downloads"`
-	Stars         int    `json:"stars"`
-	Refresh_date  string `json:"refresh_date,omitempty"`
-	Usability     int    `json:"usability,omitempty"`
+	//	Downloads     int    `json:"downloads"`
+	Stars        int    `json:"stars"`
+	Refresh_date string `json:"refresh_date,omitempty"`
+	Usability    int    `json:"usability,omitempty"`
 }
 
 type User struct {
