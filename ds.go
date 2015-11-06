@@ -118,8 +118,9 @@ func (p *Tag) TableName() string {
 }
 
 type Data struct {
-	Item  DataItem      `json:"item"`
-	Usage DataItemUsage `json:"statis"`
+	Item  *DataItem      `json:"item,omitempty"`
+	Usage *DataItemUsage `json:"statis,omitempty"`
+	Tags   []Tag		`json:"tags,omitempty"`
 }
 
 type DB struct {

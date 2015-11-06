@@ -40,18 +40,6 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, user_i
 	return rsp.Json(200, res)
 }
 
-//curl http://127.0.0.1:8080/repositories/NBA/bear
-func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
-	d, err := getDMid(r, rsp, param, db)
-	if err != nil {
-		return rsp.Json(400, err.Error())
-	}
-	if d == nil {
-		return rsp.Json(200, "no found dataitem")
-	}
-	return rsp.Json(200, d)
-}
-
 //curl http://127.0.0.1:8080/repositories/NBA/bear -d "" -u panxy3@asiainfo.com:8ddcff3a80f4189ca1c9d4d902c3c909
 func setDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, user_id string) (int, string) {
 	repname := param["repname"]
@@ -156,17 +144,6 @@ func getItemsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	return rsp.Json(200, l)
 }
 
-//curl http://10.1.51.32:8080/portal/dataitem/test
-//func test(r *http.Request, rsp *Rsp, db *DB) (int, string) {
-//
-////	usages_m, err  := db.getDataitemUsageByIds()
-//	items_m, err := db.getDataitemByIds()
-//	get(err)
-////	log.Println(usages_m)
-//	log.Println(items_m)
-//	return rsp.Json(200, "ok")
-//}
-
 //curl http://127.0.0.1:8080/repositories/NBA/bear/0001 -d "" -u panxy3@asiainfo.com:8ddcff3a80f4189ca1c9d4d902c3c909
 func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	d, err := getDMid(r, rsp, param, db)
@@ -190,4 +167,43 @@ func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int
 		return rsp.Json(400, err.Error())
 	}
 	return rsp.Json(200, "ok")
+}
+
+//curl http://127.0.0.1:8080/subscriptions/NBA/bear
+//curl http://127.0.0.1:8080/inner/NBA/bear
+//curl http://127.0.0.1:8080/inner/NBA/bear/tags
+//curl http://127.0.0.1:8080/repositories/NBA/bear/tags -d "" -u panxy3@asiainfo.com:8ddcff3a80f4189ca1c9d4d902c3c909
+func getDataitemHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
+	d, err := getDMid(r, rsp, param, db)
+	if d == nil {
+		return rsp.Json(400, "no found dataitem")
+	}
+	get(err)
+
+	res := Data{Item:d}
+
+	l := []Tag{}
+	if strings.HasPrefix(r.RequestURI,SUBSCRIPTION) {
+		m, err := db.getDataitemUsageByIds(d.Dataitem_id)
+		if err != nil {
+			return rsp.Json(400, err.Error())
+		}
+		l, err = db.getTags(d.Dataitem_id)
+		if err != nil {
+			return rsp.Json(400, err.Error())
+		}
+		d := m[d.Dataitem_id]
+		res.Usage = &d
+		res.Tags = l
+	}
+
+	if strings.HasPrefix(r.RequestURI,INNER) && strings.HasSuffix(r.RequestURI,"tags") {
+		l, err = db.getTags(d.Dataitem_id)
+		if err != nil {
+			return rsp.Json(400, err.Error())
+		}
+		res.Tags = l
+	}
+
+	return rsp.Json(200, res)
 }

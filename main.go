@@ -8,7 +8,10 @@ import (
 	"github.com/quexer/utee"
 	"net/http"
 )
-
+const(
+	SUBSCRIPTION = "/subscriptions"
+	INNER = "/inner"
+)
 var (
 	SERVICE_PORT = utee.Env("goservice_port", false)
 	DB_ADDR      = utee.Env("MYSQL_PORT_3306_TCP_ADDR", false)
@@ -41,14 +44,14 @@ func main() {
 		c.Map(&db)
 	})
 
-	m.Group("/subscriptions", func(r martini.Router) {
-		r.Get("", getSHandler)
-		r.Get("/login", login)
+	m.Group(SUBSCRIPTION, func(r martini.Router) {
+		r.Get("", auth, getSHandler)
+		r.Get("/login", auth,login)
+		r.Get("/:repname/:itemname", getDataitemHandler)
 		//		r.Post("/:repname/:itemname", setSHandler)
-	}, auth)
+	})
 	m.Group("/repositories", func(r martini.Router) {
 		r.Get("", getRHandler)
-		r.Get("/:repname/:itemname", getDHandler)
 		r.Post("/:repname/:itemname", setDHandler)
 		r.Post("/:repname/:itemname/:tag", setTagHandler)
 		//		r.Post("/:repname/:itemname", auth, setDHandler)
@@ -64,9 +67,12 @@ func main() {
 		r.Post("/chosen", setItemChoseHandler)
 		r.Get("/chosen", getItemChoseHandler)
 		r.Get("/chosen/names", getChosenNamesHandler)
-		//		r.Get("/test", test)
 	})
 
+	m.Group(INNER,func(r martini.Router) {
+		r.Get("/:repname/:itemname", getDataitemHandler)
+		r.Get("/:repname/:itemname/tags", getDataitemHandler)
+	})
 	http.Handle("/", m)
 
 	http.ListenAndServe(fmt.Sprintf(":%s", SERVICE_PORT), nil)
