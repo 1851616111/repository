@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-func (db *DB) getDataitem(columnName, columnValue string) ([]DataItem, error) {
+func (db *DB) getDataitems(columnName, columnValue string) ([]DataItem, error) {
 	item := new(DataItem)
 	rows, err := db.Where(fmt.Sprintf(" %s = ? ", columnName), columnValue).Rows(item)
 	if err != nil {
@@ -27,6 +27,10 @@ func (db *DB) getDataitemByIds(dataitemIds ...interface{}) (map[int64]DataItem, 
 	m := map[int64]DataItem{}
 	err := db.In("DATAITEM_ID", dataitemIds...).Find(&m)
 	return m, err
+}
+
+func (db *DB) getDataitem(d *DataItem) (bool, error) {
+	return db.Get(d)
 }
 
 func (db *DB) setDataitem(d *DataItem) error {

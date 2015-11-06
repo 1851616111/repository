@@ -4,6 +4,7 @@ import (
 	"github.com/go-martini/martini"
 	"net/http"
 	"strings"
+	"time"
 )
 
 const (
@@ -18,7 +19,7 @@ const (
 func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, user_id string) (int, string) {
 	res := []Result{}
 
-	l, err := db.getDataitem(USER_NAME, user_id)
+	l, err := db.getDataitems(USER_NAME, user_id)
 	if err != nil {
 		return rsp.Json(400, err.Error())
 	}
@@ -39,7 +40,19 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, user_i
 	return rsp.Json(200, res)
 }
 
-//curl http://127.0.0.1:8080/repositories/NBA/bear -d "" -u panxy3@asiainfo.com:88888888
+//curl http://127.0.0.1:8080/repositories/NBA/bear
+func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
+	d, err := getDMid(r, rsp, param, db)
+	if err != nil {
+		return rsp.Json(400, err.Error())
+	}
+	if d == nil {
+		return rsp.Json(200, "no found dataitem")
+	}
+	return rsp.Json(200, d)
+}
+
+//curl http://127.0.0.1:8080/repositories/NBA/bear -d "" -u panxy3@asiainfo.com:8ddcff3a80f4189ca1c9d4d902c3c909
 func setDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, user_id string) (int, string) {
 	repname := param["repname"]
 	if repname == "" {
@@ -67,7 +80,7 @@ func setDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, user_i
 //curl http://127.0.0.1:8080/repository/cba/items
 func getRepoByNameHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	repname := param["repname"]
-	res, err := db.getDataitem("repository_name", repname)
+	res, err := db.getDataitems("repository_name", repname)
 	if err != nil {
 		return rsp.Json(400, err.Error())
 	}
@@ -153,3 +166,28 @@ func getItemsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 //	log.Println(items_m)
 //	return rsp.Json(200, "ok")
 //}
+
+//curl http://127.0.0.1:8080/repositories/NBA/bear/0001 -d "" -u panxy3@asiainfo.com:8ddcff3a80f4189ca1c9d4d902c3c909
+func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
+	d, err := getDMid(r, rsp, param, db)
+	if d == nil {
+		return rsp.Json(400, "no found dataitem")
+	}
+	get(err)
+
+	tag := param["tag"]
+	if tag == "" {
+		return rsp.Json(400, "no param tag")
+	}
+
+	t := new(Tag)
+	t.ParseRequeset(r)
+	t.Tag = tag
+	t.Optime = time.Now().Format(TimeFormat)
+	t.Dataitem_id = d.Dataitem_id
+
+	if err := db.setTag(t); err != nil {
+		return rsp.Json(400, err.Error())
+	}
+	return rsp.Json(200, "ok")
+}

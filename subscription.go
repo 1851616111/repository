@@ -26,3 +26,8 @@ func getSHandler(r *http.Request, rsp *Rsp, db *DB, user_id string) (int, string
 	d := db.getDataitemsByIds(l)
 	return rsp.Json(200, d)
 }
+
+func setSHandler(r *http.Request, rsp *Rsp, db *DB, user_id string) (int, string) {
+
+	return rsp.Json(200, "ok")
+}

@@ -167,6 +167,31 @@ func (p *Dataitem_Chosen) ParseRequeset(r *http.Request) error {
 	}
 	return nil
 }
+
+func (p *Tag) ParseRequeset(r *http.Request) error {
+	t := reflect.TypeOf(*p)
+	v := reflect.ValueOf(p).Elem()
+	for i := 0; i < t.NumField(); i++ {
+		f := t.Field(i)
+		if name := r.PostFormValue(strings.ToLower(f.Name)); name != "" {
+			switch f.Type.Name() {
+			case "int":
+				i, _ := strconv.Atoi(name)
+				v.FieldByName(f.Name).SetInt(int64(i))
+			case "string":
+				v.FieldByName(f.Name).SetString(name)
+			case "float32":
+			case "float64":
+				ff, _ := strconv.ParseFloat(name, 10)
+				v.FieldByName(f.Name).SetFloat(ff)
+			}
+		} else {
+			return errors.New(fmt.Sprintf("parse request err, no param: %s", strings.ToLower(f.Name)))
+		}
+	}
+	return nil
+}
+
 func (p *DataItem) BuildRequeset(repName, itemName, user_id string) {
 	p.Repository_name = repName
 	p.Dataitem_name = itemName

@@ -10,6 +10,7 @@ const (
 	USER              = "DH_USER"
 	DATAITEM_CHOSEN   = "DH_DATAITEM_CHOSEN"
 	DATAITEMUSAGE     = "DH_DATAITEMUSAGE"
+	TAG               = "DH_TAG"
 )
 
 type Repository struct {
@@ -55,6 +56,13 @@ type DataItemUsage struct {
 	Stars        int    `json:"stars"`
 	Refresh_date string `json:"refresh_date,omitempty"`
 	Usability    int    `json:"usability,omitempty"`
+}
+
+type Tag struct {
+	Dataitem_id int64  `json:"dataitem_id,omitempty"`
+	Tag         string `json:"tag,omitempty"`
+	Filename    string `json:"filename,omitempty"`
+	Optime      string `json:"optime,omitempty"`
 }
 
 type User struct {
@@ -104,6 +112,9 @@ func (p *User) TableName() string {
 }
 func (p *Dataitem_Chosen) TableName() string {
 	return DATAITEM_CHOSEN
+}
+func (p *Tag) TableName() string {
+	return TAG
 }
 
 type Data struct {

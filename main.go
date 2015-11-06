@@ -44,12 +44,16 @@ func main() {
 	m.Group("/subscriptions", func(r martini.Router) {
 		r.Get("", getSHandler)
 		r.Get("/login", login)
-
+		//		r.Post("/:repname/:itemname", setSHandler)
 	}, auth)
 	m.Group("/repositories", func(r martini.Router) {
 		r.Get("", getRHandler)
+		r.Get("/:repname/:itemname", getDHandler)
 		r.Post("/:repname/:itemname", setDHandler)
-	}, auth)
+		r.Post("/:repname/:itemname/:tag", setTagHandler)
+		//		r.Post("/:repname/:itemname", auth, setDHandler)
+		//		r.Post("/:repname/:itemname/:tag", auth, setTagHandler)
+	})
 
 	m.Group("/repository", func(r martini.Router) {
 		r.Get("/:repname/items", getRepoByNameHandler)
