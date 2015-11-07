@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/asiainfoLDP/datahub_repository/util"
 	"net/http"
 )
 
@@ -11,7 +10,7 @@ import (
 //curl http://10.1.235.96:8080/subscriptions -u panxy3@asiainfo.com:8ddcff3a80f4189ca1c9d4d902c3c909
 func getSHandler(r *http.Request, rsp *Rsp, db *DB, user_id string) (int, string) {
 	url := fmt.Sprintf("http://10.1.235.96:8081/subscriptions/user/%s", user_id)
-	b, err := util.HttpGet(url)
+	b, err := HttpGet(url)
 	get(err)
 	s := struct {
 		Err  string         `json:"error,omitempty"`
