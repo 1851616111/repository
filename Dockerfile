@@ -7,4 +7,4 @@ RUN go get github.com/tools/godep
 RUN godep restore
 RUN godep go build
 
-CMD["datahub_repository"]
+CMD["/go/src/datahub_repository/datahub_repository"]
