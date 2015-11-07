@@ -74,7 +74,7 @@ func (db *DB) getDataitemsByIds(ids []interface{}) []Data {
 	for k, item := range items_m {
 		usage := usages_m[k]
 		usage.Refresh_date = buildTime(usage.Refresh_date)
-		d := Data{Item:&item, Usage:&usage}
+		d := Data{Item: &item, Usage: &usage}
 		m[k] = d
 	}
 
