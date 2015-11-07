@@ -10,16 +10,16 @@ import (
 const (
 	REPACCESS_PRIVATE        = "private"
 	REPACCESS_PUBLIC         = "public"
-	USER_NAME                = "USER_ID"
+	USER_NAME                = "LOGIN_NAME"
 	REP_NAME                 = "REPOSITORY_NAME"
 	PORTAL_REQUEST_TP_CHOSEN = "chosen"
 )
 
-//curl http://10.1.235.96:8080/repositories -u panxy3@asiainfo.com:88888888
-func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, user_id string) (int, string) {
+//curl http://127.0.0.1:8088/repositories -u panxy3@asiainfo.com:88888888
+func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	res := []Result{}
 
-	l, err := db.getDataitems(USER_NAME, user_id)
+	l, err := db.getDataitems(USER_NAME, "1002")
 	if err != nil {
 		return rsp.Json(400, err.Error())
 	}
@@ -88,6 +88,7 @@ func setItemChoseHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 }
 
 //curl http://10.1.235.96:8080/portal/portal/dataitem/chosen?chosen_name=cb
+//curl http://127.0.0.1:8088/portal/dataitem/chosen?chosen_name=cb
 func getItemChoseHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	var l []Dataitem_Chosen
 	var err error
@@ -119,6 +120,7 @@ func login(r *http.Request, rsp *Rsp) (int, string) {
 }
 
 //curl http://10.1.51.32:8080/portal/dataitem?tp=chosen
+//curl http://127.0.0.1:8088/portal/dataitem?tp=chosen
 //curl http://10.1.235.96:8080/portal/dataitem?tp=chosen\&chosen_name=2
 func getItemsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	tp := r.FormValue("tp")

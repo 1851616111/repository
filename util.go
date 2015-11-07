@@ -196,7 +196,7 @@ func (p *DataItem) BuildRequeset(repName, itemName, user_id string) {
 	p.Repository_name = repName
 	p.Dataitem_name = itemName
 	i, _ := strconv.Atoi(user_id)
-	p.User_id = i
+	p.Login_name = i
 	p.Optime = time.Now().Format("2006-01-02 15:04:05")
 }
 

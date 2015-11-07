@@ -12,7 +12,7 @@ import (
 const (
 	SUBSCRIPTION = "/subscriptions"
 	INNER        = "/inner"
-	SYS			 = "/sys"
+	SYS          = "/sys"
 )
 
 var (
@@ -47,12 +47,12 @@ func main() {
 		c.Map(&db)
 	})
 
-//	m.Group(SUBSCRIPTION, func(r martini.Router) {
-//		r.Get("", auth, getSHandler)
-//		r.Get("/login", auth, login)
-//		r.Get("/:repname/:itemname", getDataitemHandler)
-//		//		r.Post("/:repname/:itemname", setSHandler)
-//	})
+	//	m.Group(SUBSCRIPTION, func(r martini.Router) {
+	//		r.Get("", auth, getSHandler)
+	//		r.Get("/login", auth, login)
+	//		r.Get("/:repname/:itemname", getDataitemHandler)
+	//		//		r.Post("/:repname/:itemname", setSHandler)
+	//	})
 	m.Group("/repositories", func(r martini.Router) {
 		r.Get("", getRHandler)
 		r.Post("/:repname/:itemname", setDHandler)

@@ -15,7 +15,7 @@ const (
 
 type Repository struct {
 	Repository_name string `json:"repository_name,omitempty"`
-	User_id         int    `json:"user_id,omitempty"`
+	Login_name      int    `json:"login_name,omitempty"`
 	Permit_type     int    `json:"permit_type,omitempty"`
 	Arrang_type     int    `json:"arrang_type,omitempty"`
 	Comment         string `json:"comment,omitempty"`
@@ -29,12 +29,12 @@ type Repository struct {
 
 type DataItem struct {
 	Repository_name string  `json:"repname,omitempty"`
-	User_id         int     `json:"user_id,omitempty"`
+	Login_name      int     `json:"login_name,omitempty"`
 	Dataitem_id     int64   `json:"dataitem_id,omitempty"  xorm:"dataitem_id pk autoincr"`
 	Dataitem_name   string  `json:"dataitem_name,omitempty"`
 	Ico_name        string  `json:"ico_name,omitempty"`
 	Permit_type     int     `json:"permit_type,omitempty"`
-	Key_words       string  `json:"key_words,omitempty"`
+	Label           string  `json:"label,omitempty"`
 	Supply_style    int     `json:"supply_style,omitempty"`
 	Priceunit_type  int     `json:"priceunit_type,omitempty"`
 	Price           float32 `json:"price,omitempty"`
