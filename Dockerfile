@@ -9,6 +9,6 @@ RUN godep restore
 
 run curl -s https://raw.githubusercontent.com/pote/gpm/v1.3.2/bin/gpm | bash && \
 
-RUN go install datahub_repository
+RUN godep go build
 
-ENTRYPOINT ["/go/bin/datahub_repository"]
+CMD["./datahub_repository"]
