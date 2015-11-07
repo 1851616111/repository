@@ -9,5 +9,5 @@ RUN godep go install
 
 ENV SERVICE_NAME=datahub_repository
 
-EXPOSE 8080
+EXPOSE 8088
 ENTRYPOINT ["/go/bin/datahub_repository"]
