@@ -5,6 +5,6 @@ ADD . /go/src/datahub_repository
 
 RUN go get github.com/tools/godep
 RUN godep restore
-RUN godep go build
+RUN godep go install
 
-CMD["/go/src/datahub_repository/datahub_repository"]
+CMD["datahub_repository"]
