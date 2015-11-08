@@ -55,18 +55,20 @@ func main() {
 	//	})
 	m.Group("/repositories", func(r martini.Router) {
 		r.Get("", getRHandler)
+		r.Get("/chosen", getItemsHandler)
 		r.Post("/:repname/:itemname", setDHandler)
 		r.Post("/:repname/:itemname/:tag", setTagHandler)
 		//		r.Post("/:repname/:itemname", auth, setDHandler)
 		//		r.Post("/:repname/:itemname/:tag", auth, setTagHandler)
+
+		r.Post("/chosen", setItemChoseHandler)
+		r.Get("/chosen/dataitem", getItemChoseHandler)
+		r.Get("/chosen/names", getChosenNamesHandler)
 	})
 
 	m.Group("/repository", func(r martini.Router) {
 		r.Get("/:repname/items", getRepoByNameHandler)
-		r.Get("", getItemsHandler)
-		r.Post("/chosen", setItemChoseHandler)
-		r.Get("/chosen", getItemChoseHandler)
-		r.Get("/chosen/names", getChosenNamesHandler)
+
 	})
 
 	m.Group(INNER, func(r martini.Router) {

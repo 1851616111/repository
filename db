@@ -52,8 +52,7 @@ CREATE TABLE DH_DATAITEM
 
 INSERT INTO DH_DATAITEM VALUES ('NBA', '1004', '1013', 'APP使用情况', 'Apps.png', '2','app;应用', '3', '1', '0.000', '2015-08-01', '2', '1','1', 'meta_apps.doc', 'sample_apps.doc', '统计全国智能终端APP的使用情况。按天统计用户APP的使用情况，包括APP类型、APP名称、独立访客访问次数、访问总次数等信息。');
 
-CREATE TABLE DH_DATAITEM_CHOSEN
-(
+CREATE TABLE DH_DATAITEM_CHOSEN(
     CHOSEN_NAME  VARCHAR(64),
     DATAITEM_ID INT NOT NULL,
     PRIMARY KEY (DATAITEM_ID)

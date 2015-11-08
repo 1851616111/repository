@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"github.com/lunny/log"
 )
 
 const (
@@ -15,11 +16,11 @@ const (
 	PORTAL_REQUEST_TP_CHOSEN = "chosen"
 )
 
-//curl http://127.0.0.1:8088/repositories -u panxy3@asiainfo.com:88888888
+//curl http://127.0.0.1:8088/repositories
 func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	res := []Result{}
 
-	l, err := db.getDataitems(USER_NAME, "1002")
+	l, err := db.getDataitems("", "")
 	if err != nil {
 		return rsp.Json(400, err.Error())
 	}
@@ -40,7 +41,7 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	return rsp.Json(200, res)
 }
 
-//curl http://10.1.235.96:8080/repositories/NBA/bear -d "" -u panxy3@asiainfo.com:8ddcff3a80f4189ca1c9d4d902c3c909
+//curl http://127.0.0.1:8088/repositories/NBA/bear -d "" -u panxy3@asiainfo.com:8ddcff3a80f4189ca1c9d4d902c3c909
 func setDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, user_id string) (int, string) {
 	repname := param["repname"]
 	if repname == "" {
@@ -65,7 +66,7 @@ func setDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, user_i
 	return rsp.Json(200, "ok")
 }
 
-//curl http://10.1.235.96:8080/repository/cba/items
+//curl http://127.0.0.1:8088/repository/cba/items
 func getRepoByNameHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	repname := param["repname"]
 	res, err := db.getDataitems("repository_name", repname)
@@ -75,7 +76,7 @@ func getRepoByNameHandler(r *http.Request, rsp *Rsp, param martini.Params, db *D
 	return rsp.Json(200, res)
 }
 
-//curl http://10.1.235.96:8080/dataitem/chosen -d "chosen_name=NBA&dataitem_id=1000001"
+//curl http://127.0.0.1:8088/repositories/chosen -d "chosen_name=NBA&dataitem_id=1011"
 func setItemChoseHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	d := new(Dataitem_Chosen)
 	if err := d.ParseRequeset(r); err != nil {
@@ -87,11 +88,12 @@ func setItemChoseHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	return rsp.Json(200, "ok")
 }
 
-//curl http://10.1.235.96:8080/portal/portal/dataitem/chosen?chosen_name=cb
-//curl http://127.0.0.1:8088/portal/dataitem/chosen?chosen_name=cb
+//curl http://127.0.0.1:8088/repositories/chosen/dataitem?chosen_name=NBA
+//curl http://127.0.0.1:8088/repositories/chosen?chosen_name=cb
 func getItemChoseHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	var l []Dataitem_Chosen
 	var err error
+
 	if chosen_name := strings.TrimSpace(r.FormValue("chosen_name")); chosen_name != "" {
 		l, err = db.getDataitem_Chosen(chosen_name)
 	} else {
@@ -105,7 +107,7 @@ func getItemChoseHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	return rsp.Json(200, l)
 }
 
-//curl http://10.1.235.96:8080/portal/dataitem/chosen/names
+//curl http://127.0.0.1:8088/portal/dataitem/chosen/names
 func getChosenNamesHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	l, err := db.getDataitem_ChosenNames()
 	if err != nil {
@@ -119,9 +121,7 @@ func login(r *http.Request, rsp *Rsp) (int, string) {
 	return 200, "ok"
 }
 
-//curl http://10.1.51.32:8080/portal/dataitem?tp=chosen
-//curl http://127.0.0.1:8088/portal/dataitem?tp=chosen
-//curl http://10.1.235.96:8080/portal/dataitem?tp=chosen\&chosen_name=2
+//curl http://127.0.0.1:8088/repositories/chosen?tp=chosen
 func getItemsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	tp := r.FormValue("tp")
 	var err error
@@ -146,7 +146,7 @@ func getItemsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	return rsp.Json(200, l)
 }
 
-//curl http://10.1.235.96:8080/repositories/NBA/bear/0001 -d "" -u panxy3@asiainfo.com:8ddcff3a80f4189ca1c9d4d902c3c909
+//curl http://127.0.0.1:8088/repositories/NBA/bear/0001 -d "" -u panxy3@asiainfo.com:8ddcff3a80f4189ca1c9d4d902c3c909
 func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	d, err := getDMid(r, rsp, param, db)
 	if d == nil {
@@ -172,10 +172,10 @@ func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int
 }
 
 //curl http://127.0.0.1:8080/subscriptions/NBA/bear
-//curl http://10.1.235.96:8080/subscriptions/NBA/bear
-//curl http://10.1.235.96:8080/inner/NBA/bear
-//curl http://10.1.235.96:8080/inner/NBA/bear/tags
-//curl http://10.1.235.96:8080/repositories/NBA/bear/tags -d "" -u panxy3@asiainfo.com:8ddcff3a80f4189ca1c9d4d902c3c909
+//curl http://127.0.0.1:8088/subscriptions/NBA/bear
+//curl http://127.0.0.1:8088/inner/NBA/bear
+//curl http://127.0.0.1:8088/inner/NBA/bear/tags
+//curl http://127.0.0.1:8088/repositories/NBA/bear/tags -d "" -u panxy3@asiainfo.com:8ddcff3a80f4189ca1c9d4d902c3c909
 func getDataitemHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	d, err := getDMid(r, rsp, param, db)
 	if d == nil {
