@@ -106,7 +106,7 @@ func getItemChoseHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	return rsp.Json(200, l)
 }
 
-//curl http://127.0.0.1:8088/portal/dataitem/chosen/names
+//curl http://54.223.244.55:8088/repositories/chosen/names
 func getChosenNamesHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	l, err := db.getDataitem_ChosenNames()
 	if err != nil {
@@ -170,7 +170,7 @@ func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int
 //curl http://127.0.0.1:8088/subscriptions/NBA/bear
 //curl http://127.0.0.1:8088/inner/NBA/bear
 //curl http://127.0.0.1:8088/inner/NBA/bear/tags
-//curl http://127.0.0.1:8088/repositories/NBA/bear/tags -d "" -u panxy3@asiainfo.com:8ddcff3a80f4189ca1c9d4d902c3c909
+//curl http://127.0.0.1:8088/repositories/位置信息大全/全国在网（新增）终端
 func getDataitemHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	d, err := getDMid(r, rsp, param, db)
 	if d == nil {
@@ -180,28 +180,25 @@ func getDataitemHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB)
 
 	res := Data{Item: d}
 
-	l := []Tag{}
-	if strings.HasPrefix(r.RequestURI, SUBSCRIPTION) {
-		m, err := db.getDataitemUsageByIds(d.Dataitem_id)
-		if err != nil {
-			return rsp.Json(400, err.Error())
-		}
-		l, err = db.getTags(d.Dataitem_id)
-		if err != nil {
-			return rsp.Json(400, err.Error())
-		}
-		d := m[d.Dataitem_id]
-		res.Usage = &d
-		res.Tags = l
-	}
+//	l := []Tag{}
 
-	if strings.HasPrefix(r.RequestURI, INNER) && strings.HasSuffix(r.RequestURI, "tags") {
-		l, err = db.getTags(d.Dataitem_id)
-		if err != nil {
-			return rsp.Json(400, err.Error())
-		}
-		res.Tags = l
-	}
+//	m, err := db.getDataitemUsageByIds(d.Dataitem_id)
+//	if err != nil {
+//		return rsp.Json(400, err.Error())
+//	}
+//	l, err = db.getTags(d.Dataitem_id)
+//	if err != nil {
+//		return rsp.Json(400, err.Error())
+//	}
+//	dd := m[d.Dataitem_id]
+//	res.Usage = &dd
+//	res.Tags = l
+
+	//		l, err = db.getTags(d.Dataitem_id)
+	//		if err != nil {
+	//			return rsp.Json(400, err.Error())
+	//		}
+	//		res.Tags = l
 
 	return rsp.Json(200, res)
 }

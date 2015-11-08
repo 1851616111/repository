@@ -5,32 +5,31 @@ import (
 )
 
 func (db *DB) getDataitems(columnName, columnValue string) ([]DataItem, error) {
-//	item := new(DataItem)
-//	rows, err := db.Where(fmt.Sprintf(" %s = ? ", columnName), columnValue).Rows(item)
-//	if err != nil {
-//		log.Printf("getDataitem err", err)
-//		return nil, err
-//	}
-//	defer rows.Close()
-//	res := []DataItem{}
-//	for rows.Next() {
-//		i := new(DataItem)
-//		if err := rows.Scan(i); err != nil {
-//			return nil, err
-//		}
-//		res = append(res, *i)
-//	}
-//	return res, nil
+	//	item := new(DataItem)
+	//	rows, err := db.Where(fmt.Sprintf(" %s = ? ", columnName), columnValue).Rows(item)
+	//	if err != nil {
+	//		log.Printf("getDataitem err", err)
+	//		return nil, err
+	//	}
+	//	defer rows.Close()
+	//	res := []DataItem{}
+	//	for rows.Next() {
+	//		i := new(DataItem)
+	//		if err := rows.Scan(i); err != nil {
+	//			return nil, err
+	//		}
+	//		res = append(res, *i)
+	//	}
+	//	return res, nil
 	l := []DataItem{}
 	var err error
-	if columnName == "" || columnValue == ""  {
+	if columnName == "" || columnValue == "" {
 		err = db.Find(&l)
 	} else {
 		err = db.Where(fmt.Sprintf(" %s = ? ", columnName), columnValue).Find(&l)
 	}
 
 	return l, err
-
 
 }
 func (db *DB) getDataitemByIds(dataitemIds ...interface{}) (map[int64]DataItem, error) {

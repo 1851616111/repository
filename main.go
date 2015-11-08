@@ -12,7 +12,6 @@ import (
 const (
 	SUBSCRIPTION = "/subscriptions"
 	INNER        = "/inner"
-	SYS          = "/sys"
 )
 
 var (
@@ -56,6 +55,7 @@ func main() {
 	m.Group("/repositories", func(r martini.Router) {
 		r.Get("", getRHandler)
 		r.Get("/chosen", getItemsHandler)
+		r.Get("/:repname/:itemname", getDataitemHandler)
 		r.Post("/:repname/:itemname", setDHandler)
 		r.Post("/:repname/:itemname/:tag", setTagHandler)
 		//		r.Post("/:repname/:itemname", auth, setDHandler)
@@ -76,9 +76,6 @@ func main() {
 		r.Get("/:repname/:itemname/tags", getDataitemHandler)
 	})
 
-	m.Group(SYS, func(r martini.Router) {
-		r.Get("/:repname/:itemname", getDataitemHandler)
-	})
 	http.Handle("/", m)
 
 	http.ListenAndServe(fmt.Sprintf(":%s", SERVICE_PORT), nil)
