@@ -120,28 +120,24 @@ func login(r *http.Request, rsp *Rsp) (int, string) {
 	return 200, "ok"
 }
 
-//curl http://127.0.0.1:8088/repositories/chosen?tp=chosen
+//curl http://127.0.0.1:8088/repositories/chosen
 func getItemsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
-	tp := r.FormValue("tp")
 	var err error
 	l := []Data{}
-	switch tp {
-	case PORTAL_REQUEST_TP_CHOSEN:
-		var l_s []Dataitem_Chosen
-		if chosen_name := strings.TrimSpace(r.FormValue("chosen_name")); chosen_name != "" {
-			l_s, err = db.getDataitem_Chosen(chosen_name)
-		} else {
-			l_s, err = db.getDataitem_Chosen()
-		}
-		get(err)
-
-		l_str := []interface{}{}
-		for _, v := range l_s {
-			l_str = append(l_str, v.Dataitem_id)
-		}
-		l = db.getDataitemsByIds(l_str)
-
+	var l_s []Dataitem_Chosen
+	if chosen_name := strings.TrimSpace(r.FormValue("chosen_name")); chosen_name != "" {
+		l_s, err = db.getDataitem_Chosen(chosen_name)
+	} else {
+		l_s, err = db.getDataitem_Chosen()
 	}
+	get(err)
+
+	l_str := []interface{}{}
+	for _, v := range l_s {
+		l_str = append(l_str, v.Dataitem_id)
+	}
+	l = db.getDataitemsByIds(l_str)
+
 	return rsp.Json(200, l)
 }
 
