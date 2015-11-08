@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 )
 
 func (db *DB) getDataitems(columnName, columnValue string) ([]DataItem, error) {

@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strings"
 	"time"
-	"github.com/lunny/log"
 )
 
 const (
