@@ -63,9 +63,6 @@ func main() {
 
 	m.Group("/repository", func(r martini.Router) {
 		r.Get("/:repname/items", getRepoByNameHandler)
-	})
-
-	m.Group("/portal/dataitem", func(r martini.Router) {
 		r.Get("", getItemsHandler)
 		r.Post("/chosen", setItemChoseHandler)
 		r.Get("/chosen", getItemChoseHandler)
