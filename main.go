@@ -4,39 +4,35 @@ import (
 	"fmt"
 	"github.com/go-martini/martini"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/go-xorm/xorm"
 	"github.com/quexer/utee"
+	"gopkg.in/mgo.v2"
 	"net/http"
 )
 
 const (
-	SUBSCRIPTION = "/subscriptions"
-	INNER        = "/inner"
+	INNER = "/inner"
 )
 
 var (
+	NAMESPACE    = "datahub"
+	DB_NAME      = "datahub"
 	SERVICE_PORT = utee.Env("goservice_port", false)
-	DB_ADDR      = utee.Env("MYSQL_PORT_3306_TCP_ADDR", false)
-	DB_PORT      = utee.Env("MYSQL_PORT_3306_TCP_PORT", false)
-	DB_DATABASE  = utee.Env("MYSQL_ENV_MYSQL_DATABASE", false)
-	DB_USER      = utee.Env("MYSQL_ENV_MYSQL_USER", false)
-	DB_PASSWORD  = utee.Env("MYSQL_ENV_MYSQL_PASSWORD", false)
-	DB_URL       = fmt.Sprintf(`%s:%s@tcp(%s:%s)/%s?charset=utf8`, DB_USER, DB_PASSWORD, DB_ADDR, DB_PORT, DB_DATABASE)
-	db           DB
-	dim          Dim
+
+	MONGO_ADDR = utee.Env("MONGO_PORT_27017_TCP_ADDR", false)
+	MONGO_PORT = utee.Env("MONGO_PORT_27017_TCP_PORT", false)
+
+	MONGO_URL = fmt.Sprintf(`%s:%s/datahub?maxPoolSize=50`, MONGO_ADDR, MONGO_PORT)
+	db        DB
+	m_db      *mgo.Session
 )
 
 func init() {
 
-	engine, err := xorm.NewEngine("mysql", DB_URL)
-	utee.Chk(err)
-	db = DB{*engine}
-	dim = Dim{mm: make(MM)}
+	m_db = connect(MONGO_URL)
+	db = DB{*m_db}
 }
 
 func main() {
-
-	go DimLoop(&db)
 
 	m := martini.Classic()
 	m.Handlers(martini.Recovery())
@@ -46,34 +42,29 @@ func main() {
 		c.Map(&db)
 	})
 
-	//	m.Group(SUBSCRIPTION, func(r martini.Router) {
-	//		r.Get("", auth, getSHandler)
-	//		r.Get("/login", auth, login)
-	//		r.Get("/:repname/:itemname", getDataitemHandler)
-	//		//		r.Post("/:repname/:itemname", setSHandler)
-	//	})
 	m.Group("/repositories", func(r martini.Router) {
-		r.Get("", getRHandler)
-		r.Get("/chosen", getItemsHandler)
-		r.Get("/:repname/:itemname", getDataitemHandler)
-		r.Post("/:repname/:itemname", setDHandler)
+		r.Get("", auth, getRsHandler)
+
+		r.Get("/:repname", getRHandler)
+		r.Get("/:repname/:itemname", getDHandler)
+
+		r.Post("/:repname", createRHandler)
+		r.Post("/:repname/:itemname", createDHandler)
 		r.Post("/:repname/:itemname/:tag", setTagHandler)
-		//		r.Post("/:repname/:itemname", auth, setDHandler)
-		//		r.Post("/:repname/:itemname/:tag", auth, setTagHandler)
 
-		r.Post("/chosen", setItemChoseHandler)
-		r.Get("/chosen/dataitem", getItemChoseHandler)
-		r.Get("/chosen/names", getChosenNamesHandler)
+		r.Put("/:repname", getRsHandler)
+		r.Delete("/:repname", getRsHandler)
 	})
 
-	m.Group("/repository", func(r martini.Router) {
-		r.Get("/:repname/items", getRepoByNameHandler)
-
+	m.Group("/select_labels", func(r martini.Router) {
+		r.Get("", getSelectLabelsHandler)
+		r.Post("/:labelname", setSelectLabelHandler)
 	})
 
-	m.Group(INNER, func(r martini.Router) {
-		r.Get("/:repname/:itemname", getDataitemHandler)
-		r.Get("/:repname/:itemname/tags", getDataitemHandler)
+	m.Group("/selects", func(r martini.Router) {
+		r.Get("/chosen", getItemsHandler)
+		r.Get("", getSelectsHandler)
+		r.Post("", setSelectLabelHandler)
 	})
 
 	http.Handle("/", m)

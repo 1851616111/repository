@@ -1,6 +1,10 @@
 package main
 
-import "github.com/go-xorm/xorm"
+import (
+	"github.com/quexer/utee"
+	"gopkg.in/mgo.v2"
+	"time"
+)
 
 const (
 	REPOSITORY        = "DH_REPOSITORY"
@@ -11,7 +15,22 @@ const (
 	DATAITEM_CHOSEN   = "DH_DATAITEM_CHOSEN"
 	DATAITEMUSAGE     = "DH_DATAITEMUSAGE"
 	TAG               = "DH_TAG"
+
+	M_REPOSITORY        = "repository"
+	M_DATAITEM          = "dataitem"
+	M_REPOSITORY_PERMIT = "PERMITUSER1"
+	M_DIM               = "DIMTABLE"
+	M_USER              = "USER"
+	M_SELECT            = "SELECT"
+	M_TAG               = "TAG"
 )
+
+type label struct {
+	Sys   struct{} `json:"sys"`
+	Opt   struct{} `json:"opt"`
+	Owner struct{} `json:"owner"`
+	Other struct{} `json:"other"`
+}
 
 type Repository struct {
 	Repository_name string `json:"repository_name,omitempty"`
@@ -27,6 +46,31 @@ type Repository struct {
 	Optime          string `json:"optime,omitempty"`
 }
 
+type repository struct {
+	Repository_name string    `json:"-"`
+	Create_user     string    `json:"create_user,omitempty"`
+	Repaccesstype   string    `json:"repaccesstype,omitempty"`
+	Deposit         bool      `json:"deposit"`
+	Comment         string    `json:"comment"`
+	Optime          time.Time `json:"optime,omitempty"`
+	Stars           int       `json:"stars"`
+	Views           int       `json:"views"`
+	Items           int       `json:"items"`
+	Label           *label    `json:"label,omitempty"`
+}
+
+type dataItem struct {
+	Repository_name string    `json:"-"`
+	Create_name     string    `json:"create_user,omitempty"`
+	Dataitem_name   string    `json:"-"`
+	Itemaccesstype  string    `json:"itemaccesstype,omitempty"`
+	Price           string    `json:"price,omitempty"`
+	Optime          time.Time `json:"optime,omitempty"`
+	Meta            string    `json:"meta"`
+	Sample          string    `json:"sample"`
+	Comment         string    `json:"comment"`
+	Label           *label    `json:"label,omitempty"`
+}
 type DataItem struct {
 	Repository_name string  `json:"repname,omitempty"`
 	Login_name      int     `json:"login_name,omitempty"`
@@ -87,9 +131,11 @@ type Dim_Table struct {
 	Name       string
 }
 
-type Dataitem_Chosen struct {
-	Chosen_name string `json:"chosen_name,omitempty"`
-	Dataitem_id int    `json:"dataitem_id,omitempty"`
+type Select struct {
+	LabelName       string `json:"labelname,omitempty" `
+	Index           int    `json:"index,omitempty"`
+	Dataitem_name   string `json:"dataitem_name,omitempty"`
+	Repository_name string `json:"repository_name,omitempty"`
 }
 
 func (p *Repository) TableName() string {
@@ -110,7 +156,7 @@ func (p *Dim_Table) TableName() string {
 func (p *User) TableName() string {
 	return USER
 }
-func (p *Dataitem_Chosen) TableName() string {
+func (p *Select) TableName() string {
 	return DATAITEM_CHOSEN
 }
 func (p *Tag) TableName() string {
@@ -124,7 +170,7 @@ type Data struct {
 }
 
 type DB struct {
-	xorm.Engine
+	mgo.Session
 }
 
 type Result struct {
@@ -139,4 +185,23 @@ type Subscription struct {
 	Amount          int     `json:"amount,omitempty"`
 	Price           float64 `json:"price,omitempty"`
 	Optime          string  `json:"optime,omitempty"`
+}
+
+func connect(db_connection string) *mgo.Session {
+	session, err := mgo.Dial(db_connection)
+	utee.Chk(err)
+	initDb(session)
+	return session
+}
+
+//初始化索引
+func initDb(session *mgo.Session) {
+	db := session.DB(NAMESPACE)
+	err := db.C(M_REPOSITORY).EnsureIndex(mgo.Index{Key: []string{"repository_name"}, Unique: true})
+	utee.Chk(err)
+	err = db.C(M_DATAITEM).EnsureIndex(mgo.Index{Key: []string{"repository_name", "dataitem_name"}, Unique: true})
+	utee.Chk(err)
+	err = db.C(M_SELECT).EnsureIndex(mgo.Index{Key: []string{"repository_name", "dataitem_name"}, Unique: true})
+	utee.Chk(err)
+
 }

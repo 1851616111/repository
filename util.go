@@ -123,28 +123,7 @@ func Env(name string, required bool) string {
 	return s
 }
 
-func (p *DataItem) ParseRequeset(r *http.Request) {
-	t := reflect.TypeOf(*p)
-	v := reflect.ValueOf(p).Elem()
-	for i := 0; i < t.NumField(); i++ {
-		f := t.Field(i)
-		if name := r.PostFormValue(strings.ToLower(f.Name)); name != "" {
-			switch f.Type.Name() {
-			case "int":
-				i, _ := strconv.Atoi(name)
-				v.FieldByName(f.Name).SetInt(int64(i))
-			case "string":
-				v.FieldByName(f.Name).SetString(name)
-			case "float32":
-			case "float64":
-				ff, _ := strconv.ParseFloat(name, 10)
-				v.FieldByName(f.Name).SetFloat(ff)
-			}
-		}
-	}
-}
-
-func (p *Dataitem_Chosen) ParseRequeset(r *http.Request) error {
+func (p *Select) ParseRequeset(r *http.Request) error {
 	t := reflect.TypeOf(*p)
 	v := reflect.ValueOf(p).Elem()
 	for i := 0; i < t.NumField(); i++ {
@@ -190,14 +169,6 @@ func (p *Tag) ParseRequeset(r *http.Request) error {
 		}
 	}
 	return nil
-}
-
-func (p *DataItem) BuildRequeset(repName, itemName, user_id string) {
-	p.Repository_name = repName
-	p.Dataitem_name = itemName
-	i, _ := strconv.Atoi(user_id)
-	p.Login_name = i
-	p.Optime = time.Now().Format("2006-01-02 15:04:05")
 }
 
 func md5Passed(passwd string) string {
