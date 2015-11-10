@@ -2,10 +2,11 @@ package main
 
 import (
 	"errors"
-	"github.com/asiainfoLDP/datahub_repository/Godeps/_workspace/src/gopkg.in/mgo.v2/bson"
 	"github.com/go-martini/martini"
+	"github.com/gopkg.in/mgo.v2/bson"
 	"github.com/lunny/log"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -120,49 +121,53 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (in
 	return rsp.Json(200, "ok")
 }
 
-//curl http://127.0.0.1:8088/select_labels/CHINA -d "dataitem_name=NBA&repository_name=bear&labelname=basketball"
-func setSelectLabelHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
+//curl http://127.0.0.1:8088/select_labels/CHINA -d "order=100"
+func setSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	labelname := ""
-	if labelname = strings.TrimSpace(r.FormValue("labelname")); labelname == "" {
+	if labelname = strings.TrimSpace(param["labelname"]); labelname == "" {
 		return rsp.Json(400, "no param label")
 	}
-	d := new(Select)
-	if err := d.ParseRequeset(r); err != nil {
-		return rsp.Json(400, err.Error())
-	}
-	d.LabelName = labelname
+	s := Select{LabelName: labelname}
 
-	if err := m_db.DB(DB_NAME).C("select").Insert(d); err != nil {
+	if order := strings.TrimSpace(r.FormValue("order")); order != "" {
+		o, err := strconv.Atoi(order)
+		if err != nil {
+			return rsp.Json(400, "insert select order err :"+err.Error())
+		}
+		s.Order = o
+	}
+	if err := db.DB(DB_NAME).C(M_SELECT).Insert(s); err != nil {
 		return rsp.Json(400, err.Error())
 	}
 	return rsp.Json(200, "ok")
 }
 
-//curl http://127.0.0.1:8088/selects?select_labels=NBA
-func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
-	//	var l []Select
-	//	var err error
-	//
-	//	if select_labels := strings.TrimSpace(r.FormValue("select_labels")); select_labels != "" {
-	//		l, err = db.getSelects(select_labels)
-	//	} else {
-	//		l, err = db.getSelects()
-	//	}
-	//
-	//	if err != nil {
-	//		return rsp.Json(400, err.Error())
-	//	}
+////curl http://127.0.0.1:8088/selects?select_labels=NBA
+//func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
+//		var l []Select
+//		var err error
+//		Q := bson.M{}
+//		if select_labels := strings.TrimSpace(r.FormValue("select_labels")); select_labels != "" {
+//			Q["select_labels"] = select_labels
+//		}
+//		if err := db.DB(DB_NAME).C(M_SELECT).Insert(s); err != nil {
+//			return rsp.Json(400, err.Error())
+//		}
+//		if err != nil {
+//			return rsp.Json(400, err.Error())
+//		}
+//
+//	return rsp.Json(200, OK)
+//}
 
-	return rsp.Json(200, OK)
-}
-
-//curl http://54.223.244.55:8088/select_labels
+//curl http://127.0.0.1:8088/select_labels
 func getSelectLabelsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
-	//	l, err := db.getSelectLabels()
-	//	if err != nil {
-	//		return rsp.Json(400, err)
-	//	}
-	return rsp.Json(200, OK)
+	l := []Select{}
+	err := db.DB(DB_NAME).C(M_SELECT).Find(nil).Sort("-order").All(&l)
+	if err != nil {
+		return rsp.Json(400, "get select labels err : "+err.Error())
+	}
+	return rsp.Json(200, l)
 }
 
 //curl http://10.1.51.32:8080/subscriptions/login -u panxy3@asiainfo.com:8ddcff3a80f4189ca1c9d4d902c3c909
@@ -221,16 +226,15 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 
 	d, err := getDMid(r, rsp, param, db)
 	if err != nil {
-		return rsp.Json(400, "get dataitem err" + err.Error())
+		return rsp.Json(400, "get dataitem err"+err.Error())
 	}
 
+	//	l, err := db.getTags(d.Dataitem_id)
+	//	if err != nil {
+	//		return rsp.Json(400, err.Error())
+	//	}
 
-//	l, err := db.getTags(d.Dataitem_id)
-//	if err != nil {
-//		return rsp.Json(400, err.Error())
-//	}
-
-//	res := Data{Item: d, Tags: l}
+	//	res := Data{Item: d, Tags: l}
 	return rsp.Json(200, d)
 }
 func getDMid(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (dataItem, error) {
@@ -249,4 +253,56 @@ func getDMid(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (dataItem,
 		return *d, err
 	}
 	return *d, nil
+}
+
+//curl http://127.0.0.1:8088/selects -d "repname=NBA&itemname=bear&select_labels=h"
+func updateLabelHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
+
+	var m bson.M
+	repname := strings.TrimSpace(r.FormValue("repname"))
+	itemname := strings.TrimSpace(r.FormValue("itemname"))
+	select_labels := strings.TrimSpace(r.FormValue("select_labels"))
+	if repname == "" {
+		return rsp.Json(400, "no param repname")
+	}
+	if itemname == "" {
+		return rsp.Json(400, "no param itemname")
+	}
+	if select_labels == "" {
+		return rsp.Json(400, "no param select_labels")
+	}
+	order := 1
+	if o := strings.TrimSpace(r.FormValue("order")); o != "" {
+		order, _ = strconv.Atoi(o)
+	}
+
+	mm := bson.M{"select_labels": select_labels, "order": order}
+	m = bson.M{"$set": bson.M{"label.sys": mm}}
+
+	// check if dataitem exists
+
+	Q := bson.M{"repository_name": repname, "dataitem_name": itemname}
+	if _, err := db.DB(DB_NAME).C(M_DATAITEM).Upsert(Q, m); err != nil {
+		return rsp.Json(200, err.Error())
+	}
+	return rsp.Json(200, OK)
+}
+
+//curl http://127.0.0.1:8088/selects?select_labels=h
+func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
+
+	var m bson.M
+
+	if select_labels := strings.TrimSpace(r.FormValue("select_labels")); select_labels != "" {
+		m = bson.M{"label.sys.select_labels": select_labels}
+	} else {
+		m = bson.M{"label.sys.select_labels": bson.M{"$exists": true}}
+	}
+
+	l := []names{}
+	if err := db.DB(DB_NAME).C(M_DATAITEM).Find(m).Sort("-label.sys.order").All(&l); err != nil {
+		return rsp.Json(200, err.Error())
+	}
+
+	return rsp.Json(200, l)
 }

@@ -21,7 +21,7 @@ const (
 	M_REPOSITORY_PERMIT = "PERMITUSER1"
 	M_DIM               = "DIMTABLE"
 	M_USER              = "USER"
-	M_SELECT            = "SELECT"
+	M_SELECT            = "select"
 	M_TAG               = "TAG"
 )
 
@@ -58,7 +58,10 @@ type repository struct {
 	Items           int       `json:"items"`
 	Label           *label    `json:"label,omitempty"`
 }
-
+type names struct {
+	Repository_name string `json:"repname"`
+	Dataitem_name   string `json:"itemname"`
+}
 type dataItem struct {
 	Repository_name string    `json:"-"`
 	Create_name     string    `json:"create_user,omitempty"`
@@ -69,7 +72,7 @@ type dataItem struct {
 	Meta            string    `json:"meta"`
 	Sample          string    `json:"sample"`
 	Comment         string    `json:"comment"`
-	Label           *label    `json:"label,omitempty"`
+	Label           label     `json:"label"`
 }
 type DataItem struct {
 	Repository_name string  `json:"repname,omitempty"`
@@ -132,35 +135,8 @@ type Dim_Table struct {
 }
 
 type Select struct {
-	LabelName       string `json:"labelname,omitempty" `
-	Index           int    `json:"index,omitempty"`
-	Dataitem_name   string `json:"dataitem_name,omitempty"`
-	Repository_name string `json:"repository_name,omitempty"`
-}
-
-func (p *Repository) TableName() string {
-	return REPOSITORY
-}
-func (p *DataItem) TableName() string {
-	return DATAITEM
-}
-func (p *DataItemUsage) TableName() string {
-	return DATAITEMUSAGE
-}
-func (p *Repository_Permit) TableName() string {
-	return REPOSITORY_PERMIT
-}
-func (p *Dim_Table) TableName() string {
-	return DIM
-}
-func (p *User) TableName() string {
-	return USER
-}
-func (p *Select) TableName() string {
-	return DATAITEM_CHOSEN
-}
-func (p *Tag) TableName() string {
-	return TAG
+	LabelName string `json:"labelname,omitempty" `
+	Order     int    `json:"-"`
 }
 
 type Data struct {
@@ -201,7 +177,7 @@ func initDb(session *mgo.Session) {
 	utee.Chk(err)
 	err = db.C(M_DATAITEM).EnsureIndex(mgo.Index{Key: []string{"repository_name", "dataitem_name"}, Unique: true})
 	utee.Chk(err)
-	err = db.C(M_SELECT).EnsureIndex(mgo.Index{Key: []string{"repository_name", "dataitem_name"}, Unique: true})
+	err = db.C(M_SELECT).EnsureIndex(mgo.Index{Key: []string{"labelname"}, Unique: true})
 	utee.Chk(err)
 
 }

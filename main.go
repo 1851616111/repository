@@ -56,15 +56,14 @@ func main() {
 		r.Delete("/:repname", getRsHandler)
 	})
 
+	m.Group("/selects", func(r martini.Router) {
+		r.Get("", getSelectsHandler)
+		r.Post("", updateLabelHandler)
+	})
+
 	m.Group("/select_labels", func(r martini.Router) {
 		r.Get("", getSelectLabelsHandler)
 		r.Post("/:labelname", setSelectLabelHandler)
-	})
-
-	m.Group("/selects", func(r martini.Router) {
-		r.Get("/chosen", getItemsHandler)
-		r.Get("", getSelectsHandler)
-		r.Post("", setSelectLabelHandler)
 	})
 
 	http.Handle("/", m)
