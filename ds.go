@@ -7,11 +7,11 @@ import (
 )
 
 const (
-	M_REPOSITORY        = "repository"
-	M_DATAITEM          = "dataitem"
-	M_REPOSITORY_PERMIT = "permituser1"
-	M_SELECT            = "select"
-	M_TAG               = "tag"
+	C_REPOSITORY        = "repository"
+	C_DATAITEM          = "dataitem"
+	C_REPOSITORY_PERMIT = "permituser1"
+	C_SELECT            = "select"
+	C_TAG               = "tag"
 )
 
 type label struct {
@@ -62,8 +62,8 @@ type Tag struct {
 }
 
 type Repository_Permit struct {
-	Repository_name string
-	User_id         int
+	User_name       string `json:"-"`
+	Repository_name string `json:"repository_name"`
 }
 
 type Dim_Table struct {
@@ -91,11 +91,13 @@ func connect(db_connection string) *mgo.Session {
 //初始化索引
 func initDb(session *mgo.Session) {
 	db := session.DB(DB_NAMESPACE_MONGO)
-	err := db.C(M_REPOSITORY).EnsureIndex(mgo.Index{Key: []string{"repository_name"}, Unique: true})
+	err := db.C(C_REPOSITORY).EnsureIndex(mgo.Index{Key: []string{COL_REP_NAME}, Unique: true})
 	utee.Chk(err)
-	err = db.C(M_DATAITEM).EnsureIndex(mgo.Index{Key: []string{"repository_name", "dataitem_name"}, Unique: true})
+	err = db.C(C_DATAITEM).EnsureIndex(mgo.Index{Key: []string{COL_REP_NAME, COL_ITEM_NAME}, Unique: true})
 	utee.Chk(err)
-	err = db.C(M_SELECT).EnsureIndex(mgo.Index{Key: []string{"labelname"}, Unique: true})
+	err = db.C(C_SELECT).EnsureIndex(mgo.Index{Key: []string{COL_SELECT_LABEL}, Unique: true})
+	utee.Chk(err)
+	err = db.C(C_REPOSITORY_PERMIT).EnsureIndex(mgo.Index{Key: []string{COL_REP_NAME, COL_PERMIT_USER}, Unique: true})
 	utee.Chk(err)
 
 }

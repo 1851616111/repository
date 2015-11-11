@@ -52,6 +52,7 @@ func init() {
 	initError(ErrorCodePermissionDenied, "permission denied")
 	initError(ErrorCodeInvalidParameters, "invalid parameters")
 	initError(ErrorCodeNoParameter, "no parameter")
+	initError(ErrorCodeDataBase, "database operate")
 	initError(ErrorCodeGetDataItem, "failed to get data item")
 
 	ErrorNone = E(OK)
@@ -96,20 +97,24 @@ func newUnknownError(message string) *Error {
 func ErrInvalidParameter(paramName string) *Error {
 	return &Error{
 		code:    ErrorCodeInvalidParameters,
-		message: fmt.Sprint("%s: %s", E(ErrorCodeInvalidParameters).message, paramName),
+		message: fmt.Sprintf("%s: %s", E(ErrorCodeInvalidParameters).message, paramName),
 	}
 }
 
 func ErrNoParameter(paramName string) *Error {
 	return &Error{
 		code:    ErrorCodeNoParameter,
-		message: fmt.Sprint("%s : %s", E(ErrorCodeNoParameter).message, paramName),
+		message: fmt.Sprintf("%s : %s", E(ErrorCodeNoParameter).message, paramName),
 	}
 }
 
 func ErrDataBase(e error) *Error {
-	return &Error{
-		code:    ErrorCodeInvalidParameters,
-		message: fmt.Sprint("%s: %s", E(ErrorCodeInvalidParameters).message, e.Error()),
+	if e == nil {
+		return E(OK)
+	} else {
+		return &Error{
+			code:    ErrorCodeDataBase,
+			message: fmt.Sprintf("%s error: %s", E(ErrorCodeDataBase).message, e.Error()),
+		}
 	}
 }

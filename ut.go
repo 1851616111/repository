@@ -103,7 +103,10 @@ func (p *Rsp) Json(code int, e *Error, data ...interface{}) (int, string) {
 	p.w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept,X-Requested-With")
 	p.w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	result := Result{Code: e.code, Msg: e.message, Data: data}
+	result := Result{Code: e.code, Msg: e.message}
+	if len(data) > 0 {
+		result.Data = data[0]
+	}
 	b, err := json.Marshal(result)
 	chk(err)
 	return code, string(b)
@@ -189,7 +192,7 @@ func (p *repository) ParseRequeset(r *http.Request) error {
 
 func (p *repository) BuildRequest() {
 	if p.Repaccesstype == "" {
-		p.Repaccesstype = "public"
+		p.Repaccesstype = ACCESS_PUBLIC
 	}
 
 	p.Optime = time.Now()

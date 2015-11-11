@@ -9,7 +9,7 @@ import (
 
 var (
 	DB_NAMESPACE_MONGO = "datahub"
-	DB_NAME_MONGO      = "datahub"
+	DB_NAME            = "datahub"
 	SERVICE_PORT       = utee.Env("goservice_port", false)
 
 	DB_ADDR_MONGO = utee.Env("DB_MONGO_URL", false)
@@ -58,6 +58,10 @@ func main() {
 		r.Post("/:labelname", setSelectLabelHandler)
 	})
 
+	m.Group("/permit", func(r martini.Router) {
+		r.Get("/:user_name", getUsrPmtRepsHandler)
+		r.Post("/:user_name", setUsrPmtRepsHandler)
+	}, auth)
 	http.Handle("/", m)
 
 	http.ListenAndServe(fmt.Sprintf(":%s", SERVICE_PORT), nil)
