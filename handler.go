@@ -247,14 +247,13 @@ func updateLabelHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 
 	Q := bson.M{"repository_name": repname, "dataitem_name": itemname}
 	if _, err := db.DB(DB_NAME).C(C_DATAITEM).Upsert(Q, m); err != nil {
-		return rsp.Json(200, ErrDataBase(err))
+		return rsp.Json(400, ErrDataBase(err))
 	}
 	return rsp.Json(200, E(OK))
 }
 
-//curl http://10.1.235.98:8080/selects?select_labels=h
+//curl http://10.1.235.98:8080/selects?select_labels=终端信息
 func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
-
 	var m bson.M
 
 	if select_labels := strings.TrimSpace(r.FormValue("select_labels")); select_labels != "" {
@@ -264,8 +263,8 @@ func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	}
 
 	l := []names{}
-	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(m).Sort("-label.sys.order").All(&l); err != nil {
-		return rsp.Json(200, ErrDataBase(err))
+	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(m).Sort("-label.sys.order").Limit(PAGE_SIZE).All(&l); err != nil {
+		return rsp.Json(400, ErrDataBase(err))
 	}
 
 	return rsp.Json(200, E(OK), l)
