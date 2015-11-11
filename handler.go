@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/go-martini/martini"
-	"github.com/lunny/log"
 	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
 	"net/http"
