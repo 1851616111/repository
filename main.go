@@ -3,33 +3,25 @@ package main
 import (
 	"fmt"
 	"github.com/go-martini/martini"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/quexer/utee"
-	"gopkg.in/mgo.v2"
 	"net/http"
 )
 
-const (
-	INNER = "/inner"
-)
-
 var (
-	NAMESPACE    = "datahub"
-	DB_NAME      = "datahub"
-	SERVICE_PORT = utee.Env("goservice_port", false)
+	DB_NAMESPACE_MONGO = "datahub"
+	DB_NAME_MONGO      = "datahub"
+	SERVICE_PORT       = utee.Env("goservice_port", false)
 
-	MONGO_ADDR = utee.Env("DB_MONGO_URL", false)
-	MONGO_PORT = utee.Env("DB_MONGO_PORT", false)
+	DB_ADDR_MONGO = utee.Env("DB_MONGO_URL", false)
+	DB_PORT_MONGO = utee.Env("DB_MONGO_PORT", false)
 
-	MONGO_URL = fmt.Sprintf(`%s:%s/datahub?maxPoolSize=50`, MONGO_ADDR, MONGO_PORT)
-	db        DB
-	m_db      *mgo.Session
+	DB_URL_MONGO = fmt.Sprintf(`%s:%s/datahub?maxPoolSize=50`, DB_ADDR_MONGO, DB_PORT_MONGO)
+	db           DB
 )
 
 func init() {
-
-	m_db = connect(MONGO_URL)
-	db = DB{*m_db}
+	se := connect(DB_URL_MONGO)
+	db = DB{*se}
 }
 
 func main() {
