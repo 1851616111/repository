@@ -57,24 +57,24 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params) (int, string) 
 //curl http://127.0.0.1:8080/repositories
 //curl http://10.1.235.98:8080/repositories
 //curl http://10.1.235.98:8080/repositories?page=2&size=3
-func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
-	//	page_index, page_size := PAGE_INDEX, PAGE_SIZE
-	//	if p := strings.TrimSpace(r.FormValue("page")); p != "" {
-	//		if page_index, _ = strconv.Atoi(p); page_index <= 0 {
-	//			return rsp.Json(400, ErrInvalidParameter("page"))
-	//		}
-	//
-	//	}
-	//	if p := strings.TrimSpace(r.FormValue("size")); p != "" {
-	//		if page_size, _ = strconv.Atoi(p); page_size <= 0 {
-	//			return rsp.Json(400, ErrInvalidParameter("size"))
-	//		}
-	//	}
-	//	var Q bson.M
-	//	if p := strings.TrimSpace(r.FormValue("username")); p != "" {
-	//		Q = bson.M{C_REPOSITORY_PERMIT:}
-	//	}
-
+func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, userName string) (int, string) {
+//		page_index, page_size := PAGE_INDEX, PAGE_SIZE
+//		if p := strings.TrimSpace(r.FormValue("page")); p != "" {
+//			if page_index, _ = strconv.Atoi(p); page_index <= 0 {
+//				return rsp.Json(400, ErrInvalidParameter("page"))
+//			}
+//
+//		}
+//		if p := strings.TrimSpace(r.FormValue("size")); p != "" {
+//			if page_size, _ = strconv.Atoi(p); page_size <= 0 {
+//				return rsp.Json(400, ErrInvalidParameter("size"))
+//			}
+//		}
+////		var Q bson.M
+//		if p := strings.TrimSpace(r.FormValue("username")); p != "" {
+//			Q = bson.M{C_REPOSITORY_PERMIT: ACCESS_PRIVATE,}
+//		}
+//
 	l := []dataItem{}
 	//	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(nil).Sort("ct").Skip((PAGE_INDEX - 1) * PAGE_SIZE).Limit(PAGE_SIZE).All(&l); err != nil {
 	//		rsp.Json(400, ErrDataBase(err))
@@ -111,7 +111,7 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (in
 	return rsp.Json(200, E(OK))
 }
 
-//curl http://10.1.235.98:8080/select_labels/CHINA -d "order=100"
+//curl http://10.1.235.98:8080/select_labels/CHINA -d "order=100" -u admin:admin
 func setSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	labelname := ""
 	if labelname = strings.TrimSpace(param["labelname"]); labelname == "" {
@@ -295,7 +295,7 @@ func setUsrPmtRepsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *D
 		return rsp.Json(400, ErrNoParameter("repname"))
 	}
 	Q := bson.M{COL_REP_NAME: repname, COL_REP_ACC: ACCESS_PRIVATE}
-	log.Println("-------->", Q)
+
 	if _, err := db.getRepository(Q); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}

@@ -35,33 +35,34 @@ func main() {
 	})
 
 	m.Group("/repositories", func(r martini.Router) {
-		r.Get("", getRsHandler)
+		r.Get("", auth, getRsHandler)
 
 		r.Get("/:repname", getRHandler)
 		r.Get("/:repname/:itemname", getDHandler)
 
-		r.Post("/:repname", createRHandler)
-		r.Post("/:repname/:itemname", createDHandler)
-		r.Post("/:repname/:itemname/:tag", setTagHandler)
+		r.Post("/:repname",auth, createRHandler)
+		r.Post("/:repname/:itemname",auth , createDHandler)
+		r.Post("/:repname/:itemname/:tag",auth , setTagHandler)
 
-		r.Put("/:repname", getRsHandler)
-		r.Delete("/:repname", getRsHandler)
+		r.Put("/:repname", auth, getRsHandler)
+		r.Delete("/:repname",auth, getRsHandler)
 	})
 
 	m.Group("/selects", func(r martini.Router) {
 		r.Get("", getSelectsHandler)
-		r.Post("", updateLabelHandler)
+		r.Post("", authAdmin, updateLabelHandler)
 	})
 
 	m.Group("/select_labels", func(r martini.Router) {
 		r.Get("", getSelectLabelsHandler)
-		r.Post("/:labelname", setSelectLabelHandler)
+		r.Post("/:labelname", authAdmin, setSelectLabelHandler)
 	})
 
 	m.Group("/permit", func(r martini.Router) {
 		r.Get("/:user_name", getUsrPmtRepsHandler)
 		r.Post("/:user_name", setUsrPmtRepsHandler)
 	}, auth)
+
 	http.Handle("/", m)
 
 	http.ListenAndServe(fmt.Sprintf(":%s", SERVICE_PORT), nil)
