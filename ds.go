@@ -22,18 +22,18 @@ type label struct {
 }
 
 type repository struct {
-	Repository_name string    `json:"-"`
-	Create_user     string    `json:"create_user,omitempty"`
-	Repaccesstype   string    `json:"repaccesstype,omitempty"`
-	Deposit         bool      `json:"deposit"`
-	Comment         string    `json:"comment"`
-	Optime          time.Time `json:"optime,omitempty"`
-	Stars           int       `json:"stars"`
-	Views           int       `json:"views"`
-	Items           int       `json:"items"`
-	Label           *label    `json:"label,omitempty"`
-	Ct              time.Time `json:"-"`
-	St              time.Time `json:"-"`
+	Repository_name string `json:"-"`
+	Create_user     string `json:"create_user,omitempty"`
+	Repaccesstype   string `json:"repaccesstype,omitempty"`
+	//	Deposit         bool      `json:"deposit"`
+	Comment string    `json:"comment"`
+	Optime  time.Time `json:"optime,omitempty"`
+	Stars   int       `json:"stars"`
+	Views   int       `json:"views"`
+	Items   int       `json:"items"`
+	Label   *label    `json:"label,omitempty"`
+	Ct      time.Time `json:"-"`
+	St      time.Time `json:"-"`
 }
 type names struct {
 	Repository_name string `json:"repname"`

@@ -58,23 +58,23 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params) (int, string) 
 //curl http://10.1.235.98:8080/repositories
 //curl http://10.1.235.98:8080/repositories?page=2&size=3
 func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, userName string) (int, string) {
-//		page_index, page_size := PAGE_INDEX, PAGE_SIZE
-//		if p := strings.TrimSpace(r.FormValue("page")); p != "" {
-//			if page_index, _ = strconv.Atoi(p); page_index <= 0 {
-//				return rsp.Json(400, ErrInvalidParameter("page"))
-//			}
-//
-//		}
-//		if p := strings.TrimSpace(r.FormValue("size")); p != "" {
-//			if page_size, _ = strconv.Atoi(p); page_size <= 0 {
-//				return rsp.Json(400, ErrInvalidParameter("size"))
-//			}
-//		}
-////		var Q bson.M
-//		if p := strings.TrimSpace(r.FormValue("username")); p != "" {
-//			Q = bson.M{C_REPOSITORY_PERMIT: ACCESS_PRIVATE,}
-//		}
-//
+	//		page_index, page_size := PAGE_INDEX, PAGE_SIZE
+	//		if p := strings.TrimSpace(r.FormValue("page")); p != "" {
+	//			if page_index, _ = strconv.Atoi(p); page_index <= 0 {
+	//				return rsp.Json(400, ErrInvalidParameter("page"))
+	//			}
+	//
+	//		}
+	//		if p := strings.TrimSpace(r.FormValue("size")); p != "" {
+	//			if page_size, _ = strconv.Atoi(p); page_size <= 0 {
+	//				return rsp.Json(400, ErrInvalidParameter("size"))
+	//			}
+	//		}
+	////		var Q bson.M
+	//		if p := strings.TrimSpace(r.FormValue("username")); p != "" {
+	//			Q = bson.M{C_REPOSITORY_PERMIT: ACCESS_PRIVATE,}
+	//		}
+	//
 	l := []dataItem{}
 	//	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(nil).Sort("ct").Skip((PAGE_INDEX - 1) * PAGE_SIZE).Limit(PAGE_SIZE).All(&l); err != nil {
 	//		rsp.Json(400, ErrDataBase(err))
@@ -187,6 +187,19 @@ func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int
 
 //curl http://10.1.235.98:8080/repositories/位置信息大全/全国在网（新增）终端
 func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
+
+	//	repname := strings.TrimSpace(param["repname"])
+	//	if repname == "" {
+	//		return rsp.Json(400, ErrNoParameter("repname"))
+	//	}
+	//	Q := bson.M{"repository_name": repname}
+	//	rep, err := db.getRepository(Q)
+	//
+	//	if err ==  mgo.ErrNotFound
+	//	{
+	//
+	//	}
+	//	return rsp.Json(200, ErrDataBase(err), rep)
 	//
 	//	d, err := getDMid(r, rsp, param, db)
 	//	if err != nil {

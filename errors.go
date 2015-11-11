@@ -17,8 +17,8 @@ var (
 )
 
 const (
-	OK = iota + 1000
-	ErrorCodeUnkown
+	OK              = iota
+	ErrorCodeUnkown = iota + 1000
 	ErrorCodeJsonBuilding
 
 	ErrorCodeUrlNotSupported
