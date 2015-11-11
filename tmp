@@ -1,4 +1,4 @@
-engine.Sync(new(Repository))
+ngine.Sync(new(Repository))
 
 	_, err := engine.Insert(&Repository{Repository_name:"123"})
 	utee.Chk(err)

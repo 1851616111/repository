@@ -18,8 +18,8 @@ var (
 	DB_NAME      = "datahub"
 	SERVICE_PORT = utee.Env("goservice_port", false)
 
-	MONGO_ADDR = utee.Env("MONGO_PORT_27017_TCP_ADDR", false)
-	MONGO_PORT = utee.Env("MONGO_PORT_27017_TCP_PORT", false)
+	MONGO_ADDR = utee.Env("DB_MONGO_URL", false)
+	MONGO_PORT = utee.Env("DB_MONGO_PORT", false)
 
 	MONGO_URL = fmt.Sprintf(`%s:%s/datahub?maxPoolSize=50`, MONGO_ADDR, MONGO_PORT)
 	db        DB

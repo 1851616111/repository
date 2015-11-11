@@ -57,6 +57,8 @@ type repository struct {
 	Views           int       `json:"views"`
 	Items           int       `json:"items"`
 	Label           *label    `json:"label,omitempty"`
+	Ct       		time.Time `json:"-"`
+	St              time.Time `json:"-"`
 }
 type names struct {
 	Repository_name string `json:"repname"`
@@ -73,6 +75,8 @@ type dataItem struct {
 	Sample          string    `json:"sample"`
 	Comment         string    `json:"comment"`
 	Label           label     `json:"label"`
+	Ct       		time.Time `json:"-"`
+	St              time.Time `json:"-"`
 }
 type DataItem struct {
 	Repository_name string  `json:"repname,omitempty"`

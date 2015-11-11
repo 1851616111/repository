@@ -75,4 +75,5 @@ func (p *dataItem) BuildRequeset(repName, itemName, createName string) {
 	if p.Itemaccesstype == "" {
 		p.Itemaccesstype = "public"
 	}
+	p.Ct = time.Now()
 }
