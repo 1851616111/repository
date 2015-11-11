@@ -31,12 +31,12 @@ const (
 	ErrorCodeGetSubscription
 	ErrorCodeCancelSubscription
 	ErrorCodeQuerySubscription
-	ErrorCodeSubscriptionNotFound
 	ErrorCodeCreateTransaction
 	ErrorCodeGetTransaction
 	ErrorCodeQueryTransaction
 	ErrorCodeNoParameter
 	ErrorCodeDataBase
+	ErrorCodeResultNotFound
 
 	NumErrors
 )
@@ -54,6 +54,7 @@ func init() {
 	initError(ErrorCodeNoParameter, "no parameter")
 	initError(ErrorCodeDataBase, "database operate")
 	initError(ErrorCodeGetDataItem, "failed to get data item")
+	initError(ErrorCodeResultNotFound, "")
 
 	ErrorNone = E(OK)
 	ErrorUnkown = E(ErrorCodeUnkown)
@@ -101,6 +102,13 @@ func ErrInvalidParameter(paramName string) *Error {
 	}
 }
 
+func ErrParseJson(e error) *Error {
+	return &Error{
+		code:    ErrorCodeJsonBuilding,
+		message: fmt.Sprintf("%s: %s", E(ErrorCodeJsonBuilding).message, e.Error()),
+	}
+}
+
 func ErrNoParameter(paramName string) *Error {
 	return &Error{
 		code:    ErrorCodeNoParameter,
@@ -114,7 +122,7 @@ func ErrDataBase(e error) *Error {
 	} else {
 		return &Error{
 			code:    ErrorCodeDataBase,
-			message: fmt.Sprintf("%s error: %s", E(ErrorCodeDataBase).message, e.Error()),
+			message: fmt.Sprintf("%s : %s", E(ErrorCodeDataBase).message, e.Error()),
 		}
 	}
 }

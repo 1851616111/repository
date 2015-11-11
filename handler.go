@@ -1,10 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"github.com/go-martini/martini"
 	"github.com/lunny/log"
 	"gopkg.in/mgo.v2/bson"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -23,19 +25,29 @@ const (
 	PAGE_SIZE        = 3
 )
 
-//curl http://10.1.235.98:8080/repositories/rep123 -d ""
-//func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name string) (int, string) {
-func createRHandler(r *http.Request, rsp *Rsp, param martini.Params) (int, string) {
+//curl http://127.0.0.1:8080/repositories/rep12asda232312sd -d "{\"repaccesstype\": \"public\",\"comment\": \"中国移动北京终端详情\",
+//\"label\":{\"sys\":{\"name\":\"中国移动\"},\"opt\":{\"name\":\"中国移动\"},\"owner\":{\"name\":\"中国移动\"},\"other\":{\"name\":\"中国移动\"}}}" -u admin:admin
+func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name string) (int, string) {
 	repname := strings.TrimSpace(param["repname"])
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
 	}
+
+	body, _ := ioutil.ReadAll(r.Body)
+
 	rep := new(repository)
-	rep.ParseRequeset(r)
-	rep.BuildRequest()
-	rep.Create_user = "panxy3@asiainfo.com"
+	if err := json.Unmarshal(body, &rep); err != nil {
+		return rsp.Json(400, ErrParseJson(err))
+	}
+
+	now := time.Now()
+	if rep.Repaccesstype == "" {
+		rep.Repaccesstype = ACCESS_PUBLIC
+	}
+	rep.Optime = now
+	rep.Ct = now
+	rep.Create_user = login_name
 	rep.Repository_name = repname
-	rep.Ct = time.Now()
 
 	if err := db.DB(DB_NAME).C(C_REPOSITORY).Insert(rep); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
@@ -83,8 +95,8 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, userN
 	return rsp.Json(200, E(OK), l)
 }
 
-//curl http://10.1.235.98:8080/repositories/NBA/bear -d ""
-func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
+//curl http://127.0.0.1:8080/repositories/NBA/bear23 -d "{\"repaccesstype\":\"public\", \"meta\":\"{}\",\"sample\":\"{}\",\"comment\":\"中国移动北京终端详情\", \"label\":{\"sys\":{\"supply_style\":\"flow\",\"refresh\":\"3天\"}}}" -u admin:admin
+func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, login_name string) (int, string) {
 	repname := param["repname"]
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
@@ -97,12 +109,23 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (in
 	//		if l := db.getRepository(COLUMN_REP_NAME, repname); len(l) == 0 {
 	//			return rsp.Json(400, "repname do not exist")
 	//		}
+
+	body, _ := ioutil.ReadAll(r.Body)
+
 	d := new(dataItem)
+	if err := json.Unmarshal(body, &d); err != nil {
+		return rsp.Json(400, ErrParseJson(err))
+	}
 
-	d.ParseRequeset(r)
-	d.BuildRequeset(repname, itemname, "panxy3@asiainfo.com")
-
-	log.Printf("%+v", d)
+	d.Repository_name = repname
+	d.Dataitem_name = itemname
+	d.Create_name = login_name
+	now := time.Now()
+	d.Optime = now
+	d.Ct = now
+	if d.Itemaccesstype == "" {
+		d.Itemaccesstype = ACCESS_PUBLIC
+	}
 
 	if err := db.DB(DB_NAME).C(C_DATAITEM).Insert(d); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
@@ -195,23 +218,23 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	//	Q := bson.M{"repository_name": repname}
 	//	rep, err := db.getRepository(Q)
 	//
-	//	if err ==  mgo.ErrNotFound
-	//	{
-	//
+	//	if err == mgo.ErrNotFound {
+	//		return rsp.Json(400, ErrDataBase(err))
 	//	}
+	//
 	//	return rsp.Json(200, ErrDataBase(err), rep)
 	//
 	//	d, err := getDMid(r, rsp, param, db)
 	//	if err != nil {
 	//		return rsp.Json(400, "get dataitem err"+err.Error())
 	//	}
-	//
-	//	//	l, err := db.getTags(d.Dataitem_id)
-	//	//	if err != nil {
-	//	//		return rsp.Json(400, err.Error())
-	//	//	}
-	//
-	//	//	res := Data{Item: d, Tags: l}
+
+	//	l, err := db.getTags(d.Dataitem_id)
+	//	if err != nil {
+	//		return rsp.Json(400, err.Error())
+	//	}
+
+	//	res := Data{Item: d, Tags: l}
 	return rsp.Json(200, E(OK))
 }
 func getDMid(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (dataItem, error) {

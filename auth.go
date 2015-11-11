@@ -55,7 +55,6 @@ func authAdmin(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB
 	return
 }
 
-
 func parseBasicAuth(r *http.Request) (string, string, error) {
 	s := r.Header.Get("Authorization")
 

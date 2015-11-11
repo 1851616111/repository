@@ -14,44 +14,37 @@ const (
 	C_TAG               = "tag"
 )
 
-type label struct {
-	Sys   struct{} `json:"sys"`
-	Opt   struct{} `json:"opt"`
-	Owner struct{} `json:"owner"`
-	Other struct{} `json:"other"`
-}
-
 type repository struct {
 	Repository_name string `json:"-"`
 	Create_user     string `json:"create_user,omitempty"`
 	Repaccesstype   string `json:"repaccesstype,omitempty"`
 	//	Deposit         bool      `json:"deposit"`
-	Comment string    `json:"comment"`
-	Optime  time.Time `json:"optime,omitempty"`
-	Stars   int       `json:"stars"`
-	Views   int       `json:"views"`
-	Items   int       `json:"items"`
-	Label   *label    `json:"label,omitempty"`
-	Ct      time.Time `json:"-"`
-	St      time.Time `json:"-"`
+	Comment string      `json:"comment"`
+	Optime  time.Time   `json:"optime,omitempty"`
+	Stars   int         `json:"stars"`
+	Views   int         `json:"views"`
+	Items   int         `json:"items"`
+	Label   interface{} `json:"label"`
+	Ct      time.Time   `json:"-"`
+	st      time.Time
 }
 type names struct {
 	Repository_name string `json:"repname"`
 	Dataitem_name   string `json:"itemname"`
 }
 type dataItem struct {
-	Repository_name string    `json:"-"`
-	Create_name     string    `json:"create_user,omitempty"`
-	Dataitem_name   string    `json:"-"`
-	Itemaccesstype  string    `json:"itemaccesstype,omitempty"`
-	Price           string    `json:"price,omitempty"`
-	Optime          time.Time `json:"optime,omitempty"`
-	Meta            string    `json:"meta"`
-	Sample          string    `json:"sample"`
-	Comment         string    `json:"comment"`
-	Label           label     `json:"label"`
-	Ct              time.Time `json:"-"`
-	St              time.Time `json:"-"`
+	Repository_name string      `json:"-"`
+	Dataitem_name   string      `json:"-"`
+	Create_name     string      `json:"create_user,omitempty"`
+	Itemaccesstype  string      `json:"itemaccesstype,omitempty"`
+	Price           interface{} `json:"price,omitempty"`
+	Optime          time.Time   `json:"optime,omitempty"`
+	Meta            string      `json:"meta"`
+	Sample          string      `json:"sample"`
+	Comment         string      `json:"comment"`
+	Label           interface{} `json:"label"`
+	Ct              time.Time   `json:"-"`
+	st              time.Time
 }
 
 type Tag struct {
