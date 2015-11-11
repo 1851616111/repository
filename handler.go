@@ -3,8 +3,8 @@ package main
 import (
 	"errors"
 	"github.com/go-martini/martini"
-	"github.com/gopkg.in/mgo.v2/bson"
 	"github.com/lunny/log"
+	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"strconv"
 	"strings"
@@ -60,40 +60,40 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params) (int, string) 
 //curl http://127.0.0.1:8088/repositories
 //curl http://127.0.0.1:8088/repositories?page=2&size=3
 func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, login_name string) (int, string) {
-//		page_index, page_size := PAGE_INDEX, PAGE_SIZE
-//		if p := strings.TrimSpace(r.FormValue("page")); p != "" {
-//			if page_index, _ = strconv.Atoi(p); page_index <= 0 {
-//				return rsp.Json(400, "page can not little than 0")
-//			}
-//
-//		}
-//		if p := strings.TrimSpace(r.FormValue("size")); p != "" {
-//			if page_size, _ = strconv.Atoi(p); page_size <= 0 {
-//				return rsp.Json(400, "size can not little than 0")
-//			}
-//		}
-//
-//		res := []Result{}
-//
-//		db.DB(DB_NAME).C(M_DATAITEM).Find().Sort("ct").Skip((PAGE_INDEX -1) *  PAGE_SIZE).Limit(PAGE_SIZE)
-////
-////		l, err := db.getDataitems("", "", (page_index-1)*page_size, page_size)
-//		if err != nil {
-//			return rsp.Json(400, err.Error())
-//		}
-//		m := make(M)
-//
-//		for _, v := range l {
-//			if s, exists := m[v.Repository_name]; exists {
-//				s = append(s.([]DataItem), v)
-//				m[v.Repository_name] = s
-//			} else {
-//				m[v.Repository_name] = []DataItem{v}
-//			}
-//		}
-//		for k, v := range m {
-//			res = append(res, Result{k.(string), REPACCESS_PUBLIC, v.([]DataItem)})
-//		}
+	//		page_index, page_size := PAGE_INDEX, PAGE_SIZE
+	//		if p := strings.TrimSpace(r.FormValue("page")); p != "" {
+	//			if page_index, _ = strconv.Atoi(p); page_index <= 0 {
+	//				return rsp.Json(400, "page can not little than 0")
+	//			}
+	//
+	//		}
+	//		if p := strings.TrimSpace(r.FormValue("size")); p != "" {
+	//			if page_size, _ = strconv.Atoi(p); page_size <= 0 {
+	//				return rsp.Json(400, "size can not little than 0")
+	//			}
+	//		}
+	//
+	//		res := []Result{}
+	//
+	//		db.DB(DB_NAME).C(M_DATAITEM).Find().Sort("ct").Skip((PAGE_INDEX -1) *  PAGE_SIZE).Limit(PAGE_SIZE)
+	////
+	////		l, err := db.getDataitems("", "", (page_index-1)*page_size, page_size)
+	//		if err != nil {
+	//			return rsp.Json(400, err.Error())
+	//		}
+	//		m := make(M)
+	//
+	//		for _, v := range l {
+	//			if s, exists := m[v.Repository_name]; exists {
+	//				s = append(s.([]DataItem), v)
+	//				m[v.Repository_name] = s
+	//			} else {
+	//				m[v.Repository_name] = []DataItem{v}
+	//			}
+	//		}
+	//		for k, v := range m {
+	//			res = append(res, Result{k.(string), REPACCESS_PUBLIC, v.([]DataItem)})
+	//		}
 
 	return rsp.Json(200, OK)
 }

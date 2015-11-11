@@ -18,15 +18,6 @@
 			"Rev": "527bcd55aab2e53314f1a150922560174b493034"
 		},
 		{
-			"ImportPath": "github.com/go-xorm/core",
-			"Rev": "3e10003353fc63780ed591d436646498b61f64e3"
-		},
-		{
-			"ImportPath": "github.com/go-xorm/xorm",
-			"Comment": "v0.4.4-3-g6d9fe27",
-			"Rev": "6d9fe27a6df483be326b176f34f9148f9c3d7420"
-		},
-		{
 			"ImportPath": "github.com/lunny/log",
 			"Rev": "9ae5e9effeefca29cf00d932a7b54f1b2d70fd58"
 		},
@@ -36,8 +27,8 @@
 		},
 		{
 			"ImportPath": "gopkg.in/mgo.v2",
-			"Comment": "r2015.10.05",
-			"Rev": "f402e3a216db333ae6b3ba68b9152a34a0bc6984"
+			"Comment": "r2015.10.05-1-g4d04138",
+			"Rev": "4d04138ffef2791c479c0c8bbffc30b34081b8d9"
 		}
 	]
 }

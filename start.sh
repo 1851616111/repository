@@ -11,7 +11,6 @@ export MYSQL_ENV_MYSQL_PASSWORD=root
 
 export DB_MONGO_URL=localhost
 export DB_MONGO_PORT=27017
-export DB_MONGO_PORT=
 export MONGO_ENV_MYSQL_USER=
 export MONGO_ENV_MYSQL_PASSWORD=
 
