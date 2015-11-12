@@ -19,15 +19,18 @@ var (
 
 	DB_URL_MONGO = fmt.Sprintf(`%s:%s/datahub?maxPoolSize=50`, DB_MONGO_URL, DB_MONGO_PORT)
 	db           DB
+	q_c          Queue
 )
 
 func init() {
 	se := connect(DB_URL_MONGO)
 	db = DB{*se}
+	q_c = Queue{queueChannel}
 }
 
 func main() {
 
+	go q_c.serve(&db)
 	m := martini.Classic()
 	m.Handlers(martini.Recovery())
 	m.Use(func(w http.ResponseWriter, c martini.Context) {

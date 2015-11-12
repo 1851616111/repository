@@ -112,7 +112,7 @@ func ErrParseJson(e error) *Error {
 func ErrNoParameter(paramName string) *Error {
 	return &Error{
 		code:    ErrorCodeNoParameter,
-		message: fmt.Sprintf("%s : %s", E(ErrorCodeNoParameter).message, paramName),
+		message: fmt.Sprintf("%s: %s", E(ErrorCodeNoParameter).message, paramName),
 	}
 }
 

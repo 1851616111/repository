@@ -14,6 +14,13 @@ const (
 	C_TAG               = "tag"
 )
 
+type label struct {
+	Sys   interface{} `json:"sys"`
+	Opt   interface{} `json:"opt"`
+	Owner interface{} `json:"owner"`
+	Other interface{} `json:"other"`
+}
+
 type repository struct {
 	Repository_name string `json:"-"`
 	Create_user     string `json:"create_user,omitempty"`

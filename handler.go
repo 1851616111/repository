@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-martini/martini"
+	"github.com/lunny/log"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
@@ -19,6 +20,7 @@ const (
 	COL_REP_NAME     = "repository_name"
 	COL_REP_ACC      = "repaccesstype"
 	COL_ITEM_NAME    = "dataitem_name"
+	COL_ITEM_ACC     = "itemaccesstype"
 	COL_TAG_TAG      = "tag"
 	COL_SELECT_LABEL = "labelname"
 	COL_PERMIT_USER  = "user_name"
@@ -44,7 +46,7 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 	}
 
 	now := time.Now()
-	if rep.Repaccesstype != ACCESS_PUBLIC || rep.Repaccesstype != ACCESS_PRIVATE {
+	if rep.Repaccesstype != ACCESS_PUBLIC && rep.Repaccesstype != ACCESS_PRIVATE {
 		rep.Repaccesstype = ACCESS_PUBLIC
 	}
 	rep.Optime = now
@@ -152,7 +154,7 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	d.Ct = now
 	d.Stars, d.Tags = 0, 0
 
-	if d.Itemaccesstype != ACCESS_PRIVATE || d.Itemaccesstype != ACCESS_PUBLIC {
+	if d.Itemaccesstype != ACCESS_PRIVATE && d.Itemaccesstype != ACCESS_PUBLIC {
 		d.Itemaccesstype = ACCESS_PUBLIC
 	}
 
@@ -163,7 +165,7 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	return rsp.Json(200, E(OK))
 }
 
-//curl http://127.0.0.1:8080/repositories/NBA/bear23 -d "{\"repaccesstype\":\"public\", \"meta\":\"{}\",\"sample\":\"{}\",\"comment\":\"中国移动北京终端详情\", \"label\":{\"sys\":{\"supply_style\":\"flow\",\"refresh\":\"3天\"}}}" -H user:admin
+//curl http://127.0.0.1:8080/repositories/NBA/bear23 -d "{\"itemaccesstype\":\"public\", \"meta\":\"{}\",\"sample\":\"{}\",\"comment\":\"中国移动北京终端详情\", \"label\":{\"sys\":{\"supply_style\":\"flow\",\"refresh\":\"3天\"}}}" -H user:admin
 func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string) (int, string) {
 	repname := param["repname"]
 	if repname == "" {
@@ -177,22 +179,37 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	body, _ := ioutil.ReadAll(r.Body)
 
 	d := new(dataItem)
-	if len(body) > 0 {
-		if err := json.Unmarshal(body, &d); err != nil {
-			return rsp.Json(400, ErrParseJson(err))
-		}
+	if len(body) == 0 {
+		return rsp.Json(400, ErrNoParameter(""))
 	}
-//	if
-//
-//	d.Repository_name = repname
-//	d.Dataitem_name = itemname
-//	d.Create_name = loginName
-//	now := time.Now()
-//	d.Optime = now
-//	d.Ct = now
-//	d.Stars, d.Tags = 0, 0
+	if err := json.Unmarshal(body, &d); err != nil {
+		return rsp.Json(400, ErrParseJson(err))
+	}
+	selector := bson.M{COL_REP_NAME: repname, COL_ITEM_NAME: itemname}
 
-	if d.Itemaccesstype != ACCESS_PRIVATE || d.Itemaccesstype != ACCESS_PUBLIC {
+	updater := bson.M{}
+	if d.Itemaccesstype != "" {
+		if d.Itemaccesstype != ACCESS_PRIVATE && d.Itemaccesstype != ACCESS_PUBLIC {
+			return rsp.Json(400, ErrInvalidParameter("itemaccesstype"))
+		}
+		updater = bson.M{"$set": bson.M{COL_ITEM_ACC: d.Itemaccesstype}}
+		go q_c.producer(exec{C_DATAITEM, selector, updater})
+	}
+
+	//	if d.
+	//	log.Printf("%+v", d)
+
+	//	if
+	//
+	//	d.Repository_name = repname
+	//	d.Dataitem_name = itemname
+	//	d.Create_name = loginName
+	//	now := time.Now()
+	//	d.Optime = now
+	//	d.Ct = now
+	//	d.Stars, d.Tags = 0, 0
+
+	if d.Itemaccesstype != ACCESS_PRIVATE && d.Itemaccesstype != ACCESS_PUBLIC {
 		d.Itemaccesstype = ACCESS_PUBLIC
 	}
 
@@ -392,17 +409,13 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 
 //curl http://10.1.235.98:8080/selects -d "repname=NBA&itemname=bear&select_labels=h"
 func updateLabelHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
-
-	var m bson.M
 	repname := strings.TrimSpace(r.FormValue("repname"))
 	itemname := strings.TrimSpace(r.FormValue("itemname"))
 	select_labels := strings.TrimSpace(r.FormValue("select_labels"))
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
 	}
-	if itemname == "" {
-		return rsp.Json(400, ErrNoParameter("itemname"))
-	}
+
 	if select_labels == "" {
 		return rsp.Json(400, ErrNoParameter("select_labels"))
 	}
@@ -411,15 +424,24 @@ func updateLabelHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 		order, _ = strconv.Atoi(o)
 	}
 
-	mm := bson.M{"select_labels": select_labels, "order": order}
-	m = bson.M{"$set": bson.M{"label.sys": mm}}
+	selector := bson.M{COL_REP_NAME: repname}
+	collectionName := C_REPOSITORY
 
-	// check if dataitem exists
-
-	Q := bson.M{"repository_name": repname, "dataitem_name": itemname}
-	if _, err := db.DB(DB_NAME).C(C_DATAITEM).Upsert(Q, m); err != nil {
-		return rsp.Json(400, ErrDataBase(err))
+	if itemname != "" {
+		collectionName = C_DATAITEM
+		selector[COL_ITEM_NAME] = itemname
 	}
+
+	if n, _ := db.DB(DB_NAME).C(collectionName).Find(selector).Count(); n == 0 {
+		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s %s", repname, itemname)))
+	}
+
+	updator := bson.M{"$set": bson.M{"label.sys.select_labels": select_labels}}
+	go q_c.producer(exec{collectionName, selector, updator})
+
+	updator = bson.M{"$set": bson.M{"label.sys.order": order}}
+	go q_c.producer(exec{collectionName, selector, updator})
+
 	return rsp.Json(200, E(OK))
 }
 
@@ -434,7 +456,7 @@ func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	}
 
 	l := []names{}
-	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(m).Sort("-label.sys.order").Limit(PAGE_SIZE).All(&l); err != nil {
+	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(m).Limit(PAGE_SIZE).Sort("-label.sys.order").All(&l); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
 
