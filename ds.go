@@ -27,7 +27,7 @@ type repository struct {
 	Repaccesstype   string `json:"repaccesstype,omitempty"`
 	//	Deposit         bool      `json:"deposit"`
 	Comment string      `json:"comment"`
-	Optime  time.Time   `json:"optime,omitempty"`
+	Optime  string      `json:"optime,omitempty"`
 	Stars   int         `json:"stars"`
 	Items   int         `json:"items"`
 	Label   interface{} `json:"label"`
@@ -44,7 +44,7 @@ type dataItem struct {
 	Create_name     string      `json:"create_user,omitempty"`
 	Itemaccesstype  string      `json:"itemaccesstype,omitempty"`
 	Price           interface{} `json:"price,omitempty", bson:"-"`
-	Optime          time.Time   `json:"optime,omitempty"`
+	Optime          string      `json:"optime,omitempty"`
 	Meta            string      `json:"meta"`
 	Sample          string      `json:"sample"`
 	Comment         string      `json:"comment"`
@@ -56,11 +56,11 @@ type dataItem struct {
 }
 
 type tag struct {
-	Repository_name string    `json:"-"`
-	Dataitem_name   string    `json:"-"`
-	Tag             string    `json:"tag,omitempty"`
-	Comment         string    `json:"comment,omitempty"`
-	Optime          time.Time `json:"optime,omitempty"`
+	Repository_name string `json:"-"`
+	Dataitem_name   string `json:"-"`
+	Tag             string `json:"tag,omitempty"`
+	Comment         string `json:"comment,omitempty"`
+	Optime          string `json:"optime,omitempty"`
 }
 
 type Repository_Permit struct {

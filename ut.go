@@ -128,25 +128,27 @@ func (p *Select) ParseRequeset(r *http.Request) error {
 	return nil
 }
 
-//func buildTime(absoluteTime time.Time) string {
-//	now := time.Now()
-//
-//	sevenDayAgo := now.AddDate(0, 0, -7)
-//	target_time, err := time.ParseInLocation(TimeFormat, absoluteTime, LOCAL_LOCATION)
-//	get(err)
-//	if target_time.After(sevenDayAgo) {
-//		sec := now.Unix() - target_time.Unix()
-//
-//		oneDayAgo := now.AddDate(0, 0, -1)
-//
-//		if target_time.After(oneDayAgo) {
-//			return fmt.Sprintf("%s,%d小时以前", absoluteTime, sec/3600)
-//		} else {
-//			return fmt.Sprintf("%s,%d天以前", absoluteTime, sec/(3600*24))
-//		}
-//	}
-//	return absoluteTime
-//}
+func buildTime(absoluteTime string) string {
+	abst := absoluteTime[:len(absoluteTime)-10]
+	now := time.Now()
+	sevenDayAgo := now.AddDate(0, 0, -7)
+	target_time, err := time.ParseInLocation(TimeFormat, abst, LOCAL_LOCATION)
+	get(err)
+	if target_time.After(sevenDayAgo) {
+		sec := now.Unix() - target_time.Unix()
+		oneDayAgo := now.AddDate(0, 0, -1)
+		if target_time.After(oneDayAgo) {
+			hour := sec / 3600
+			if hour == 0 {
+				return fmt.Sprintf("%s,%d分钟以前", abst, (sec%3600)/60)
+			}
+			return fmt.Sprintf("%s,%d小时以前", abst, hour)
+		} else {
+			return fmt.Sprintf("%s,%d天以前", abst, sec/(3600*24))
+		}
+	}
+	return abst
+}
 
 //func Parse(p *dataItem) {
 //	t := reflect.TypeOf(*p)

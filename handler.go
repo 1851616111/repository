@@ -48,7 +48,7 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 	if rep.Repaccesstype != ACCESS_PUBLIC && rep.Repaccesstype != ACCESS_PRIVATE {
 		rep.Repaccesstype = ACCESS_PUBLIC
 	}
-	rep.Optime = now
+	rep.Optime = now.String()
 	rep.Ct = now
 	rep.Create_user = login_name
 	rep.Repository_name = repname
@@ -68,6 +68,7 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params) (int, string) 
 	}
 	Q := bson.M{"repository_name": repname}
 	rep, err := db.getRepository(Q)
+	rep.Optime = buildTime(rep.Optime)
 	return rsp.Json(200, ErrDataBase(err), rep)
 }
 
@@ -149,7 +150,7 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	d.Dataitem_name = itemname
 	d.Create_name = loginName
 	now := time.Now()
-	d.Optime = now
+	d.Optime = now.String()
 	d.Ct = now
 	d.Stars, d.Tags = 0, 0
 
@@ -329,7 +330,7 @@ func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, logi
 		}
 	}
 	t.Repository_name, t.Dataitem_name, t.Tag = repname, itemname, tagname
-	t.Optime = time.Now()
+	t.Optime = time.Now().String()
 
 	if err := db.DB(DB_NAME).C(C_TAG).Insert(t); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
@@ -358,7 +359,7 @@ func getTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int
 	if err == mgo.ErrNotFound {
 		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("tag : %s", tag)))
 	}
-
+	tag.Optime = buildTime(tag.Optime)
 	return rsp.Json(200, E(OK), tag)
 }
 
@@ -402,7 +403,7 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	if err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
-
+	item.Optime = buildTime(item.Optime)
 	return rsp.Json(200, E(OK), item)
 }
 
