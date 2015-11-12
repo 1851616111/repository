@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"github.com/go-martini/martini"
 	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
@@ -10,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-"log"
 )
 
 const (
@@ -81,8 +79,10 @@ func delRHandler(r *http.Request, rsp *Rsp, param martini.Params, loginName stri
 	if rep.Create_user != loginName {
 		return rsp.Json(400, E(ErrorCodePermissionDenied))
 	}
-	err = db.delRepository(Q)
-	return rsp.Json(200, ErrDataBase(err))
+	if err := db.delRepository(Q); err != nil {
+		return rsp.Json(200, ErrDataBase(err))
+	}
+	return rsp.Json(200, E(OK))
 }
 
 //curl http://127.0.0.1:8080/repositories
@@ -115,7 +115,7 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, userN
 }
 
 //curl http://127.0.0.1:8080/repositories/NBA/bear23 -d "{\"repaccesstype\":\"public\", \"meta\":\"{}\",\"sample\":\"{}\",\"comment\":\"中国移动北京终端详情\", \"label\":{\"sys\":{\"supply_style\":\"flow\",\"refresh\":\"3天\"}}}" -u admin:admin
-func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, login_name string) (int, string) {
+func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string) (int, string) {
 	repname := param["repname"]
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
@@ -138,17 +138,44 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 
 	d.Repository_name = repname
 	d.Dataitem_name = itemname
-	d.Create_name = login_name
+	d.Create_name = loginName
 	now := time.Now()
 	d.Optime = now
 	d.Ct = now
-	if d.Itemaccesstype == "" {
+	if d.Itemaccesstype != ACCESS_PRIVATE || d.Itemaccesstype != ACCESS_PUBLIC {
 		d.Itemaccesstype = ACCESS_PUBLIC
 	}
 
 	if err := db.DB(DB_NAME).C(C_DATAITEM).Insert(d); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 
+	}
+	return rsp.Json(200, E(OK))
+}
+
+//curl http://127.0.0.1:8080/repositories/rep123/bear23 -X DELETE -u admin:admin
+func delDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string) (int, string) {
+	repname := param["repname"]
+	if repname == "" {
+		return rsp.Json(400, ErrNoParameter("repname"))
+	}
+	itemname := param["itemname"]
+	if itemname == "" {
+		return rsp.Json(400, ErrNoParameter("itemname"))
+	}
+
+	Q := bson.M{COL_REP_NAME: repname, COL_ITEM_NAME: itemname}
+	item, err := db.getDataitem(Q)
+	if err != nil {
+		return rsp.Json(400, ErrDataBase(err))
+	}
+
+	if item.Create_name != loginName {
+		return rsp.Json(400, E(ErrorCodePermissionDenied))
+	}
+
+	if err := db.delDataitem(Q); err != nil {
+		return rsp.Json(200, ErrDataBase(err))
 	}
 	return rsp.Json(200, E(OK))
 }
@@ -227,51 +254,23 @@ func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int
 	return rsp.Json(200, E(OK))
 }
 
-//curl http://10.1.235.98:8080/repositories/位置信息大全/全国在网（新增）终端
+//curl http://127.0.0.1:8080/repositories/NBA/bear23
 func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
-
-	//	repname := strings.TrimSpace(param["repname"])
-	//	if repname == "" {
-	//		return rsp.Json(400, ErrNoParameter("repname"))
-	//	}
-	//	Q := bson.M{"repository_name": repname}
-	//	rep, err := db.getRepository(Q)
-	//
-	//	if err == mgo.ErrNotFound {
-	//		return rsp.Json(400, ErrDataBase(err))
-	//	}
-	//
-	//	return rsp.Json(200, ErrDataBase(err), rep)
-	//
-	//	d, err := getDMid(r, rsp, param, db)
-	//	if err != nil {
-	//		return rsp.Json(400, "get dataitem err"+err.Error())
-	//	}
-
-	//	l, err := db.getTags(d.Dataitem_id)
-	//	if err != nil {
-	//		return rsp.Json(400, err.Error())
-	//	}
-
-	//	res := Data{Item: d, Tags: l}
-	return rsp.Json(200, E(OK))
-}
-func getDMid(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (dataItem, error) {
-	d := new(dataItem)
 	repname := param["repname"]
 	if repname == "" {
-		return *d, errors.New("no param repname")
+		return rsp.Json(400, ErrNoParameter("repname"))
 	}
 	itemname := param["itemname"]
 	if itemname == "" {
-		return *d, errors.New("no param repname")
+		return rsp.Json(400, ErrNoParameter("itemname"))
 	}
 
 	Q := bson.M{COL_REP_NAME: repname, COL_ITEM_NAME: itemname}
-	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(Q).One(d); err != nil {
-		return *d, err
+	item, err := db.getDataitem(Q)
+	if err != nil {
+		return rsp.Json(400, ErrDataBase(err))
 	}
-	return *d, nil
+	return rsp.Json(200, E(OK), item)
 }
 
 //curl http://10.1.235.98:8080/selects -d "repname=NBA&itemname=bear&select_labels=h"
