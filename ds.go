@@ -37,7 +37,7 @@ type dataItem struct {
 	Dataitem_name   string      `json:"-"`
 	Create_name     string      `json:"create_user,omitempty"`
 	Itemaccesstype  string      `json:"itemaccesstype,omitempty"`
-	Price           interface{} `json:"price,omitempty"`
+	Price           interface{} `json:"price,omitempty", bson:"-"`
 	Optime          time.Time   `json:"optime,omitempty"`
 	Meta            string      `json:"meta"`
 	Sample          string      `json:"sample"`

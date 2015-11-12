@@ -163,4 +163,3 @@ func buildTime(absoluteTime string) string {
 	}
 	return absoluteTime
 }
-

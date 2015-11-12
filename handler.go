@@ -40,13 +40,14 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 	}
 
 	now := time.Now()
-	if rep.Repaccesstype == "" {
+	if rep.Repaccesstype != ACCESS_PUBLIC || rep.Repaccesstype != ACCESS_PRIVATE {
 		rep.Repaccesstype = ACCESS_PUBLIC
 	}
 	rep.Optime = now
 	rep.Ct = now
 	rep.Create_user = login_name
 	rep.Repository_name = repname
+	rep.Stars, rep.Views, rep.Items = 0, 0, 0
 
 	if err := db.DB(DB_NAME).C(C_REPOSITORY).Insert(rep); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
