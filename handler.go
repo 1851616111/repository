@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"github.com/go-martini/martini"
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
 	"net/http"
@@ -125,9 +126,10 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		return rsp.Json(400, ErrNoParameter("itemname"))
 	}
 
-	//		if l := db.getRepository(COLUMN_REP_NAME, repname); len(l) == 0 {
-	//			return rsp.Json(400, "repname do not exist")
-	//		}
+	Q := bson.M{COL_REP_NAME: repname}
+	if _, err := db.getRepository(Q); err == mgo.ErrNotFound {
+		return rsp.Json(400, ErrQueryNotFound(repname))
+	}
 
 	body, _ := ioutil.ReadAll(r.Body)
 
@@ -166,10 +168,10 @@ func delDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 
 	Q := bson.M{COL_REP_NAME: repname, COL_ITEM_NAME: itemname}
 	item, err := db.getDataitem(Q)
-	if err != nil {
-		return rsp.Json(400, ErrDataBase(err))
-	}
 
+	if err == mgo.ErrNotFound {
+		return rsp.Json(400, ErrQueryNotFound(repname))
+	}
 	if item.Create_name != loginName {
 		return rsp.Json(400, E(ErrorCodePermissionDenied))
 	}

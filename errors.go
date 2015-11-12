@@ -36,7 +36,7 @@ const (
 	ErrorCodeQueryTransaction
 	ErrorCodeNoParameter
 	ErrorCodeDataBase
-	ErrorCodeResultNotFound
+	ErrorCodeQueryDBNotFound
 
 	NumErrors
 )
@@ -54,7 +54,7 @@ func init() {
 	initError(ErrorCodeNoParameter, "no parameter")
 	initError(ErrorCodeDataBase, "database operate")
 	initError(ErrorCodeGetDataItem, "failed to get data item")
-	initError(ErrorCodeResultNotFound, "")
+	initError(ErrorCodeQueryDBNotFound, "query %s no found")
 
 	ErrorNone = E(OK)
 	ErrorUnkown = E(ErrorCodeUnkown)
@@ -113,6 +113,13 @@ func ErrNoParameter(paramName string) *Error {
 	return &Error{
 		code:    ErrorCodeNoParameter,
 		message: fmt.Sprintf("%s : %s", E(ErrorCodeNoParameter).message, paramName),
+	}
+}
+
+func ErrQueryNotFound(paramName string) *Error {
+	return &Error{
+		code:    ErrorCodeQueryDBNotFound,
+		message: fmt.Sprintf(E(ErrorCodeQueryDBNotFound).message, paramName),
 	}
 }
 
