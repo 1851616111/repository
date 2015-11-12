@@ -14,6 +14,8 @@ var (
 
 	DB_ADDR_MONGO = utee.Env("DB_MONGO_URL", false)
 	DB_PORT_MONGO = utee.Env("DB_MONGO_PORT", false)
+	DB_ADDR_MONGO = utee.Env("DB_MONGO_USER", false)
+	DB_PORT_MONGO = utee.Env("DB_MONGO_PASSWD", false)
 
 	DB_URL_MONGO = fmt.Sprintf(`%s:%s/datahub?maxPoolSize=50`, DB_ADDR_MONGO, DB_PORT_MONGO)
 	db           DB

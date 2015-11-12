@@ -22,7 +22,6 @@ type repository struct {
 	Comment string      `json:"comment"`
 	Optime  time.Time   `json:"optime,omitempty"`
 	Stars   int         `json:"stars"`
-	Views   int         `json:"views"`
 	Items   int         `json:"items"`
 	Label   interface{} `json:"label"`
 	Ct      time.Time   `json:"-"`
@@ -42,16 +41,19 @@ type dataItem struct {
 	Meta            string      `json:"meta"`
 	Sample          string      `json:"sample"`
 	Comment         string      `json:"comment"`
+	Stars           int         `json:"stars"`
+	Tags            int         `json:"tags"`
 	Label           interface{} `json:"label"`
 	Ct              time.Time   `json:"-"`
 	st              time.Time
 }
 
-type Tag struct {
-	Dataitem_id int64  `json:"dataitem_id,omitempty"`
-	Tag         string `json:"tag,omitempty"`
-	Filename    string `json:"filename,omitempty"`
-	Optime      string `json:"optime,omitempty"`
+type tag struct {
+	Repository_name string    `json:"-"`
+	Dataitem_name   string    `json:"-"`
+	Tag             string    `json:"tag,omitempty"`
+	Comment         string    `json:"comment,omitempty"`
+	Optime          time.Time `json:"optime,omitempty"`
 }
 
 type Repository_Permit struct {

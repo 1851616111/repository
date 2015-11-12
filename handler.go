@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/go-martini/martini"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -47,7 +48,7 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 	rep.Ct = now
 	rep.Create_user = login_name
 	rep.Repository_name = repname
-	rep.Stars, rep.Views, rep.Items = 0, 0, 0
+	rep.Stars,  rep.Items = 0, 0
 
 	if err := db.DB(DB_NAME).C(C_REPOSITORY).Insert(rep); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
@@ -128,7 +129,7 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 
 	Q := bson.M{COL_REP_NAME: repname}
 	if _, err := db.getRepository(Q); err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(repname))
+		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("repname : %s", repname)))
 	}
 
 	body, _ := ioutil.ReadAll(r.Body)
@@ -144,6 +145,8 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	now := time.Now()
 	d.Optime = now
 	d.Ct = now
+	d.Stars, d.Tags = 0, 0
+
 	if d.Itemaccesstype != ACCESS_PRIVATE || d.Itemaccesstype != ACCESS_PUBLIC {
 		d.Itemaccesstype = ACCESS_PUBLIC
 	}
@@ -170,7 +173,7 @@ func delDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 	item, err := db.getDataitem(Q)
 
 	if err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(repname))
+		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("repname : %s", repname)))
 	}
 	if item.Create_name != loginName {
 		return rsp.Json(400, E(ErrorCodePermissionDenied))
@@ -231,28 +234,43 @@ func getSelectLabelsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	return rsp.Json(200, E(OK), l)
 }
 
-//curl http://10.1.235.98:8080/repositories/NBA/bear/0001
-func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
-	//	d, err := getDMid(r, rsp, param, db)
-	//	if d == nil {
-	//		return rsp.Json(400, "no found dataitem")
-	//	}
-	//	get(err)
-	//
-	//	tag := param["tag"]
-	//	if tag == "" {
-	//		return rsp.Json(400, "no param tag")
-	//	}
-	//
-	//	t := new(Tag)
-	//	t.ParseRequeset(r)
-	//	t.Tag = tag
-	//	t.Optime = time.Now().Format(TimeFormat)
-	//	t.Dataitem_id = d.Dataitem_id
-	//
-	//	if err := db.setTag(t); err != nil {
-	//		return rsp.Json(400, err.Error())
-	//	}
+//curl http://127.0.0.1:8080/repositories/NBA/bear23/0001 -d "{\"comment\":\"this is a tag\"}" -u admin:admin
+func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string) (int, string) {
+	repname := param["repname"]
+	if repname == "" {
+		return rsp.Json(400, ErrNoParameter("repname"))
+	}
+	itemname := param["itemname"]
+	if itemname == "" {
+		return rsp.Json(400, ErrNoParameter("itemname"))
+	}
+	tagname := param["tag"]
+	if tagname == "" {
+		return rsp.Json(400, ErrNoParameter("tag"))
+	}
+
+	Q := bson.M{COL_REP_NAME: repname, COL_ITEM_NAME: itemname}
+	item, err := db.getDataitem(Q)
+
+	if err == mgo.ErrNotFound {
+		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("itemname : %s", itemname)))
+	}
+	if item.Create_name != loginName {
+		return rsp.Json(400, E(ErrorCodePermissionDenied))
+	}
+
+	t := new(tag)
+	body, _ := ioutil.ReadAll(r.Body)
+	if err := json.Unmarshal(body, &t); err != nil {
+		return rsp.Json(400, ErrParseJson(err))
+	}
+	t.Repository_name, t.Dataitem_name, t.Tag = repname, itemname, tagname
+	t.Optime = time.Now()
+
+	if err := db.DB(DB_NAME).C(C_TAG).Insert(t); err != nil {
+		return rsp.Json(400, ErrDataBase(err))
+
+	}
 	return rsp.Json(200, E(OK))
 }
 
