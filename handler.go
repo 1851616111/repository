@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+"log"
 )
 
 const (
@@ -64,6 +65,24 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params) (int, string) 
 	Q := bson.M{"repository_name": repname}
 	rep, err := db.getRepository(Q)
 	return rsp.Json(200, ErrDataBase(err), rep)
+}
+
+//curl http://127.0.0.1:8080/repositories/rep123 -X DELETE -u admin:admin
+func delRHandler(r *http.Request, rsp *Rsp, param martini.Params, loginName string) (int, string) {
+	repname := strings.TrimSpace(param["repname"])
+	if repname == "" {
+		return rsp.Json(400, ErrNoParameter("repname"))
+	}
+	Q := bson.M{"repository_name": repname}
+	rep, err := db.getRepository(Q)
+	if err != nil {
+		return rsp.Json(400, ErrDataBase(err))
+	}
+	if rep.Create_user != loginName {
+		return rsp.Json(400, E(ErrorCodePermissionDenied))
+	}
+	err = db.delRepository(Q)
+	return rsp.Json(200, ErrDataBase(err))
 }
 
 //curl http://127.0.0.1:8080/repositories

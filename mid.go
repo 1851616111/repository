@@ -7,3 +7,7 @@ func (db *DB) getRepository(query bson.M) (repository, error) {
 	err := db.DB(DB_NAME).C(C_REPOSITORY).Find(query).One(res)
 	return *res, err
 }
+
+func (db *DB) delRepository(exec bson.M)  error {
+	return db.DB(DB_NAME).C(C_REPOSITORY).Remove(exec)
+}

@@ -45,7 +45,7 @@ func main() {
 		r.Post("/:repname/:itemname/:tag", auth, setTagHandler)
 
 		r.Put("/:repname", auth, getRsHandler)
-		r.Delete("/:repname", auth, getRsHandler)
+		r.Delete("/:repname", auth, delRHandler)
 	})
 
 	m.Group("/selects", func(r martini.Router) {
