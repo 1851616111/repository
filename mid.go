@@ -24,8 +24,14 @@ func (db *DB) delDataitem(exec bson.M) error {
 
 func (db *DB) getTag(query bson.M) (tag, error) {
 	res := new(tag)
-	err := db.DB(DB_NAME).C(C_TAG).Find(query).One(res)
+	err := db.DB(DB_NAME).C(C_TAG).Find(query).One(&res)
 	return *res, err
+}
+
+func (db *DB) getTags(query bson.M) ([]tag, error) {
+	res := []tag{}
+	err := db.DB(DB_NAME).C(C_TAG).Find(query).All(&res)
+	return res, err
 }
 
 func (db *DB) delTag(exec bson.M) error {

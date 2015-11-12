@@ -1,21 +1,12 @@
 package main
 
 import (
-	"encoding/base64"
-	"fmt"
 	"github.com/go-martini/martini"
-	"log"
 	"net/http"
-	"regexp"
-	"strings"
 )
 
 const (
 	ADMIN = "admin"
-)
-
-var (
-	REG_BASIC_AUTH = regexp.MustCompile(`^Basic (.+)$`)
 )
 
 func auth(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {

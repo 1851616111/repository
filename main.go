@@ -12,12 +12,12 @@ var (
 	DB_NAME            = "datahub"
 	SERVICE_PORT       = utee.Env("goservice_port", false)
 
-	DB_ADDR_MONGO = utee.Env("DB_MONGO_URL", false)
-	DB_PORT_MONGO = utee.Env("DB_MONGO_PORT", false)
-	DB_ADDR_MONGO = utee.Env("DB_MONGO_USER", false)
-	DB_PORT_MONGO = utee.Env("DB_MONGO_PASSWD", false)
+	DB_MONGO_USER   = utee.Env("DB_MONGO_USER", false)
+	DB_MONGO_PASSWD = utee.Env("DB_MONGO_PASSWD", false)
+	DB_MONGO_URL    = utee.Env("DB_MONGO_URL", false)
+	DB_MONGO_PORT   = utee.Env("DB_MONGO_PORT", false)
 
-	DB_URL_MONGO = fmt.Sprintf(`%s:%s/datahub?maxPoolSize=50`, DB_ADDR_MONGO, DB_PORT_MONGO)
+	DB_URL_MONGO = fmt.Sprintf(`%s:%s/datahub?maxPoolSize=50`, DB_MONGO_URL, DB_MONGO_PORT)
 	db           DB
 )
 
@@ -41,14 +41,18 @@ func main() {
 
 		r.Get("/:repname", getRHandler)
 		r.Get("/:repname/:itemname", getDHandler)
+		r.Get("/:repname/:itemname/:tag", getTagHandler)
 
 		r.Post("/:repname", auth, createRHandler)
 		r.Post("/:repname/:itemname", auth, createDHandler)
 		r.Post("/:repname/:itemname/:tag", auth, setTagHandler)
 
+		//		r.Put("/:repname/:itemname", auth)
+
 		r.Put("/:repname", auth, getRsHandler)
 		r.Delete("/:repname", auth, delRHandler)
 		r.Delete("/:repname/:itemname", auth, delDHandler)
+		r.Delete("/:repname/:itemname/:tag", auth, delTagHandler)
 	})
 
 	m.Group("/selects", func(r martini.Router) {

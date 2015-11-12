@@ -17,8 +17,9 @@ const (
 	ACCESS_PRIVATE   = "private"
 	ACCESS_PUBLIC    = "public"
 	COL_REP_NAME     = "repository_name"
-	COL_ITEM_NAME    = "dataitem_name"
 	COL_REP_ACC      = "repaccesstype"
+	COL_ITEM_NAME    = "dataitem_name"
+	COL_TAG_TAG      = "tag"
 	COL_SELECT_LABEL = "labelname"
 	COL_PERMIT_USER  = "user_name"
 	PAGE_INDEX       = 1
@@ -26,7 +27,7 @@ const (
 )
 
 //curl http://127.0.0.1:8080/repositories/rep12asda232312sd -d "{\"repaccesstype\": \"public\",\"comment\": \"中国移动北京终端详情\",
-//\"label\":{\"sys\":{\"name\":\"中国移动\"},\"opt\":{\"name\":\"中国移动\"},\"owner\":{\"name\":\"中国移动\"},\"other\":{\"name\":\"中国移动\"}}}" -u admin:admin
+//\"label\":{\"sys\":{\"name\":\"中国移动\"},\"opt\":{\"name\":\"中国移动\"},\"owner\":{\"name\":\"中国移动\"},\"other\":{\"name\":\"中国移动\"}}}" -H admin:admin
 func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name string) (int, string) {
 	repname := strings.TrimSpace(param["repname"])
 	if repname == "" {
@@ -48,7 +49,7 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 	rep.Ct = now
 	rep.Create_user = login_name
 	rep.Repository_name = repname
-	rep.Stars,  rep.Items = 0, 0
+	rep.Stars, rep.Items = 0, 0
 
 	if err := db.DB(DB_NAME).C(C_REPOSITORY).Insert(rep); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
@@ -67,7 +68,7 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params) (int, string) 
 	return rsp.Json(200, ErrDataBase(err), rep)
 }
 
-//curl http://127.0.0.1:8080/repositories/rep123 -X DELETE -u admin:admin
+//curl http://127.0.0.1:8080/repositories/rep123 -X DELETE -H admin:admin
 func delRHandler(r *http.Request, rsp *Rsp, param martini.Params, loginName string) (int, string) {
 	repname := strings.TrimSpace(param["repname"])
 	if repname == "" {
@@ -116,7 +117,7 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, userN
 	return rsp.Json(200, E(OK), l)
 }
 
-//curl http://127.0.0.1:8080/repositories/NBA/bear23 -d "{\"repaccesstype\":\"public\", \"meta\":\"{}\",\"sample\":\"{}\",\"comment\":\"中国移动北京终端详情\", \"label\":{\"sys\":{\"supply_style\":\"flow\",\"refresh\":\"3天\"}}}" -u admin:admin
+//curl http://127.0.0.1:8080/repositories/NBA/bear23 -d "{\"repaccesstype\":\"public\", \"meta\":\"{}\",\"sample\":\"{}\",\"comment\":\"中国移动北京终端详情\", \"label\":{\"sys\":{\"supply_style\":\"flow\",\"refresh\":\"3天\"}}}" -H admin:admin
 func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string) (int, string) {
 	repname := param["repname"]
 	if repname == "" {
@@ -158,7 +159,7 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	return rsp.Json(200, E(OK))
 }
 
-//curl http://127.0.0.1:8080/repositories/rep123/bear23 -X DELETE -u admin:admin
+//curl http://127.0.0.1:8080/repositories/rep123/bear23 -X DELETE -H admin:admin
 func delDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string) (int, string) {
 	repname := param["repname"]
 	if repname == "" {
@@ -185,7 +186,7 @@ func delDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 	return rsp.Json(200, E(OK))
 }
 
-//curl http://10.1.235.98:8080/select_labels/CHINA -d "order=100" -u admin:admin
+//curl http://10.1.235.98:8080/select_labels/CHINA -d "order=100" -H admin:admin
 func setSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	labelname := ""
 	if labelname = strings.TrimSpace(param["labelname"]); labelname == "" {
@@ -234,7 +235,7 @@ func getSelectLabelsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	return rsp.Json(200, E(OK), l)
 }
 
-//curl http://127.0.0.1:8080/repositories/NBA/bear23/0001 -d "{\"comment\":\"this is a tag\"}" -u admin:admin
+//curl http://127.0.0.1:8080/repositories/NBA/bear23/0001 -d "{\"comment\":\"this is a tag\"}" -H user:admin
 func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string) (int, string) {
 	repname := param["repname"]
 	if repname == "" {
@@ -255,6 +256,7 @@ func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, logi
 	if err == mgo.ErrNotFound {
 		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("itemname : %s", itemname)))
 	}
+
 	if item.Create_name != loginName {
 		return rsp.Json(400, E(ErrorCodePermissionDenied))
 	}
@@ -274,6 +276,54 @@ func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, logi
 	return rsp.Json(200, E(OK))
 }
 
+//curl http://127.0.0.1:8080/repositories/NBA/bear23/0001 -H user:admin
+func getTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
+	repname := param["repname"]
+	if repname == "" {
+		return rsp.Json(400, ErrNoParameter("repname"))
+	}
+	itemname := param["itemname"]
+	if itemname == "" {
+		return rsp.Json(400, ErrNoParameter("itemname"))
+	}
+	tagname := param["tag"]
+	if tagname == "" {
+		return rsp.Json(400, ErrNoParameter("tag"))
+	}
+
+	Q := bson.M{COL_REP_NAME: repname, COL_ITEM_NAME: itemname, COL_TAG_TAG: tagname}
+	tag, err := db.getTag(Q)
+	if err == mgo.ErrNotFound {
+		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("tag : %s", tag)))
+	}
+
+	return rsp.Json(200, E(OK), tag)
+}
+
+//curl http://127.0.0.1:8080/repositories/NBA/bear23/0001 -H user:admin -X DELETE
+func delTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
+	repname := param["repname"]
+	if repname == "" {
+		return rsp.Json(400, ErrNoParameter("repname"))
+	}
+	itemname := param["itemname"]
+	if itemname == "" {
+		return rsp.Json(400, ErrNoParameter("itemname"))
+	}
+	tagname := param["tag"]
+	if tagname == "" {
+		return rsp.Json(400, ErrNoParameter("tag"))
+	}
+
+	Q := bson.M{COL_REP_NAME: repname, COL_ITEM_NAME: itemname, COL_TAG_TAG: tagname}
+	err := db.delTag(Q)
+	if err != nil {
+		return rsp.Json(400, ErrDataBase(err))
+	}
+
+	return rsp.Json(200, E(OK))
+}
+
 //curl http://127.0.0.1:8080/repositories/NBA/bear23
 func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	repname := param["repname"]
@@ -290,6 +340,7 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	if err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
+
 	return rsp.Json(200, E(OK), item)
 }
 
@@ -344,7 +395,7 @@ func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	return rsp.Json(200, E(OK), l)
 }
 
-//curl http://127.0.0.1:8080/permit/michael -u michael:pan
+//curl http://127.0.0.1:8080/permit/michael -H michael:pan
 func getUsrPmtRepsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	var user_name string
 	if user_name = strings.TrimSpace(param["user_name"]); user_name == "" {
@@ -359,7 +410,7 @@ func getUsrPmtRepsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *D
 	return rsp.Json(200, E(OK), l)
 }
 
-//curl http://127.0.0.1:8080/permit/michael -d "repname=rep00002" -u michael:pan
+//curl http://127.0.0.1:8080/permit/michael -d "repname=rep00002" -H user:admin
 func setUsrPmtRepsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	var user_name, repname string
 	if user_name = strings.TrimSpace(param["user_name"]); user_name == "" {

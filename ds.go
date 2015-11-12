@@ -94,5 +94,6 @@ func initDb(session *mgo.Session) {
 	utee.Chk(err)
 	err = db.C(C_REPOSITORY_PERMIT).EnsureIndex(mgo.Index{Key: []string{COL_REP_NAME, COL_PERMIT_USER}, Unique: true})
 	utee.Chk(err)
-
+	err = db.C(C_TAG).EnsureIndex(mgo.Index{Key: []string{COL_REP_NAME, COL_ITEM_NAME, COL_TAG_TAG}, Unique: true})
+	utee.Chk(err)
 }

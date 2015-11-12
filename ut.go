@@ -75,27 +75,8 @@ func get(err error) {
 type Result struct {
 	Code uint        `json:"code"`
 	Msg  string      `json:"msg"`
-	Data interface{} `json:"data,omitempty"`
+	Data interface{} `json:"data"`
 }
-
-//w.Header().Set("Content-Type", "application/json; charset=utf-8")
-//w.WriteHeader(statusCode)
-//
-//if e == nil {
-//e = ErrorNone
-//}
-//
-////result := Result {code: e.code, msg: e.message, data: data}
-//result := Result {Code: e.code, Msg: e.message}
-//
-//log.Printf (fmt.Sprintf ("code: %s", e.code))
-//
-//jsondata, err := json.Marshal(&result)
-//if err != nil {
-//w.Write([]byte(getJsonBuildingErrorJson ()))
-//} else {
-//w.Write(jsondata)
-//}
 
 func (p *Rsp) Json(code int, e *Error, data ...interface{}) (int, string) {
 	p.w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -103,10 +84,13 @@ func (p *Rsp) Json(code int, e *Error, data ...interface{}) (int, string) {
 	p.w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept,X-Requested-With")
 	p.w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
-	result := Result{Code: e.code, Msg: e.message}
+	result := new(Result)
 	if len(data) > 0 {
 		result.Data = data[0]
 	}
+	result.Code = e.code
+	result.Msg = e.message
+
 	b, err := json.Marshal(result)
 	chk(err)
 	return code, string(b)
