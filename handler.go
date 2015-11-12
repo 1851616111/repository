@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-martini/martini"
-	"github.com/lunny/log"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
@@ -185,8 +184,8 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	if err := json.Unmarshal(body, &d); err != nil {
 		return rsp.Json(400, ErrParseJson(err))
 	}
-	selector := bson.M{COL_REP_NAME: repname, COL_ITEM_NAME: itemname}
 
+	selector := bson.M{COL_REP_NAME: repname, COL_ITEM_NAME: itemname}
 	updater := bson.M{}
 	if d.Itemaccesstype != "" {
 		if d.Itemaccesstype != ACCESS_PRIVATE && d.Itemaccesstype != ACCESS_PUBLIC {
