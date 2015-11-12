@@ -37,8 +37,10 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 	body, _ := ioutil.ReadAll(r.Body)
 
 	rep := new(repository)
-	if err := json.Unmarshal(body, &rep); err != nil {
-		return rsp.Json(400, ErrParseJson(err))
+	if len(body) > 0 {
+		if err := json.Unmarshal(body, &rep); err != nil {
+			return rsp.Json(400, ErrParseJson(err))
+		}
 	}
 
 	now := time.Now()
@@ -117,7 +119,7 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, userN
 	return rsp.Json(200, E(OK), l)
 }
 
-//curl http://127.0.0.1:8080/repositories/NBA/bear23 -d "{\"repaccesstype\":\"public\", \"meta\":\"{}\",\"sample\":\"{}\",\"comment\":\"中国移动北京终端详情\", \"label\":{\"sys\":{\"supply_style\":\"flow\",\"refresh\":\"3天\"}}}" -H admin:admin
+//curl http://127.0.0.1:8080/repositories/NBA/bear23 -d "{\"itemaccesstype\":\"public\", \"meta\":\"{}\",\"sample\":\"{}\",\"comment\":\"中国移动北京终端详情\", \"label\":{\"sys\":{\"supply_style\":\"flow\",\"refresh\":\"3天\"}}}" -H admin:admin
 func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string) (int, string) {
 	repname := param["repname"]
 	if repname == "" {
@@ -136,8 +138,10 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	body, _ := ioutil.ReadAll(r.Body)
 
 	d := new(dataItem)
-	if err := json.Unmarshal(body, &d); err != nil {
-		return rsp.Json(400, ErrParseJson(err))
+	if len(body) > 0 {
+		if err := json.Unmarshal(body, &d); err != nil {
+			return rsp.Json(400, ErrParseJson(err))
+		}
 	}
 
 	d.Repository_name = repname
@@ -147,6 +151,46 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	d.Optime = now
 	d.Ct = now
 	d.Stars, d.Tags = 0, 0
+
+	if d.Itemaccesstype != ACCESS_PRIVATE || d.Itemaccesstype != ACCESS_PUBLIC {
+		d.Itemaccesstype = ACCESS_PUBLIC
+	}
+
+	if err := db.DB(DB_NAME).C(C_DATAITEM).Insert(d); err != nil {
+		return rsp.Json(400, ErrDataBase(err))
+
+	}
+	return rsp.Json(200, E(OK))
+}
+
+//curl http://127.0.0.1:8080/repositories/NBA/bear23 -d "{\"repaccesstype\":\"public\", \"meta\":\"{}\",\"sample\":\"{}\",\"comment\":\"中国移动北京终端详情\", \"label\":{\"sys\":{\"supply_style\":\"flow\",\"refresh\":\"3天\"}}}" -H user:admin
+func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string) (int, string) {
+	repname := param["repname"]
+	if repname == "" {
+		return rsp.Json(400, ErrNoParameter("repname"))
+	}
+	itemname := param["itemname"]
+	if itemname == "" {
+		return rsp.Json(400, ErrNoParameter("itemname"))
+	}
+
+	body, _ := ioutil.ReadAll(r.Body)
+
+	d := new(dataItem)
+	if len(body) > 0 {
+		if err := json.Unmarshal(body, &d); err != nil {
+			return rsp.Json(400, ErrParseJson(err))
+		}
+	}
+//	if
+//
+//	d.Repository_name = repname
+//	d.Dataitem_name = itemname
+//	d.Create_name = loginName
+//	now := time.Now()
+//	d.Optime = now
+//	d.Ct = now
+//	d.Stars, d.Tags = 0, 0
 
 	if d.Itemaccesstype != ACCESS_PRIVATE || d.Itemaccesstype != ACCESS_PUBLIC {
 		d.Itemaccesstype = ACCESS_PUBLIC
@@ -263,8 +307,10 @@ func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, logi
 
 	t := new(tag)
 	body, _ := ioutil.ReadAll(r.Body)
-	if err := json.Unmarshal(body, &t); err != nil {
-		return rsp.Json(400, ErrParseJson(err))
+	if len(body) > 0 {
+		if err := json.Unmarshal(body, &t); err != nil {
+			return rsp.Json(400, ErrParseJson(err))
+		}
 	}
 	t.Repository_name, t.Dataitem_name, t.Tag = repname, itemname, tagname
 	t.Optime = time.Now()

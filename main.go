@@ -47,7 +47,7 @@ func main() {
 		r.Post("/:repname/:itemname", auth, createDHandler)
 		r.Post("/:repname/:itemname/:tag", auth, setTagHandler)
 
-		//		r.Put("/:repname/:itemname", auth)
+		r.Put("/:repname/:itemname", auth, updateDHandler)
 
 		r.Put("/:repname", auth, getRsHandler)
 		r.Delete("/:repname", auth, delRHandler)
