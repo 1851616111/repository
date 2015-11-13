@@ -39,7 +39,7 @@ func main() {
 		c.Map(&db)
 	})
 
-	m.Post("/search", searchHandler)
+	m.Get("/search", searchHandler)
 
 	m.Group("/repositories", func(r martini.Router) {
 		r.Get("", auth, getRsHandler)

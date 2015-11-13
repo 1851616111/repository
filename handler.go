@@ -21,6 +21,7 @@ const (
 	COL_ITEM_NAME       = "dataitem_name"
 	COL_ITEM_ACC        = "itemaccesstype"
 	COL_ITEM_COMMENT    = "comment"
+	COL_ITEM_LABEL      = "label"
 	COL_ITEM_META       = "meta"
 	COL_ITEM_SAMPLE     = "sample"
 	COL_TAG_TAG         = "tag"
@@ -202,39 +203,39 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	}
 
 	selector := bson.M{COL_REP_NAME: repname, COL_ITEM_NAME: itemname}
-	updater := bson.M{}
 	if d.Itemaccesstype != "" {
 		if d.Itemaccesstype != ACCESS_PRIVATE && d.Itemaccesstype != ACCESS_PUBLIC {
 			return rsp.Json(400, ErrInvalidParameter("itemaccesstype"))
 		}
-		updater = bson.M{"$set": bson.M{COL_ITEM_ACC: d.Itemaccesstype}}
-		go q_c.producer(exec{C_DATAITEM, selector, updater})
+		updater := bson.M{"$set": bson.M{COL_ITEM_ACC: d.Itemaccesstype}}
+		asynOpt(C_DATAITEM,selector,updater)
 	}
 
-	//		if d.Meta != "" {
-	//			updater = bson.M{"$set": bson.M{COL_ITEM_: d.Itemaccesstype}}
-	//			go q_c.producer(exec{C_DATAITEM, selector, updater})
-	//		}
-	//	log.Printf("%+v", d)
-
-	//	if
-	//
-	//	d.Repository_name = repname
-	//	d.Dataitem_name = itemname
-	//	d.Create_name = loginName
-	//	now := time.Now()
-	//	d.Optime = now
-	//	d.Ct = now
-	//	d.Stars, d.Tags = 0, 0
-
-	if d.Itemaccesstype != ACCESS_PRIVATE && d.Itemaccesstype != ACCESS_PUBLIC {
-		d.Itemaccesstype = ACCESS_PUBLIC
+	if d.Dataitem_name != "" {
+		updater := bson.M{"$set": bson.M{COL_ITEM_META: d.Dataitem_name}}
+		asynOpt(C_DATAITEM,selector,updater)
 	}
 
-	if err := db.DB(DB_NAME).C(C_DATAITEM).Insert(d); err != nil {
-		return rsp.Json(400, ErrDataBase(err))
-
+	if d.Meta != "" {
+		updater := bson.M{"$set": bson.M{COL_ITEM_META: d.Meta}}
+		asynOpt(C_DATAITEM,selector,updater)
 	}
+
+	if d.Sample != "" {
+		updater := bson.M{"$set": bson.M{COL_ITEM_SAMPLE: d.Sample}}
+		asynOpt(C_DATAITEM,selector,updater)
+	}
+
+	if d.Comment != "" {
+		updater := bson.M{"$set": bson.M{COL_ITEM_COMMENT: d.Comment}}
+		asynOpt(C_DATAITEM,selector,updater)
+	}
+
+	if d.Label != "" {
+		updater := bson.M{"$set": bson.M{COL_ITEM_LABEL: d.Label}}
+		asynOpt(C_DATAITEM,selector,updater)
+	}
+
 	return rsp.Json(200, E(OK))
 }
 

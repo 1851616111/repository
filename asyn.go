@@ -43,3 +43,7 @@ func (db *DB) handle(e exec) {
 	}
 	db.Close()
 }
+
+func asynOpt(collection string, selector, updater bson.M) {
+	go q_c.producer(exec{collection, selector, updater})
+}

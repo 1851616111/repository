@@ -176,8 +176,8 @@ func ifInLabel(i interface{}, column string) *Error {
 		for _, v := range m {
 			if mm, ok := v.(map[string]interface{}); ok {
 				if mm[column] != nil {
-					if ok := mm[column].(string); ok != "" {
-						if !contains(SUPPLY_STYLE_ALL, ok) {
+					if columnValue := mm[column].(string); columnValue != "" {
+						if !contains(SUPPLY_STYLE_ALL, columnValue) {
 							return ErrInvalidParameter(fmt.Sprintf("label.%s", column))
 						}
 					}
