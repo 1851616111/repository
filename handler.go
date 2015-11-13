@@ -14,17 +14,26 @@ import (
 )
 
 const (
-	ACCESS_PRIVATE   = "private"
-	ACCESS_PUBLIC    = "public"
-	COL_REP_NAME     = "repository_name"
-	COL_REP_ACC      = "repaccesstype"
-	COL_ITEM_NAME    = "dataitem_name"
-	COL_ITEM_ACC     = "itemaccesstype"
-	COL_TAG_TAG      = "tag"
-	COL_SELECT_LABEL = "labelname"
-	COL_PERMIT_USER  = "user_name"
-	PAGE_INDEX       = 1
-	PAGE_SIZE        = 3
+	ACCESS_PRIVATE      = "private"
+	ACCESS_PUBLIC       = "public"
+	COL_REP_NAME        = "repository_name"
+	COL_REP_ACC         = "repaccesstype"
+	COL_ITEM_NAME       = "dataitem_name"
+	COL_ITEM_ACC        = "itemaccesstype"
+	COL_TAG_TAG         = "tag"
+	COL_SELECT_LABEL    = "labelname"
+	COL_PERMIT_USER     = "user_name"
+	PAGE_INDEX          = 1
+	PAGE_SIZE           = 3
+	LABEL_NED_CHECK     = "supply_style"
+	SUPPLY_STYLE_SINGLE = "single"
+	SUPPLY_STYLE_BATCH  = "batch"
+	SUPPLY_STYLE_FLOW   = "flow"
+)
+
+var (
+	SUPPLY_STYLE_ALL = []string{SUPPLY_STYLE_SINGLE, SUPPLY_STYLE_BATCH, SUPPLY_STYLE_FLOW}
+	NED_CHECK_LABELS = []string{LABEL_NED_CHECK}
 )
 
 //curl http://127.0.0.1:8080/repositories/rep12asda232312sd -d "{\"repaccesstype\": \"public\",\"comment\": \"中国移动北京终端详情\",
@@ -54,6 +63,9 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 	rep.Repository_name = repname
 	rep.Stars, rep.Items = 0, 0
 
+	if err := ifInLabel(rep.Label, LABEL_NED_CHECK); err != nil {
+		return rsp.Json(400, err)
+	}
 	if err := db.DB(DB_NAME).C(C_REPOSITORY).Insert(rep); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}

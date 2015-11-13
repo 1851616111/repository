@@ -171,6 +171,30 @@ func buildTime(absoluteTime string) string {
 //	}
 //}
 
-//func interfaceHandle(i interface{}) {
-//	if i.(map[interface{}]interface{})
-//}
+func ifInLabel(i interface{}, column string) *Error {
+	if m, ok := i.(map[string]interface{}); ok {
+		for _, v := range m {
+			if mm, ok := v.(map[string]interface{}); ok {
+				if mm[column] != nil {
+					if ok := mm[column].(string); ok != "" {
+						if !contains(SUPPLY_STYLE_ALL, ok) {
+							return ErrInvalidParameter(fmt.Sprintf("label.%s", column))
+						}
+					}
+				} else {
+					return ErrNoParameter(fmt.Sprintf("label.%s", column))
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func contains(l []string, str string) bool {
+	for _, v := range l {
+		if str == v {
+			return true
+		}
+	}
+	return false
+}
