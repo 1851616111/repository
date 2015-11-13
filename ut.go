@@ -150,7 +150,7 @@ func buildTime(absoluteTime string) string {
 	return abst
 }
 
-//func Parse(p *dataItem) {
+//func Parse(p *dataItem, cb ...func()) {
 //	t := reflect.TypeOf(*p)
 //	v := reflect.ValueOf(p).Elem()
 //	for i := 0; i < t.NumField(); i++ {
@@ -168,6 +168,40 @@ func buildTime(absoluteTime string) string {
 //				v.FieldByName(f.Name).SetFloat(ff)
 //			}
 //		}
+//	}
+//}
+
+//func paramSetter(p *dataItem, cb ...func()) {
+//	t := reflect.TypeOf(*p)
+//	v := reflect.ValueOf(p).Elem()
+//	for i := 0; i < t.NumField(); i++ {
+//		f := t.Field(i)
+//		switch f.Type.Name() {
+//		case "int":
+//			i, _ := strconv.Atoi(name)
+//			v.FieldByName(f.Name).SetInt(int64(i))
+//		case "string":
+//			v.FieldByName(f.Name).SetString(name)
+//		case "float32":
+//		case "float64":
+//			ff, _ := strconv.ParseFloat(name, 10)
+//			v.FieldByName(f.Name).SetFloat(ff)
+//		case "interface{}":
+//
+//		}
+//		v.Field(i).
+//		if name := r.PostFormValue(strings.ToLower(f.Name)); name != "" {
+//			switch f.Type.Name() {
+//			case "int":
+//				i, _ := strconv.Atoi(name)
+//				v.FieldByName(f.Name).SetInt(int64(i))
+//			case "string":
+//				v.FieldByName(f.Name).SetString(name)
+//			case "float32":
+//			case "float64":
+//				ff, _ := strconv.ParseFloat(name, 10)
+//				v.FieldByName(f.Name).SetFloat(ff)
+//			}
 //	}
 //}
 

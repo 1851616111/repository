@@ -41,7 +41,7 @@ type names struct {
 type dataItem struct {
 	Repository_name string      `json:"-"`
 	Dataitem_name   string      `json:"-"`
-	Create_name     string      `json:"create_user,omitempty"`
+	Create_user     string      `json:"create_user,omitempty"`
 	Itemaccesstype  string      `json:"itemaccesstype,omitempty"`
 	Price           interface{} `json:"price,omitempty", bson:"-"`
 	Optime          string      `json:"optime,omitempty"`

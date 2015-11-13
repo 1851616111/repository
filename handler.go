@@ -40,8 +40,6 @@ var (
 	NED_CHECK_LABELS = []string{LABEL_NED_CHECK}
 )
 
-//curl http://127.0.0.1:8080/repositories/rep12asda232312sd -d "{\"repaccesstype\": \"public\",\"comment\": \"中国移动北京终端详情\",
-//\"label\":{\"sys\":{\"name\":\"中国移动\"},\"opt\":{\"name\":\"中国移动\"},\"owner\":{\"name\":\"中国移动\"},\"other\":{\"name\":\"中国移动\"}}}" -H admin:admin
 func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name string) (int, string) {
 	repname := strings.TrimSpace(param["repname"])
 	if repname == "" {
@@ -67,9 +65,6 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 	rep.Repository_name = repname
 	rep.Stars, rep.Items = 0, 0
 
-	if err := ifInLabel(rep.Label, LABEL_NED_CHECK); err != nil {
-		return rsp.Json(400, err)
-	}
 	if err := db.DB(DB_NAME).C(C_REPOSITORY).Insert(rep); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
@@ -137,7 +132,7 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, userN
 	return rsp.Json(200, E(OK), l)
 }
 
-//curl http://127.0.0.1:8080/repositories/NBA/bear23 -d "{\"itemaccesstype\":\"public\", \"meta\":\"{}\",\"sample\":\"{}\",\"comment\":\"中国移动北京终端详情\", \"label\":{\"sys\":{\"supply_style\":\"flow\",\"refresh\":\"3天\"}}}" -H admin:admin
+//curl http://127.0.0.1:8080/repositories/NBA/bear23 -d "{\"itemaccesstype\":\"public\", \"meta\":\"{}\",\"sample\":\"{}\",\"comment\":\"中国移 动北京终端详情\", \"label\":{\"sys\":{\"supply_style\":\"flow\"}}}" -H user:admin
 func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string) (int, string) {
 	repname := param["repname"]
 	if repname == "" {
@@ -164,7 +159,7 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 
 	d.Repository_name = repname
 	d.Dataitem_name = itemname
-	d.Create_name = loginName
+	d.Create_user = loginName
 	now := time.Now()
 	d.Optime = now.String()
 	d.Ct = now
@@ -172,6 +167,10 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 
 	if d.Itemaccesstype != ACCESS_PRIVATE && d.Itemaccesstype != ACCESS_PUBLIC {
 		d.Itemaccesstype = ACCESS_PUBLIC
+	}
+
+	if err := ifInLabel(d.Label, LABEL_NED_CHECK); err != nil {
+		return rsp.Json(400, err)
 	}
 
 	if err := db.DB(DB_NAME).C(C_DATAITEM).Insert(d); err != nil {
@@ -192,7 +191,18 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		return rsp.Json(400, ErrNoParameter("itemname"))
 	}
 
+	Q := bson.M{COL_REP_NAME: repname, COL_ITEM_NAME: itemname}
+	item, err := db.getDataitem(Q)
+	if err == mgo.ErrNotFound {
+		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s %s:=%s", COL_REP_NAME, repname, COL_ITEM_NAME, itemname)))
+	}
+
+	if item.Create_user != loginName {
+		return rsp.Json(400, E(ErrorCodePermissionDenied))
+	}
+
 	body, _ := ioutil.ReadAll(r.Body)
+	defer r.Body.Close()
 
 	d := new(dataItem)
 	if len(body) == 0 {
@@ -208,34 +218,38 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 			return rsp.Json(400, ErrInvalidParameter("itemaccesstype"))
 		}
 		updater := bson.M{"$set": bson.M{COL_ITEM_ACC: d.Itemaccesstype}}
-		asynOpt(C_DATAITEM,selector,updater)
+		asynOpt(C_DATAITEM, selector, updater)
 	}
 
+	u := bson.M{}
+
 	if d.Dataitem_name != "" {
-		updater := bson.M{"$set": bson.M{COL_ITEM_META: d.Dataitem_name}}
-		asynOpt(C_DATAITEM,selector,updater)
+		u[COL_ITEM_NAME] = d.Dataitem_name
 	}
 
 	if d.Meta != "" {
-		updater := bson.M{"$set": bson.M{COL_ITEM_META: d.Meta}}
-		asynOpt(C_DATAITEM,selector,updater)
+		u[COL_ITEM_META] = d.Meta
 	}
 
 	if d.Sample != "" {
-		updater := bson.M{"$set": bson.M{COL_ITEM_SAMPLE: d.Sample}}
-		asynOpt(C_DATAITEM,selector,updater)
+		u[COL_ITEM_SAMPLE] = d.Sample
 	}
 
 	if d.Comment != "" {
-		updater := bson.M{"$set": bson.M{COL_ITEM_COMMENT: d.Comment}}
-		asynOpt(C_DATAITEM,selector,updater)
+		u[COL_ITEM_COMMENT] = d.Comment
 	}
 
 	if d.Label != "" {
-		updater := bson.M{"$set": bson.M{COL_ITEM_LABEL: d.Label}}
-		asynOpt(C_DATAITEM,selector,updater)
+		if err := ifInLabel(d.Label, LABEL_NED_CHECK); err != nil {
+			return rsp.Json(400, err)
+		}
+		u[COL_ITEM_LABEL] = d.Label
 	}
 
+	if len(u) > 0 {
+		updater := bson.M{"$set": u}
+		asynOpt(C_DATAITEM, selector, updater)
+	}
 	return rsp.Json(200, E(OK))
 }
 
@@ -254,9 +268,10 @@ func delDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 	item, err := db.getDataitem(Q)
 
 	if err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("repname : %s", repname)))
+		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s %s:=%s", COL_REP_NAME, repname, COL_ITEM_NAME, itemname)))
 	}
-	if item.Create_name != loginName {
+
+	if item.Create_user != loginName {
 		return rsp.Json(400, E(ErrorCodePermissionDenied))
 	}
 
@@ -337,7 +352,7 @@ func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, logi
 		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("itemname : %s", itemname)))
 	}
 
-	if item.Create_name != loginName {
+	if item.Create_user != loginName {
 		return rsp.Json(400, E(ErrorCodePermissionDenied))
 	}
 
