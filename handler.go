@@ -20,6 +20,9 @@ const (
 	COL_REP_ACC         = "repaccesstype"
 	COL_ITEM_NAME       = "dataitem_name"
 	COL_ITEM_ACC        = "itemaccesstype"
+	COL_ITEM_COMMENT    = "comment"
+	COL_ITEM_META       = "meta"
+	COL_ITEM_SAMPLE     = "sample"
 	COL_TAG_TAG         = "tag"
 	COL_SELECT_LABEL    = "labelname"
 	COL_PERMIT_USER     = "user_name"
@@ -208,7 +211,10 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		go q_c.producer(exec{C_DATAITEM, selector, updater})
 	}
 
-	//	if d.
+	//		if d.Meta != "" {
+	//			updater = bson.M{"$set": bson.M{COL_ITEM_: d.Itemaccesstype}}
+	//			go q_c.producer(exec{C_DATAITEM, selector, updater})
+	//		}
 	//	log.Printf("%+v", d)
 
 	//	if
