@@ -20,7 +20,7 @@ const (
 	COL_REP_ACC         = "repaccesstype"
 	COL_ITEM_NAME       = "dataitem_name"
 	COL_ITEM_ACC        = "itemaccesstype"
-	COL_ITEM_COMMENT    = "comment"
+	COL_COMMENT         = "comment"
 	COL_LABEL           = "label"
 	COL_OPTIME          = "optime"
 	COL_ITEM_META       = "meta"
@@ -145,7 +145,7 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, loginName s
 	}
 
 	if rep.Comment != "" {
-		u[COL_ITEM_COMMENT] = rep.Comment
+		u[COL_COMMENT] = rep.Comment
 	}
 
 	if rep.Label != "" {
@@ -295,7 +295,7 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	}
 
 	if d.Comment != "" {
-		u[COL_ITEM_COMMENT] = d.Comment
+		u[COL_COMMENT] = d.Comment
 	}
 
 	if d.Label != "" {
@@ -441,6 +441,54 @@ func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, logi
 	if err := db.DB(DB_NAME).C(C_TAG).Insert(t); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
+
+	return rsp.Json(200, E(OK))
+}
+
+func updateTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string) (int, string) {
+	repname := param["repname"]
+	if repname == "" {
+		return rsp.Json(400, ErrNoParameter("repname"))
+	}
+	itemname := param["itemname"]
+	if itemname == "" {
+		return rsp.Json(400, ErrNoParameter("itemname"))
+	}
+	tagname := param["tag"]
+	if tagname == "" {
+		return rsp.Json(400, ErrNoParameter("tag"))
+	}
+
+	Q := bson.M{COL_REP_NAME: repname, COL_ITEM_NAME: itemname}
+	item, err := db.getDataitem(Q)
+
+	if err == mgo.ErrNotFound {
+		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("itemname : %s", itemname)))
+	}
+
+	if item.Create_user != loginName {
+		return rsp.Json(400, E(ErrorCodePermissionDenied))
+	}
+
+	t := new(tag)
+	body, _ := ioutil.ReadAll(r.Body)
+	if len(body) > 0 {
+		if err := json.Unmarshal(body, &t); err != nil {
+			return rsp.Json(400, ErrParseJson(err))
+		}
+	}
+
+	if t.Comment == "" {
+		return rsp.Json(400, E(ErrorCodeInvalidParameters))
+	}
+
+	now := time.Now().String()
+	go asynOpt(C_REPOSITORY, bson.M{COL_REP_NAME: repname}, bson.M{CMD_SET: bson.M{COL_OPTIME: now}})
+
+	go asynOpt(C_DATAITEM, Q, bson.M{CMD_INC: bson.M{"tags": 1}, CMD_SET: bson.M{COL_OPTIME: now}})
+
+	Q[COL_TAG_NAME] = tagname
+	go asynOpt(C_TAG, Q, bson.M{"$set": bson.M{COL_COMMENT: t.Comment, COL_OPTIME: now}})
 
 	return rsp.Json(200, E(OK))
 }

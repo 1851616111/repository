@@ -54,6 +54,7 @@ func main() {
 
 		r.Put("/:repname", auth, updateRHandler)
 		r.Put("/:repname/:itemname", auth, updateDHandler)
+		r.Put("/:repname/:itemname/:tag", auth, updateTagHandler)
 
 		r.Put("/:repname", auth, getRsHandler)
 		r.Delete("/:repname", auth, delRHandler)
