@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"log"
 )
 
 const (
@@ -44,6 +45,9 @@ var (
 )
 
 func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name string) (int, string) {
+	log.Println("------------------------------")
+	log.Println(r)
+	log.Println("------------------------------")
 	repname := strings.TrimSpace(param["repname"])
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
