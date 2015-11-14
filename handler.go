@@ -7,11 +7,11 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
-	"log"
 )
 
 const (
@@ -55,13 +55,16 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 
 	body, _ := ioutil.ReadAll(r.Body)
 
+	log.Println("------------------------------1")
 	rep := new(repository)
 	if len(body) > 0 {
 		if err := json.Unmarshal(body, &rep); err != nil {
 			return rsp.Json(400, ErrParseJson(err))
 		}
 	}
-	log.Printf("%+v", rep)
+	log.Println("------------------------------2")
+	log.Printf("------>>><<<%+v", rep)
+	log.Println("------------------------------3")
 	now := time.Now()
 	if rep.Repaccesstype != ACCESS_PUBLIC && rep.Repaccesstype != ACCESS_PRIVATE {
 		rep.Repaccesstype = ACCESS_PUBLIC
@@ -71,10 +74,11 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 	rep.Create_user = login_name
 	rep.Repository_name = repname
 	rep.Stars, rep.Items = 0, 0
-
+	log.Println("------------------------------4")
 	if err := db.DB(DB_NAME).C(C_REPOSITORY).Insert(rep); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
+	log.Println("------------------------------5", rep)
 	return rsp.Json(200, E(OK))
 }
 

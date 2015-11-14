@@ -62,7 +62,6 @@ func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 		result.Results = l[(page_index-1)*page_size : page_index*page_size]
 	}
 
-
 	if length < page_index*page_size && length >= (page_index-1)*page_size {
 		result.Results = l[(page_index-1)*page_size : length]
 	} else if length < page_index*page_size {
