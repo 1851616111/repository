@@ -59,6 +59,7 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 	rep := new(repository)
 	if len(body) > 0 {
 		if err := json.Unmarshal(body, &rep); err != nil {
+			log.Println("json parseerr ------------------->", err.Error())
 			return rsp.Json(400, ErrParseJson(err))
 		}
 	}
