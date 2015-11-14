@@ -45,5 +45,5 @@ func (db *DB) handle(e exec) {
 }
 
 func asynOpt(collection string, selector, updater bson.M) {
-	go q_c.producer(exec{collection, selector, updater})
+	q_c.producer(exec{collection, selector, updater})
 }

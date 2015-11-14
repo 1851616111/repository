@@ -21,7 +21,7 @@ const (
 	COL_ITEM_NAME       = "dataitem_name"
 	COL_ITEM_ACC        = "itemaccesstype"
 	COL_ITEM_COMMENT    = "comment"
-	COL_ITEM_LABEL      = "label"
+	COL_LABEL           = "label"
 	COL_ITEM_META       = "meta"
 	COL_ITEM_SAMPLE     = "sample"
 	COL_TAG_TAG         = "tag"
@@ -33,6 +33,7 @@ const (
 	SUPPLY_STYLE_SINGLE = "single"
 	SUPPLY_STYLE_BATCH  = "batch"
 	SUPPLY_STYLE_FLOW   = "flow"
+	CMD_INC             = "$inc"
 )
 
 var (
@@ -77,7 +78,7 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params) (int, string) 
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
 	}
-	Q := bson.M{"repository_name": repname}
+	Q := bson.M{COL_REP_NAME: repname}
 	rep, err := db.getRepository(Q)
 	rep.Optime = buildTime(rep.Optime)
 	return rsp.Json(200, ErrDataBase(err), rep)
@@ -89,7 +90,7 @@ func delRHandler(r *http.Request, rsp *Rsp, param martini.Params, loginName stri
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
 	}
-	Q := bson.M{"repository_name": repname}
+	Q := bson.M{COL_REP_NAME: repname}
 	rep, err := db.getRepository(Q)
 	if err != nil {
 		return rsp.Json(400, ErrDataBase(err))
@@ -100,6 +101,60 @@ func delRHandler(r *http.Request, rsp *Rsp, param martini.Params, loginName stri
 	if err := db.delRepository(Q); err != nil {
 		return rsp.Json(200, ErrDataBase(err))
 	}
+	return rsp.Json(200, E(OK))
+}
+
+//curl http://127.0.0.1:8080/repositories/NBA -d "{\"repaccesstype\":\"public\",\"comment\":\"中国移动北京终端详情\", \"label\":{\"sys\":{\"supply_style\":\"flow\",\"refresh\":\"3天\"}}}" -H user:admin -X PUT
+func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, loginName string) (int, string) {
+	repname := param["repname"]
+	if repname == "" {
+		return rsp.Json(400, ErrNoParameter("repname"))
+	}
+
+	Q := bson.M{COL_REP_NAME: repname}
+	repo, err := db.getRepository(Q)
+	if err == mgo.ErrNotFound {
+		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s", COL_REP_NAME, repname)))
+	}
+
+	if repo.Create_user != loginName {
+		return rsp.Json(400, E(ErrorCodePermissionDenied))
+	}
+
+	body, _ := ioutil.ReadAll(r.Body)
+	defer r.Body.Close()
+
+	rep := new(repository)
+	if len(body) == 0 {
+		return rsp.Json(400, ErrNoParameter(""))
+	}
+	if err := json.Unmarshal(body, &rep); err != nil {
+		return rsp.Json(400, ErrParseJson(err))
+	}
+
+	selector := bson.M{COL_REP_NAME: repname}
+
+	u := bson.M{}
+	if rep.Repaccesstype != "" {
+		if rep.Repaccesstype != ACCESS_PRIVATE && rep.Repaccesstype != ACCESS_PUBLIC {
+			return rsp.Json(400, ErrInvalidParameter("repaccesstype"))
+		}
+		u[COL_REP_ACC] = rep.Repaccesstype
+	}
+
+	if rep.Comment != "" {
+		u[COL_ITEM_COMMENT] = rep.Comment
+	}
+
+	if rep.Label != "" {
+		u[COL_LABEL] = rep.Label
+	}
+
+	if len(u) > 0 {
+		updater := bson.M{"$set": u}
+		go asynOpt(C_REPOSITORY, selector, updater)
+	}
+
 	return rsp.Json(200, E(OK))
 }
 
@@ -175,8 +230,10 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 
 	if err := db.DB(DB_NAME).C(C_DATAITEM).Insert(d); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
-
 	}
+
+	go asynOpt(C_REPOSITORY, bson.M{COL_REP_NAME: repname}, bson.M{CMD_INC: "items"})
+
 	return rsp.Json(200, E(OK))
 }
 
@@ -213,15 +270,14 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	}
 
 	selector := bson.M{COL_REP_NAME: repname, COL_ITEM_NAME: itemname}
+	u := bson.M{}
+
 	if d.Itemaccesstype != "" {
 		if d.Itemaccesstype != ACCESS_PRIVATE && d.Itemaccesstype != ACCESS_PUBLIC {
 			return rsp.Json(400, ErrInvalidParameter("itemaccesstype"))
 		}
-		updater := bson.M{"$set": bson.M{COL_ITEM_ACC: d.Itemaccesstype}}
-		asynOpt(C_DATAITEM, selector, updater)
+		u[COL_ITEM_ACC] = d.Itemaccesstype
 	}
-
-	u := bson.M{}
 
 	if d.Dataitem_name != "" {
 		u[COL_ITEM_NAME] = d.Dataitem_name
@@ -243,12 +299,12 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		if err := ifInLabel(d.Label, LABEL_NED_CHECK); err != nil {
 			return rsp.Json(400, err)
 		}
-		u[COL_ITEM_LABEL] = d.Label
+		u[COL_LABEL] = d.Label
 	}
 
 	if len(u) > 0 {
 		updater := bson.M{"$set": u}
-		asynOpt(C_DATAITEM, selector, updater)
+		go asynOpt(C_DATAITEM, selector, updater)
 	}
 	return rsp.Json(200, E(OK))
 }
@@ -278,6 +334,8 @@ func delDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 	if err := db.delDataitem(Q); err != nil {
 		return rsp.Json(200, ErrDataBase(err))
 	}
+
+	go asynOpt(C_REPOSITORY, bson.M{COL_REP_NAME: repname}, bson.M{CMD_INC: "items"})
 	return rsp.Json(200, E(OK))
 }
 
@@ -370,6 +428,9 @@ func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, logi
 		return rsp.Json(400, ErrDataBase(err))
 
 	}
+
+	go asynOpt(C_DATAITEM, Q, bson.M{CMD_INC: "tags"})
+
 	return rsp.Json(200, E(OK))
 }
 
@@ -527,7 +588,7 @@ func setUsrPmtRepsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *D
 		return rsp.Json(400, ErrDataBase(err))
 	}
 
-	Exec := bson.M{"repository_name": repname, "user_name": user_name}
+	Exec := bson.M{COL_REP_NAME: repname, "user_name": user_name}
 	if err := db.DB(DB_NAME).C(C_REPOSITORY_PERMIT).Insert(Exec); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
