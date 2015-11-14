@@ -232,7 +232,7 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		return rsp.Json(400, ErrDataBase(err))
 	}
 
-	go asynOpt(C_REPOSITORY, bson.M{COL_REP_NAME: repname}, bson.M{CMD_INC: "items"})
+	go asynOpt(C_REPOSITORY, bson.M{COL_REP_NAME: repname}, bson.M{CMD_INC: bson.M{"items": 1}})
 
 	return rsp.Json(200, E(OK))
 }
@@ -320,7 +320,10 @@ func delDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 		return rsp.Json(400, ErrNoParameter("itemname"))
 	}
 
-	Q := bson.M{COL_REP_NAME: repname, COL_ITEM_NAME: itemname}
+	Q := bson.M{COL_REP_NAME: repname}
+	go asynOpt(C_REPOSITORY, Q, bson.M{CMD_INC: bson.M{"items": -1}})
+
+	Q[COL_ITEM_NAME] = itemname
 	item, err := db.getDataitem(Q)
 
 	if err == mgo.ErrNotFound {
@@ -335,7 +338,6 @@ func delDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 		return rsp.Json(200, ErrDataBase(err))
 	}
 
-	go asynOpt(C_REPOSITORY, bson.M{COL_REP_NAME: repname}, bson.M{CMD_INC: "items"})
 	return rsp.Json(200, E(OK))
 }
 
@@ -429,7 +431,7 @@ func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, logi
 
 	}
 
-	go asynOpt(C_DATAITEM, Q, bson.M{CMD_INC: "tags"})
+	go asynOpt(C_DATAITEM, Q, bson.M{CMD_INC: bson.M{"tags": 1}})
 
 	return rsp.Json(200, E(OK))
 }
@@ -473,7 +475,10 @@ func delTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int
 		return rsp.Json(400, ErrNoParameter("tag"))
 	}
 
-	Q := bson.M{COL_REP_NAME: repname, COL_ITEM_NAME: itemname, COL_TAG_TAG: tagname}
+	Q := bson.M{COL_REP_NAME: repname, COL_ITEM_NAME: itemname}
+	go asynOpt(C_DATAITEM, Q, bson.M{CMD_INC: bson.M{"tags": -1}})
+
+	Q[COL_TAG_TAG] = tagname
 	err := db.delTag(Q)
 	if err != nil {
 		return rsp.Json(400, ErrDataBase(err))
@@ -531,11 +536,12 @@ func updateLabelHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s %s", repname, itemname)))
 	}
 
-	updator := bson.M{"$set": bson.M{"label.sys.select_labels": select_labels}}
-	go q_c.producer(exec{collectionName, selector, updator})
+	u := bson.M{}
+	u["label.sys.select_labels"] = select_labels
+	u["order"] = order
+	updater := bson.M{"$set": u}
 
-	updator = bson.M{"$set": bson.M{"label.sys.order": order}}
-	go q_c.producer(exec{collectionName, selector, updator})
+	go q_c.producer(exec{collectionName, selector, updater})
 
 	return rsp.Json(200, E(OK))
 }

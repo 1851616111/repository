@@ -30,7 +30,7 @@ func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 		}
 	}
 	res := map[string]interface{}{}
-	text := strings.TrimSpace(r.PostFormValue("text"))
+	text := strings.TrimSpace(r.FormValue("text"))
 	searchs := strings.Split(text, " ")
 	for _, v := range searchs {
 		for _, col := range SEARCH_DATAITEM_COLS {
@@ -47,5 +47,10 @@ func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 		str := strings.Split(k, "/")
 		l = append(l, names{str[0], str[1]})
 	}
-	return rsp.Json(200, E(OK), l[(PAGE_INDEX-1)*PAGE_SIZE:PAGE_INDEX*PAGE_SIZE], len(l))
+	length := len(l)
+	if length > page_size {
+		return rsp.Json(200, E(OK), l[(PAGE_INDEX-1)*PAGE_SIZE:PAGE_INDEX*PAGE_SIZE], length)
+	} else {
+		return rsp.Json(200, E(OK), l, length)
+	}
 }
