@@ -61,7 +61,7 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 			return rsp.Json(400, ErrParseJson(err))
 		}
 	}
-
+	log.Printf("%+v", rep)
 	now := time.Now()
 	if rep.Repaccesstype != ACCESS_PUBLIC && rep.Repaccesstype != ACCESS_PRIVATE {
 		rep.Repaccesstype = ACCESS_PUBLIC
