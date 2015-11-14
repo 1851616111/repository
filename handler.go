@@ -22,9 +22,10 @@ const (
 	COL_ITEM_ACC        = "itemaccesstype"
 	COL_ITEM_COMMENT    = "comment"
 	COL_LABEL           = "label"
+	COL_OPTIME          = "optime"
 	COL_ITEM_META       = "meta"
 	COL_ITEM_SAMPLE     = "sample"
-	COL_TAG_TAG         = "tag"
+	COL_TAG_NAME        = "tag"
 	COL_SELECT_LABEL    = "labelname"
 	COL_PERMIT_USER     = "user_name"
 	PAGE_INDEX          = 1
@@ -34,6 +35,7 @@ const (
 	SUPPLY_STYLE_BATCH  = "batch"
 	SUPPLY_STYLE_FLOW   = "flow"
 	CMD_INC             = "$inc"
+	CMD_SET             = "$set"
 )
 
 var (
@@ -151,6 +153,7 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, loginName s
 	}
 
 	if len(u) > 0 {
+		u[COL_OPTIME] = time.Now().String()
 		updater := bson.M{"$set": u}
 		go asynOpt(C_REPOSITORY, selector, updater)
 	}
@@ -232,7 +235,7 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		return rsp.Json(400, ErrDataBase(err))
 	}
 
-	go asynOpt(C_REPOSITORY, bson.M{COL_REP_NAME: repname}, bson.M{CMD_INC: bson.M{"items": 1}})
+	go asynOpt(C_REPOSITORY, bson.M{COL_REP_NAME: repname}, bson.M{CMD_INC: bson.M{"items": 1}, CMD_SET: bson.M{COL_OPTIME: now.String()}})
 
 	return rsp.Json(200, E(OK))
 }
@@ -303,8 +306,12 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	}
 
 	if len(u) > 0 {
+		now := time.Now().String()
+		u[COL_OPTIME] = now
 		updater := bson.M{"$set": u}
 		go asynOpt(C_DATAITEM, selector, updater)
+
+		go asynOpt(C_REPOSITORY, bson.M{COL_REP_NAME: repname}, bson.M{"$set": bson.M{COL_OPTIME: now}})
 	}
 	return rsp.Json(200, E(OK))
 }
@@ -321,7 +328,7 @@ func delDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 	}
 
 	Q := bson.M{COL_REP_NAME: repname}
-	go asynOpt(C_REPOSITORY, Q, bson.M{CMD_INC: bson.M{"items": -1}})
+	go asynOpt(C_REPOSITORY, Q, bson.M{CMD_INC: bson.M{"items": -1}, CMD_SET: bson.M{COL_OPTIME: time.Now().String()}})
 
 	Q[COL_ITEM_NAME] = itemname
 	item, err := db.getDataitem(Q)
@@ -416,6 +423,7 @@ func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, logi
 		return rsp.Json(400, E(ErrorCodePermissionDenied))
 	}
 
+	now := time.Now().String()
 	t := new(tag)
 	body, _ := ioutil.ReadAll(r.Body)
 	if len(body) > 0 {
@@ -424,14 +432,15 @@ func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, logi
 		}
 	}
 	t.Repository_name, t.Dataitem_name, t.Tag = repname, itemname, tagname
-	t.Optime = time.Now().String()
+	t.Optime = now
+
+	go asynOpt(C_REPOSITORY, bson.M{COL_REP_NAME: repname}, bson.M{CMD_SET: bson.M{COL_OPTIME: now}})
+
+	go asynOpt(C_DATAITEM, Q, bson.M{CMD_INC: bson.M{"tags": 1}, CMD_SET: bson.M{COL_OPTIME: now}})
 
 	if err := db.DB(DB_NAME).C(C_TAG).Insert(t); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
-
 	}
-
-	go asynOpt(C_DATAITEM, Q, bson.M{CMD_INC: bson.M{"tags": 1}})
 
 	return rsp.Json(200, E(OK))
 }
@@ -451,7 +460,7 @@ func getTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int
 		return rsp.Json(400, ErrNoParameter("tag"))
 	}
 
-	Q := bson.M{COL_REP_NAME: repname, COL_ITEM_NAME: itemname, COL_TAG_TAG: tagname}
+	Q := bson.M{COL_REP_NAME: repname, COL_ITEM_NAME: itemname, COL_TAG_NAME: tagname}
 	tag, err := db.getTag(Q)
 	if err == mgo.ErrNotFound {
 		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("tag : %s", tag)))
@@ -476,9 +485,9 @@ func delTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int
 	}
 
 	Q := bson.M{COL_REP_NAME: repname, COL_ITEM_NAME: itemname}
-	go asynOpt(C_DATAITEM, Q, bson.M{CMD_INC: bson.M{"tags": -1}})
+	go asynOpt(C_DATAITEM, Q, bson.M{CMD_INC: bson.M{"tags": -1}, CMD_SET: bson.M{COL_OPTIME: time.Now().String()}})
 
-	Q[COL_TAG_TAG] = tagname
+	Q[COL_TAG_NAME] = tagname
 	err := db.delTag(Q)
 	if err != nil {
 		return rsp.Json(400, ErrDataBase(err))

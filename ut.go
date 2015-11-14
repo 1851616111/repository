@@ -140,11 +140,11 @@ func buildTime(absoluteTime string) string {
 		if target_time.After(oneDayAgo) {
 			hour := sec / 3600
 			if hour == 0 {
-				return fmt.Sprintf("%s,%d分钟以前", abst, (sec%3600)/60)
+				return fmt.Sprintf("%s|%d分钟以前", abst, (sec%3600)/60)
 			}
-			return fmt.Sprintf("%s,%d小时以前", abst, hour)
+			return fmt.Sprintf("%s|%d小时以前", abst, hour)
 		} else {
-			return fmt.Sprintf("%s,%d天以前", abst, sec/(3600*24))
+			return fmt.Sprintf("%s|%d天以前", abst, sec/(3600*24))
 		}
 	}
 	return abst
