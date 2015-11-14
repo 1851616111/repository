@@ -47,6 +47,7 @@ var (
 func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name string) (int, string) {
 	log.Println("------------------------------")
 	log.Println(r)
+
 	log.Println("------------------------------")
 	repname := strings.TrimSpace(param["repname"])
 	if repname == "" {
@@ -54,7 +55,7 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 	}
 
 	body, _ := ioutil.ReadAll(r.Body)
-
+	log.Println("----------------r.body", string(body))
 	log.Println("------------------------------1")
 	rep := new(repository)
 	if len(body) > 0 {
