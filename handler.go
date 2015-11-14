@@ -82,8 +82,11 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params) (int, string) 
 	}
 	Q := bson.M{COL_REP_NAME: repname}
 	rep, err := db.getRepository(Q)
+	if err != nil && err == mgo.ErrNotFound {
+		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s", COL_REP_NAME, repname)))
+	}
 	rep.Optime = buildTime(rep.Optime)
-	return rsp.Json(200, ErrDataBase(err), rep)
+	return rsp.Json(200, E(OK), rep)
 }
 
 //curl http://127.0.0.1:8080/repositories/rep123 -X DELETE -H admin:admin

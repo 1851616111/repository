@@ -13,15 +13,6 @@
 			"Rev": "9987fc59f060a063247d22472c2fb48654bac5f6"
 		},
 		{
-			"ImportPath": "github.com/go-sql-driver/mysql",
-			"Comment": "v1.2-119-g527bcd5",
-			"Rev": "527bcd55aab2e53314f1a150922560174b493034"
-		},
-		{
-			"ImportPath": "github.com/lunny/log",
-			"Rev": "9ae5e9effeefca29cf00d932a7b54f1b2d70fd58"
-		},
-		{
 			"ImportPath": "github.com/quexer/utee",
 			"Rev": "aba2fc28aa183a82a149c7767320f1ad67942bd2"
 		},

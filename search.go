@@ -42,15 +42,26 @@ func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 		}
 	}
 
+	var result struct {
+		Results []names `json:"results"`
+		Total   int     `json:"total"`
+	}
+
 	l := []names{}
 	for k, _ := range res {
 		str := strings.Split(k, "/")
 		l = append(l, names{str[0], str[1]})
 	}
+
 	length := len(l)
-	if length > page_size {
-		return rsp.Json(200, E(OK), l[(PAGE_INDEX-1)*PAGE_SIZE:PAGE_INDEX*PAGE_SIZE], length)
-	} else {
-		return rsp.Json(200, E(OK), l, length)
+	if length < page_index*page_size && length >= (page_index-1)*page_size {
+		result.Results = l[(page_index-1)*page_size : length]
+	} else if length < page_index*page_size {
+		result.Results = l
+	} else if length >= page_index*page_size {
+		result.Results = l[(page_index-1)*page_size : page_index*page_size]
 	}
+	result.Total = length
+
+	return rsp.Json(200, E(OK), result)
 }
