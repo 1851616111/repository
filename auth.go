@@ -10,7 +10,7 @@ const (
 )
 
 func auth(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
-	login_Name := r.Header.Get("user")
+	login_Name := r.Header.Get("User")
 	if login_Name == "" {
 		http.Error(w, "unauthorized", 401)
 	}
@@ -20,7 +20,7 @@ func auth(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
 }
 
 func authAdmin(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
-	login_Name := r.Header.Get("user")
+	login_Name := r.Header.Get("User")
 	if login_Name != ADMIN {
 		http.Error(w, "unauthorized", 401)
 		return
