@@ -206,20 +206,18 @@ func buildTime(absoluteTime string) string {
 //}
 
 func ifInLabel(i interface{}, column string) *Error {
-	if m, ok := i.(map[string]interface{}); ok {
-		for _, v := range m {
-			if mm, ok := v.(map[string]interface{}); ok {
-				if mm[column] != nil {
-					if columnValue := mm[column].(string); columnValue != "" {
-						if !contains(SUPPLY_STYLE_ALL, columnValue) {
-							return ErrInvalidParameter(fmt.Sprintf("label.%s", column))
-						}
-					}
-				} else {
-					return ErrNoParameter(fmt.Sprintf("label.%s", column))
-				}
+	if m := i.(map[string]interface{})["sys"]; m != nil {
+		if value := m.(map[string]interface{})[column]; value != nil {
+			if reflect.TypeOf(value).Kind() != reflect.String {
+				return ErrNoParameter(fmt.Sprintf("label.sys.%s", column))
+			} else if !contains(SUPPLY_STYLE_ALL, value.(string)) {
+				return ErrInvalidParameter(fmt.Sprintf("label.sys.%s", column))
 			}
+		} else {
+			return ErrNoParameter(fmt.Sprintf("label.sys.%s", column))
 		}
+	} else {
+		return ErrNoParameter("label.sys")
 	}
 	return nil
 }
