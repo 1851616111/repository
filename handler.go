@@ -414,7 +414,6 @@ func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, logi
 
 	Q := bson.M{COL_REP_NAME: repname, COL_ITEM_NAME: itemname}
 	item, err := db.getDataitem(Q)
-
 	if err == mgo.ErrNotFound {
 		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("itemname : %s", itemname)))
 	}
@@ -459,11 +458,15 @@ func updateTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, l
 		return rsp.Json(400, ErrNoParameter("tag"))
 	}
 
-	Q := bson.M{COL_REP_NAME: repname, COL_ITEM_NAME: itemname}
-	item, err := db.getDataitem(Q)
-
+	Q_item := bson.M{COL_REP_NAME: repname, COL_ITEM_NAME: itemname}
+	item, err := db.getDataitem(Q_item)
 	if err == mgo.ErrNotFound {
 		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("itemname : %s", itemname)))
+	}
+
+	Q_tag := bson.M{COL_REP_NAME: repname, COL_ITEM_NAME: itemname, COL_TAG_NAME: tagname}
+	if _, err := db.getTag(Q_tag); err == mgo.ErrNotFound {
+		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("tagname : %s", tagname)))
 	}
 
 	if item.Create_user != loginName {
@@ -485,10 +488,9 @@ func updateTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, l
 	now := time.Now().String()
 	go asynOpt(C_REPOSITORY, bson.M{COL_REP_NAME: repname}, bson.M{CMD_SET: bson.M{COL_OPTIME: now}})
 
-	go asynOpt(C_DATAITEM, Q, bson.M{CMD_INC: bson.M{"tags": 1}, CMD_SET: bson.M{COL_OPTIME: now}})
+	go asynOpt(C_DATAITEM, Q_item, bson.M{CMD_INC: bson.M{"tags": 1}, CMD_SET: bson.M{COL_OPTIME: now}})
 
-	Q[COL_TAG_NAME] = tagname
-	go asynOpt(C_TAG, Q, bson.M{"$set": bson.M{COL_COMMENT: t.Comment, COL_OPTIME: now}})
+	go asynOpt(C_TAG, Q_tag, bson.M{"$set": bson.M{COL_COMMENT: t.Comment, COL_OPTIME: now}})
 
 	return rsp.Json(200, E(OK))
 }
@@ -511,7 +513,7 @@ func getTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int
 	Q := bson.M{COL_REP_NAME: repname, COL_ITEM_NAME: itemname, COL_TAG_NAME: tagname}
 	tag, err := db.getTag(Q)
 	if err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("tag : %s", tag)))
+		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("tag : %s", tagname)))
 	}
 	tag.Optime = buildTime(tag.Optime)
 	return rsp.Json(200, E(OK), tag)
@@ -533,6 +535,10 @@ func delTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int
 	}
 
 	Q := bson.M{COL_REP_NAME: repname, COL_ITEM_NAME: itemname}
+	if _, err := db.getDataitem(Q); err == mgo.ErrNotFound {
+		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("itemname : %s", itemname)))
+	}
+
 	go asynOpt(C_DATAITEM, Q, bson.M{CMD_INC: bson.M{"tags": -1}, CMD_SET: bson.M{COL_OPTIME: time.Now().String()}})
 
 	Q[COL_TAG_NAME] = tagname
