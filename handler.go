@@ -164,7 +164,7 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, loginName s
 //curl http://127.0.0.1:8080/repositories
 //curl http://10.1.235.98:8080/repositories
 //curl http://10.1.235.98:8080/repositories?page=2&size=3
-func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, userName string) (int, string) {
+func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	//		page_index, page_size := PAGE_INDEX, PAGE_SIZE
 	//		if p := strings.TrimSpace(r.FormValue("page")); p != "" {
 	//			if page_index, _ = strconv.Atoi(p); page_index <= 0 {
