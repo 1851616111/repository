@@ -79,7 +79,7 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 		return rsp.Json(400, ErrDataBase(err))
 	}
 
-	return rsp.Json(200, E(OK), rep)
+	return rsp.Json(200, E(OK))
 }
 
 //curl http://10.1.235.98:8080/repositories/rep00001
