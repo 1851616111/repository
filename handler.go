@@ -277,9 +277,11 @@ func getRsHandler2(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int
 	if len(body) == 0 {
 		return rsp.Json(400, ErrNoParameter(""))
 	}
+	log.Println("xxxxxxxxxxxxxxxxxx1")
 	if err := json.Unmarshal(body, &rep); err != nil {
 		return rsp.Json(400, ErrParseJson(err))
 	}
+	log.Println("xxxxxxxxxxxxxxxxxx2")
 	r.Body.Close()
 	now := time.Now()
 	if rep.Repaccesstype != ACCESS_PUBLIC && rep.Repaccesstype != ACCESS_PRIVATE {
@@ -294,8 +296,8 @@ func getRsHandler2(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int
 		return rsp.Json(400, ErrDataBase(err))
 	}
 	total := time.Now().UnixNano() - T1
-	log.Println("total use ", total/1e6)
-
+	log.Println("-------------------------------------->total use ", total/1e6)
+	log.Println("xxxxxxxxxxxxxxxxxx3")
 	return 200, "ok"
 }
 
