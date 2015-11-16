@@ -54,17 +54,20 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
 	}
-
+	log.Println("xxxxxxxxxxxxxxxxxx111111")
 	body, _ := ioutil.ReadAll(r.Body)
+	log.Println("xxxxxxxxxxxxxxxxxx222222")
 	rep := new(repository)
 	if len(body) == 0 {
 		return rsp.Json(400, ErrNoParameter(""))
 	}
+	log.Println("xxxxxxxxxxxxxxxxxx333333")
 	if err := json.Unmarshal(body, &rep); err != nil {
 		return rsp.Json(400, ErrParseJson(err))
 	}
+	log.Println("xxxxxxxxxxxxxxxxxx444444")
 	r.Body.Close()
-
+	log.Println("xxxxxxxxxxxxxxxxxx555555")
 	now := time.Now()
 	if rep.Repaccesstype != ACCESS_PUBLIC && rep.Repaccesstype != ACCESS_PRIVATE {
 		rep.Repaccesstype = ACCESS_PUBLIC
