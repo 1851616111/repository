@@ -46,6 +46,9 @@ var (
 )
 
 func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name string) (int, string) {
+	log.Printf("request------>%+v", r)
+	log.Printf("request  body ------>%+v", r.Body)
+	log.Printf("request  Method ------>%+v", r.Method)
 	repname := strings.TrimSpace(param["repname"])
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
@@ -53,10 +56,11 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 
 	body, _ := ioutil.ReadAll(r.Body)
 	rep := new(repository)
-	if len(body) > 0 {
-		if err := json.Unmarshal(body, &rep); err != nil {
-			return rsp.Json(400, ErrParseJson(err))
-		}
+	if len(body) == 0 {
+		return rsp.Json(400, ErrNoParameter(""))
+	}
+	if err := json.Unmarshal(body, &rep); err != nil {
+		return rsp.Json(400, ErrParseJson(err))
 	}
 	now := time.Now()
 	if rep.Repaccesstype != ACCESS_PUBLIC && rep.Repaccesstype != ACCESS_PRIVATE {
@@ -211,10 +215,11 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	body, _ := ioutil.ReadAll(r.Body)
 
 	d := new(dataItem)
-	if len(body) > 0 {
-		if err := json.Unmarshal(body, &d); err != nil {
-			return rsp.Json(400, ErrParseJson(err))
-		}
+	if len(body) == 0 {
+		return rsp.Json(400, ErrNoParameter(""))
+	}
+	if err := json.Unmarshal(body, &d); err != nil {
+		return rsp.Json(400, ErrParseJson(err))
 	}
 
 	d.Repository_name = repname
@@ -350,21 +355,24 @@ func delDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 	return rsp.Json(200, E(OK))
 }
 
-//curl http://10.1.235.98:8080/select_labels/CHINA -d "order=100" -H admin:admin
 func setSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	labelname := ""
 	if labelname = strings.TrimSpace(param["labelname"]); labelname == "" {
 		return rsp.Json(400, ErrNoParameter("labelname"))
 	}
-	s := Select{LabelName: labelname}
 
-	if order := strings.TrimSpace(r.FormValue("order")); order != "" {
-		o, err := strconv.Atoi(order)
-		if err != nil {
-			return rsp.Json(400, ErrInvalidParameter("order"))
-		}
-		s.Order = o
+	body, _ := ioutil.ReadAll(r.Body)
+
+	s := new(Select)
+	if len(body) == 0 {
+		return rsp.Json(400, ErrNoParameter(""))
 	}
+	if err := json.Unmarshal(body, &s); err != nil {
+		return rsp.Json(400, ErrParseJson(err))
+	}
+
+	s.LabelName = labelname
+
 	if err := db.DB(DB_NAME).C(C_SELECT).Insert(s); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
@@ -372,9 +380,19 @@ func setSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *
 }
 
 func updateSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
-	labelname, newlabelname := "", ""
+	labelname := ""
 	if labelname = strings.TrimSpace(param["labelname"]); labelname == "" {
 		return rsp.Json(400, ErrNoParameter("labelname"))
+	}
+
+	body, _ := ioutil.ReadAll(r.Body)
+	if len(body) == 0 {
+		return rsp.Json(400, ErrNoParameter(""))
+	}
+
+	s := new(Select)
+	if err := json.Unmarshal(body, &s); err != nil {
+		return rsp.Json(400, ErrParseJson(err))
 	}
 
 	selector := bson.M{COL_SELECT_LABEL: labelname}
@@ -382,19 +400,18 @@ func updateSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, d
 		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("labelname : %s", labelname)))
 	}
 
-	u := bson.M{COL_SELECT_LABEL: labelname}
-	if newlabelname = strings.TrimSpace(r.PostFormValue("newlabelname")); newlabelname == "" {
-		return rsp.Json(400, ErrNoParameter("newlabelname"))
+	u := bson.M{}
+	if s.NewLabelName != "" {
+		u[COL_SELECT_LABEL] = s.NewLabelName
 	}
-	u[COL_SELECT_LABEL] = newlabelname
+	if s.Order > 0 {
+		u[COL_SELECT_ORDER] = s.Order
+	}
 
-	if order := strings.TrimSpace(r.FormValue("order")); order != "" {
-		o, err := strconv.Atoi(order)
-		if err != nil {
-			return rsp.Json(400, ErrInvalidParameter("order"))
-		}
-		u[COL_SELECT_ORDER] = o
+	if len(u) == 0 {
+		return rsp.Json(400, ErrNoParameter("newlabelname or order"))
 	}
+
 	updater := bson.M{CMD_SET: u}
 	go asynOpt(C_SELECT, selector, updater)
 	return rsp.Json(200, E(OK))
@@ -468,11 +485,13 @@ func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, logi
 	now := time.Now().String()
 	t := new(tag)
 	body, _ := ioutil.ReadAll(r.Body)
-	if len(body) > 0 {
-		if err := json.Unmarshal(body, &t); err != nil {
-			return rsp.Json(400, ErrParseJson(err))
-		}
+	if len(body) == 0 {
+		return rsp.Json(400, ErrNoParameter(""))
 	}
+	if err := json.Unmarshal(body, &t); err != nil {
+		return rsp.Json(400, ErrParseJson(err))
+	}
+
 	t.Repository_name, t.Dataitem_name, t.Tag = repname, itemname, tagname
 	t.Optime = now
 
@@ -518,10 +537,11 @@ func updateTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, l
 
 	t := new(tag)
 	body, _ := ioutil.ReadAll(r.Body)
-	if len(body) > 0 {
-		if err := json.Unmarshal(body, &t); err != nil {
-			return rsp.Json(400, ErrParseJson(err))
-		}
+	if len(body) == 0 {
+		return rsp.Json(400, ErrNoParameter(""))
+	}
+	if err := json.Unmarshal(body, &t); err != nil {
+		return rsp.Json(400, ErrParseJson(err))
 	}
 
 	if t.Comment == "" {
@@ -615,6 +635,45 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 
 //curl http://10.1.235.98:8080/selects -d "repname=NBA&itemname=bear&select_labels=h"
 func updateLabelHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
+	repname := strings.TrimSpace(r.FormValue("repname"))
+	itemname := strings.TrimSpace(r.FormValue("itemname"))
+	select_labels := strings.TrimSpace(r.FormValue("select_labels"))
+	if repname == "" {
+		return rsp.Json(400, ErrNoParameter("repname"))
+	}
+
+	if select_labels == "" {
+		return rsp.Json(400, ErrNoParameter("select_labels"))
+	}
+	order := 1
+	if o := strings.TrimSpace(r.FormValue("order")); o != "" {
+		order, _ = strconv.Atoi(o)
+	}
+
+	selector := bson.M{COL_REP_NAME: repname}
+	collectionName := C_REPOSITORY
+
+	if itemname != "" {
+		collectionName = C_DATAITEM
+		selector[COL_ITEM_NAME] = itemname
+	}
+
+	if n, _ := db.DB(DB_NAME).C(collectionName).Find(selector).Count(); n == 0 {
+		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s %s", repname, itemname)))
+	}
+
+	u := bson.M{}
+	u["label.sys.select_labels"] = select_labels
+	u["order"] = order
+	updater := bson.M{"$set": u}
+
+	go q_c.producer(exec{collectionName, selector, updater})
+
+	return rsp.Json(200, E(OK))
+}
+
+//curl http://10.1.235.98:8080/selects -d "repname=NBA&itemname=bear&select_labels=h" -X DELETE
+func deleteLabelHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	repname := strings.TrimSpace(r.FormValue("repname"))
 	itemname := strings.TrimSpace(r.FormValue("itemname"))
 	select_labels := strings.TrimSpace(r.FormValue("select_labels"))

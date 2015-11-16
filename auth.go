@@ -7,6 +7,7 @@ import (
 
 const (
 	ADMIN = "admin"
+	PANXY = "panxy3@asiainfo.com"
 )
 
 func auth(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
@@ -21,7 +22,7 @@ func auth(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
 
 func authAdmin(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
 	login_Name := r.Header.Get("User")
-	if login_Name != ADMIN {
+	if login_Name != ADMIN && login_Name != PANXY {
 		http.Error(w, "unauthorized", 401)
 		return
 	}

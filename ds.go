@@ -75,8 +75,9 @@ type Dim_Table struct {
 }
 
 type Select struct {
-	LabelName string `json:"labelname,omitempty" `
-	Order     int    `json:"-"`
+	LabelName    string `json:"labelname,omitempty" `
+	NewLabelName string `bson:"-"`
+	Order        int    `json:"-"`
 }
 
 type DB struct {

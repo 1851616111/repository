@@ -63,7 +63,9 @@ func main() {
 
 	m.Group("/selects", func(r martini.Router) {
 		r.Get("", getSelectsHandler)
+		r.Put("", authAdmin, deleteLabelHandler)
 		r.Post("", authAdmin, updateLabelHandler)
+		r.Delete("", authAdmin, deleteLabelHandler)
 	})
 
 	m.Group("/select_labels", func(r martini.Router) {
