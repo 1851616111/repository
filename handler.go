@@ -358,8 +358,6 @@ func setSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *
 		return rsp.Json(400, ErrNoParameter("labelname"))
 	}
 
-	body, _ := ioutil.ReadAll(r.Body)
-
 	s := new(Select)
 	s.LabelName = labelname
 
