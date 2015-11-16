@@ -38,3 +38,14 @@ func (db *DB) delTag(exec bson.M) error {
 	err := db.DB(DB_NAME).C(C_TAG).Remove(exec)
 	return err
 }
+
+func (db *DB) delSelect(exec bson.M) error {
+	err := db.DB(DB_NAME).C(C_SELECT).Remove(exec)
+	return err
+}
+
+func (db *DB) getSelect(query bson.M) (Select, error) {
+	res := new(Select)
+	err := db.DB(DB_NAME).C(C_SELECT).Find(query).One(&res)
+	return *res, err
+}

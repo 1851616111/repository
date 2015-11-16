@@ -7,6 +7,7 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -27,6 +28,7 @@ const (
 	COL_ITEM_SAMPLE     = "sample"
 	COL_TAG_NAME        = "tag"
 	COL_SELECT_LABEL    = "labelname"
+	COL_SELECT_ORDER    = "order"
 	COL_PERMIT_USER     = "user_name"
 	PAGE_INDEX          = 1
 	PAGE_SIZE           = 3
@@ -365,6 +367,47 @@ func setSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *
 	}
 	if err := db.DB(DB_NAME).C(C_SELECT).Insert(s); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
+	}
+	return rsp.Json(200, E(OK))
+}
+
+func updateSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
+	labelname, newlabelname := "", ""
+	if labelname = strings.TrimSpace(param["labelname"]); labelname == "" {
+		return rsp.Json(400, ErrNoParameter("labelname"))
+	}
+
+	selector := bson.M{COL_SELECT_LABEL: labelname}
+	if _, err := db.getSelect(selector); err == mgo.ErrNotFound {
+		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("labelname : %s", labelname)))
+	}
+
+	u := bson.M{COL_SELECT_LABEL: labelname}
+	if newlabelname = strings.TrimSpace(r.PostFormValue("newlabelname")); newlabelname == "" {
+		return rsp.Json(400, ErrNoParameter("newlabelname"))
+	}
+	u[COL_SELECT_LABEL] = newlabelname
+
+	if order := strings.TrimSpace(r.FormValue("order")); order != "" {
+		o, err := strconv.Atoi(order)
+		if err != nil {
+			return rsp.Json(400, ErrInvalidParameter("order"))
+		}
+		u[COL_SELECT_ORDER] = o
+	}
+	updater := bson.M{CMD_SET: u}
+	go asynOpt(C_SELECT, selector, updater)
+	return rsp.Json(200, E(OK))
+}
+
+func delSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
+	labelname := ""
+	if labelname = strings.TrimSpace(param["labelname"]); labelname == "" {
+		return rsp.Json(400, ErrNoParameter("labelname"))
+	}
+	Q := bson.M{COL_SELECT_LABEL: labelname}
+	if err := db.delSelect(Q); err == mgo.ErrNotFound {
+		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("labelname : %s", labelname)))
 	}
 	return rsp.Json(200, E(OK))
 }
