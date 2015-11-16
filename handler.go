@@ -70,6 +70,7 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 		return rsp.Json(400, ErrNoParameter("repname"))
 	}
 	body, err := ioutil.ReadAll(r.Body)
+	defer r.Body.Close()
 	if err != nil {
 		log.Println("----------------->err", err)
 	}
@@ -83,7 +84,7 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 	if err := json.Unmarshal(body, &rep); err != nil {
 		return rsp.Json(400, ErrParseJson(err))
 	}
-	r.Body.Close()
+
 	now := time.Now()
 	if rep.Repaccesstype != ACCESS_PUBLIC && rep.Repaccesstype != ACCESS_PRIVATE {
 		rep.Repaccesstype = ACCESS_PUBLIC
@@ -100,9 +101,7 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 	log.Println("------------------------> end timer ", end)
 	log.Println("------------------------>  total used ", (end.Nanosecond()-start.Nanosecond())/1e6, "ms")
 
-	a, b := rsp.Json(200, E(OK), rep)
-	log.Printf("--------------------->to ngnix %+v", b)
-	return a, b
+	return rsp.Json(200, E(OK), rep)
 }
 
 //curl http://10.1.235.98:8080/repositories/rep00001
