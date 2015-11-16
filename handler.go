@@ -7,7 +7,6 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -46,9 +45,7 @@ var (
 )
 
 func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name string) (int, string) {
-	log.Printf("request------>%+v", r)
-	log.Printf("request  body ------>%+v", r.Body)
-	log.Printf("request  Method ------>%+v", r.Method)
+
 	repname := strings.TrimSpace(param["repname"])
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
@@ -79,10 +76,6 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 
 //curl http://10.1.235.98:8080/repositories/rep00001
 func getRHandler(r *http.Request, rsp *Rsp, param martini.Params) (int, string) {
-	log.Printf("request------>%+v", r)
-	log.Printf("request  body ------>%+v", r.Body)
-	log.Printf("request  Method ------>%+v", r.Method)
-
 	repname := strings.TrimSpace(param["repname"])
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))

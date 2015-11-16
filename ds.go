@@ -43,7 +43,7 @@ type dataItem struct {
 	Dataitem_name   string      `json:"-"`
 	Create_user     string      `json:"create_user,omitempty"`
 	Itemaccesstype  string      `json:"itemaccesstype,omitempty"`
-	Price           interface{} `json:"price,omitempty", bson:"-"`
+	Price           interface{} `bson:"-", json:"price,omitempty"`
 	Optime          string      `json:"optime,omitempty"`
 	Meta            string      `json:"meta"`
 	Sample          string      `json:"sample"`
@@ -75,9 +75,9 @@ type Dim_Table struct {
 }
 
 type Select struct {
-	LabelName    string `json:"labelname,omitempty" `
-	NewLabelName string `bson:"-"`
-	Order        int    `json:"-"`
+	LabelName    string `json:"labelname,omitempty"`
+	NewLabelName string `json:"newLabelName,omitempty" bson:"-"`
+	Order        int    `json:"order,omitempty"`
 }
 
 type DB struct {
