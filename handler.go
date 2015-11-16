@@ -61,8 +61,7 @@ func createR2Handler(r *http.Request, rsp *Rsp, param martini.Params, login_name
 }
 
 func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name string) (int, string) {
-
-	start := time.Now().UnixNano()
+	start := time.Now()
 	log.Println("------------------------> start timer ", start)
 	log.Printf("request----------->%+v", r.Header)
 
@@ -70,7 +69,6 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
 	}
-	log.Println("xxxxxxxxxxxxxxxxxx111111")
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Println("----------------->err", err)
@@ -78,18 +76,14 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 
 	log.Println("read body --------------->", string(body))
 
-	log.Println("xxxxxxxxxxxxxxxxxx222222")
 	rep := new(repository)
 	if len(body) == 0 {
 		return rsp.Json(400, ErrNoParameter(""))
 	}
-	log.Println("xxxxxxxxxxxxxxxxxx333333")
 	if err := json.Unmarshal(body, &rep); err != nil {
 		return rsp.Json(400, ErrParseJson(err))
 	}
-	log.Println("xxxxxxxxxxxxxxxxxx444444")
 	r.Body.Close()
-	log.Println("xxxxxxxxxxxxxxxxxx555555")
 	now := time.Now()
 	if rep.Repaccesstype != ACCESS_PUBLIC && rep.Repaccesstype != ACCESS_PRIVATE {
 		rep.Repaccesstype = ACCESS_PUBLIC
@@ -102,9 +96,9 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 	if err := db.DB(DB_NAME).C(C_REPOSITORY).Insert(rep); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
-	end := time.Now().UnixNano()
+	end := time.Now()
 	log.Println("------------------------> end timer ", end)
-	log.Println("------------------------>  total used ", (end-start)/1e6, "ms")
+	log.Println("------------------------>  total used ", (end.Nanosecond()-start.Nanosecond())/1e6, "ms")
 
 	a, b := rsp.Json(200, E(OK), rep)
 	log.Printf("--------------------->to ngnix %+v", b)
@@ -739,7 +733,6 @@ func deleteLabelHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 
 	return rsp.Json(200, E(OK))
 }
-
 
 func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	var m bson.M
