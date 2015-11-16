@@ -105,7 +105,10 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 	end := time.Now().UnixNano()
 	log.Println("------------------------> end timer ", end)
 	log.Println("------------------------>  total used ", (end-start)/1e6, "ms")
-	return rsp.Json(200, E(OK))
+
+	a, b := rsp.Json(200, E(OK), rep)
+	log.Printf("--------------------->to ngnix %+v", b)
+	return a, b
 }
 
 //curl http://10.1.235.98:8080/repositories/rep00001
@@ -737,7 +740,7 @@ func deleteLabelHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	return rsp.Json(200, E(OK))
 }
 
-//curl http://10.1.235.98:8080/selects?select_labels=终端信息
+
 func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	var m bson.M
 
