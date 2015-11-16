@@ -361,13 +361,6 @@ func setSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *
 	body, _ := ioutil.ReadAll(r.Body)
 
 	s := new(Select)
-	if len(body) == 0 {
-		return rsp.Json(400, ErrNoParameter(""))
-	}
-	if err := json.Unmarshal(body, &s); err != nil {
-		return rsp.Json(400, ErrParseJson(err))
-	}
-
 	s.LabelName = labelname
 
 	if err := db.DB(DB_NAME).C(C_SELECT).Insert(s); err != nil {
