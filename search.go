@@ -12,7 +12,7 @@ const (
 	MONGO_REGEX = "$regex"
 )
 
-var SEARCH_DATAITEM_COLS = []string{COL_REP_NAME, COL_ITEM_NAME}
+var SEARCH_DATAITEM_COLS = []string{COL_REPNAME, COL_ITEM_NAME}
 
 //http://127.0.0.1:8080/search -d "text=123 123 14"
 func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
@@ -35,7 +35,7 @@ func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	for _, v := range searchs {
 		for _, col := range SEARCH_DATAITEM_COLS {
 			l := []names{}
-			db.DB(DB_NAME).C(C_DATAITEM).Find(bson.M{COL_ITEM_ACC: ACCESS_PUBLIC, col: bson.M{"$regex": v}}).Select(bson.M{COL_REP_NAME: "1", COL_ITEM_NAME: "1", "ct": "1"}).All(&l)
+			db.DB(DB_NAME).C(C_DATAITEM).Find(bson.M{COL_ITEM_ACC: ACCESS_PUBLIC, col: bson.M{"$regex": v}}).Select(bson.M{COL_REPNAME: "1", COL_ITEM_NAME: "1", "ct": "1"}).All(&l)
 			for _, v := range l {
 				res[fmt.Sprintf("%s/%s", v.Repository_name, v.Dataitem_name)] = 1
 			}

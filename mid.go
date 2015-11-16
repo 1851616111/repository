@@ -8,6 +8,12 @@ func (db *DB) getRepository(query bson.M) (repository, error) {
 	return *res, err
 }
 
+func (db *DB) getRepositories(query bson.M) ([]repository, error) {
+	res := []repository{}
+	err := db.DB(DB_NAME).C(C_REPOSITORY).Find(query).All(res)
+	return res, err
+}
+
 func (db *DB) delRepository(exec bson.M) error {
 	return db.DB(DB_NAME).C(C_REPOSITORY).Remove(exec)
 }
@@ -16,6 +22,12 @@ func (db *DB) getDataitem(query bson.M) (dataItem, error) {
 	res := new(dataItem)
 	err := db.DB(DB_NAME).C(C_DATAITEM).Find(query).One(res)
 	return *res, err
+}
+
+func (db *DB) getDataitems(query bson.M) ([]dataItem, error) {
+	res := []dataItem{}
+	err := db.DB(DB_NAME).C(C_DATAITEM).Find(query).All(res)
+	return res, err
 }
 
 func (db *DB) delDataitem(exec bson.M) error {
@@ -48,4 +60,13 @@ func (db *DB) getSelect(query bson.M) (Select, error) {
 	res := new(Select)
 	err := db.DB(DB_NAME).C(C_SELECT).Find(query).One(&res)
 	return *res, err
+}
+
+func (db *DB) getPermitByUser(userName string) ([]Repository_Permit, error) {
+	l := []Repository_Permit{}
+	Q := bson.M{"user_name": userName}
+	if err := db.DB(DB_NAME).C(C_REPOSITORY_PERMIT).Find(Q).All(&l); err != nil {
+		return nil, err
+	}
+	return l, nil
 }
