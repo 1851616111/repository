@@ -45,25 +45,8 @@ var (
 	NED_CHECK_LABELS = []string{LABEL_NED_CHECK}
 )
 
-func createR2Handler(r *http.Request, rsp *Rsp, param martini.Params, login_name string) (int, string) {
-	log.Printf("request----------->%+v", r)
-	log.Printf("request.body----------->%+v", r.Body)
-	log.Printf("request.header----------->%+v", r.Header)
-	repname := strings.TrimSpace(param["repname"])
-	if repname == "" {
-		return rsp.Json(400, ErrNoParameter("repname"))
-	}
-
-	rep := new(repository)
-	rep.ParseRequeset(r)
-
-	return rsp.Json(200, E(OK), rep)
-}
 
 func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name string) (int, string) {
-	start := time.Now()
-	log.Println("------------------------> start timer ", start)
-	log.Printf("request----------->%+v", r.Header)
 
 	repname := strings.TrimSpace(param["repname"])
 	if repname == "" {
@@ -72,10 +55,8 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
-		log.Println("----------------->err", err)
+		log.Println("read request body err", err)
 	}
-
-	log.Println("read body --------------->", string(body))
 
 	rep := new(repository)
 	if len(body) == 0 {
@@ -97,19 +78,12 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 	if err := db.DB(DB_NAME).C(C_REPOSITORY).Insert(rep); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
-	end := time.Now()
-	log.Println("------------------------> end timer ", end)
-	log.Println("------------------------>  total used ", (end.Nanosecond()-start.Nanosecond())/1e6, "ms")
 
 	return rsp.Json(200, E(OK), rep)
 }
 
 //curl http://10.1.235.98:8080/repositories/rep00001
 func getRHandler(r *http.Request, rsp *Rsp, param martini.Params) (int, string) {
-	log.Printf("request----------------------1------------------1>%+v", r)
-	log.Printf("request.body------------------2---------------------------->%+v", r.Body)
-	log.Printf("request.header-----------------3----------------------------------->%+v", r.Header)
-
 	repname := strings.TrimSpace(param["repname"])
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))

@@ -95,7 +95,6 @@ func (p *Rsp) Json(code int, e *Error, data ...interface{}) (int, string) {
 
 	b, err := json.Marshal(result)
 	chk(err)
-	log.Printf("-------------->%+v", p.w.Header())
 	return code, string(b)
 }
 func JsonResult(w http.ResponseWriter, statusCode int, e *Error, data interface{}) {
