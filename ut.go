@@ -83,6 +83,7 @@ func (p *Rsp) Json(code int, e *Error, data ...interface{}) (int, string) {
 	//	p.w.Header().Set("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE")
 	//	p.w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept,X-Requested-With")
 	p.w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	p.w.Header().Set("Content-Length", "-1")
 
 	result := new(Result)
 	if len(data) > 0 {

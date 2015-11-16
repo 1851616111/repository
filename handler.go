@@ -44,6 +44,7 @@ var (
 	SUPPLY_STYLE_ALL = []string{SUPPLY_STYLE_SINGLE, SUPPLY_STYLE_BATCH, SUPPLY_STYLE_FLOW}
 	NED_CHECK_LABELS = []string{LABEL_NED_CHECK}
 )
+
 func createR2Handler(r *http.Request, rsp *Rsp, param martini.Params, login_name string) (int, string) {
 	log.Printf("request----------->%+v", r)
 	log.Printf("request.body----------->%+v", r.Body)
@@ -56,11 +57,11 @@ func createR2Handler(r *http.Request, rsp *Rsp, param martini.Params, login_name
 	rep := new(repository)
 	rep.ParseRequeset(r)
 
-
 	return rsp.Json(200, E(OK), rep)
 }
 
 func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name string) (int, string) {
+
 	T1 := time.Now().UnixNano()
 	log.Printf("request----------->%+v", r)
 	log.Printf("request.body----------->%+v", r.Body)
@@ -71,7 +72,7 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 	}
 	log.Println("xxxxxxxxxxxxxxxxxx111111")
 	body, err := ioutil.ReadAll(r.Body)
- 	if err != nil {
+	if err != nil {
 		log.Println("----------------->err", err)
 	}
 
@@ -204,28 +205,28 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, loginName s
 //curl http://10.1.235.98:8080/repositories
 //curl http://10.1.235.98:8080/repositories?page=2&size=3
 func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
-//	//		page_index, page_size := PAGE_INDEX, PAGE_SIZE
-//	//		if p := strings.TrimSpace(r.FormValue("page")); p != "" {
-//	//			if page_index, _ = strconv.Atoi(p); page_index <= 0 {
-//	//				return rsp.Json(400, ErrInvalidParameter("page"))
-//	//			}
-//	//
-//	//		}
-//	//		if p := strings.TrimSpace(r.FormValue("size")); p != "" {
-//	//			if page_size, _ = strconv.Atoi(p); page_size <= 0 {
-//	//				return rsp.Json(400, ErrInvalidParameter("size"))
-//	//			}
-//	//		}
-//	////		var Q bson.M
-//	//		if p := strings.TrimSpace(r.FormValue("username")); p != "" {
-//	//			Q = bson.M{C_REPOSITORY_PERMIT: ACCESS_PRIVATE,}
-//	//		}
-//	//
-//
-//	//	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(nil).Sort("ct").Skip((PAGE_INDEX - 1) * PAGE_SIZE).Limit(PAGE_SIZE).All(&l); err != nil {
-//	//		rsp.Json(400, ErrDataBase(err))
-//	//	}
-//	JsonResult(rsp.w, 200, nil, 400)
+	//	//		page_index, page_size := PAGE_INDEX, PAGE_SIZE
+	//	//		if p := strings.TrimSpace(r.FormValue("page")); p != "" {
+	//	//			if page_index, _ = strconv.Atoi(p); page_index <= 0 {
+	//	//				return rsp.Json(400, ErrInvalidParameter("page"))
+	//	//			}
+	//	//
+	//	//		}
+	//	//		if p := strings.TrimSpace(r.FormValue("size")); p != "" {
+	//	//			if page_size, _ = strconv.Atoi(p); page_size <= 0 {
+	//	//				return rsp.Json(400, ErrInvalidParameter("size"))
+	//	//			}
+	//	//		}
+	//	////		var Q bson.M
+	//	//		if p := strings.TrimSpace(r.FormValue("username")); p != "" {
+	//	//			Q = bson.M{C_REPOSITORY_PERMIT: ACCESS_PRIVATE,}
+	//	//		}
+	//	//
+	//
+	//	//	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(nil).Sort("ct").Skip((PAGE_INDEX - 1) * PAGE_SIZE).Limit(PAGE_SIZE).All(&l); err != nil {
+	//	//		rsp.Json(400, ErrDataBase(err))
+	//	//	}
+	//	JsonResult(rsp.w, 200, nil, 400)
 
 	T1 := time.Now().UnixNano()
 	log.Printf("request----------->%+v", r)
