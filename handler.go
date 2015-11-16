@@ -62,10 +62,10 @@ func createR2Handler(r *http.Request, rsp *Rsp, param martini.Params, login_name
 
 func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name string) (int, string) {
 
-	T1 := time.Now().UnixNano()
-	log.Printf("request----------->%+v", r)
-	log.Printf("request.body----------->%+v", r.Body)
-	log.Printf("request.header----------->%+v", r.Header)
+	start := time.Now().UnixNano()
+	log.Println("------------------------> start timer ", start)
+	log.Printf("request----------->%+v", r.Header)
+
 	repname := strings.TrimSpace(param["repname"])
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
@@ -102,8 +102,9 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 	if err := db.DB(DB_NAME).C(C_REPOSITORY).Insert(rep); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
-	total := time.Now().UnixNano() - T1
-	log.Println("total use ", total/1e6)
+	end := time.Now().UnixNano()
+	log.Println("------------------------> end timer ", end)
+	log.Println("------------------------>  total used ", (end-start)/1e6, "ms")
 	return rsp.Json(200, E(OK))
 }
 
@@ -228,101 +229,6 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 	//	//	}
 	//	JsonResult(rsp.w, 200, nil, 400)
 
-	T1 := time.Now().UnixNano()
-	log.Printf("request----------->%+v", r)
-	log.Printf("request.body----------->%+v", r.Body)
-	log.Printf("request.header----------->%+v", r.Header)
-	repname := strings.TrimSpace(param["repname"])
-	if repname == "" {
-		return rsp.Json(400, ErrNoParameter("repname"))
-	}
-
-	body, _ := ioutil.ReadAll(r.Body)
-	rep := new(repository)
-	if len(body) == 0 {
-		return rsp.Json(400, ErrNoParameter(""))
-	}
-	if err := json.Unmarshal(body, &rep); err != nil {
-		return rsp.Json(400, ErrParseJson(err))
-	}
-
-	now := time.Now()
-	if rep.Repaccesstype != ACCESS_PUBLIC && rep.Repaccesstype != ACCESS_PRIVATE {
-		rep.Repaccesstype = ACCESS_PUBLIC
-	}
-	rep.Optime = now.String()
-	rep.Ct = now
-	rep.Create_user = "admin"
-	rep.Repository_name = repname
-	rep.Stars, rep.Items = 0, 0
-	if err := db.DB(DB_NAME).C(C_REPOSITORY).Insert(rep); err != nil {
-		return rsp.Json(400, ErrDataBase(err))
-	}
-	total := time.Now().UnixNano() - T1
-	log.Println("total use ", total/1e6)
-
-	return 200, "ok"
-}
-
-func getRsHandler2(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
-	//	//		page_index, page_size := PAGE_INDEX, PAGE_SIZE
-	//	//		if p := strings.TrimSpace(r.FormValue("page")); p != "" {
-	//	//			if page_index, _ = strconv.Atoi(p); page_index <= 0 {
-	//	//				return rsp.Json(400, ErrInvalidParameter("page"))
-	//	//			}
-	//	//
-	//	//		}
-	//	//		if p := strings.TrimSpace(r.FormValue("size")); p != "" {
-	//	//			if page_size, _ = strconv.Atoi(p); page_size <= 0 {
-	//	//				return rsp.Json(400, ErrInvalidParameter("size"))
-	//	//			}
-	//	//		}
-	//	////		var Q bson.M
-	//	//		if p := strings.TrimSpace(r.FormValue("username")); p != "" {
-	//	//			Q = bson.M{C_REPOSITORY_PERMIT: ACCESS_PRIVATE,}
-	//	//		}
-	//	//
-	//
-	//	//	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(nil).Sort("ct").Skip((PAGE_INDEX - 1) * PAGE_SIZE).Limit(PAGE_SIZE).All(&l); err != nil {
-	//	//		rsp.Json(400, ErrDataBase(err))
-	//	//	}
-	//	JsonResult(rsp.w, 200, nil, 400)
-
-	T1 := time.Now().UnixNano()
-	log.Printf("request----------->%+v", r)
-	log.Printf("request.body----------->%+v", r.Body)
-	log.Printf("request.header----------->%+v", r.Header)
-	repname := strings.TrimSpace(param["repname"])
-	if repname == "" {
-		return rsp.Json(400, ErrNoParameter("repname"))
-	}
-
-	body, _ := ioutil.ReadAll(r.Body)
-	rep := new(repository)
-	if len(body) == 0 {
-		return rsp.Json(400, ErrNoParameter(""))
-	}
-	log.Println("xxxxxxxxxxxxxxxxxx1")
-	if err := json.Unmarshal(body, &rep); err != nil {
-		return rsp.Json(400, ErrParseJson(err))
-	}
-	log.Println("xxxxxxxxxxxxxxxxxx2")
-	r.Body.Close()
-	now := time.Now()
-	if rep.Repaccesstype != ACCESS_PUBLIC && rep.Repaccesstype != ACCESS_PRIVATE {
-		rep.Repaccesstype = ACCESS_PUBLIC
-	}
-	rep.Optime = now.String()
-	rep.Ct = now
-	rep.Create_user = "admin"
-	rep.Repository_name = repname
-	rep.Stars, rep.Items = 0, 0
-	if err := db.DB(DB_NAME).C(C_REPOSITORY).Insert(rep); err != nil {
-		return rsp.Json(400, ErrDataBase(err))
-	}
-	total := time.Now().UnixNano() - T1
-	log.Println("-------------------------------------->total use ", total/1e6)
-	log.Println("xxxxxxxxxxxxxxxxxx3")
 	return 200, "ok"
 }
 
