@@ -79,10 +79,10 @@ type Result struct {
 }
 
 func (p *Rsp) Json(code int, e *Error, data ...interface{}) (int, string) {
-//	p.w.Header().Set("Access-Control-Allow-Origin", "*")
-//	p.w.Header().Set("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE")
-//	p.w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept,X-Requested-With")
-	p.w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	//	p.w.Header().Set("Access-Control-Allow-Origin", "*")
+	//	p.w.Header().Set("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE")
+	//	p.w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept,X-Requested-With")
+	p.w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 	result := new(Result)
 	if len(data) > 0 {
@@ -94,6 +94,36 @@ func (p *Rsp) Json(code int, e *Error, data ...interface{}) (int, string) {
 	b, err := json.Marshal(result)
 	chk(err)
 	return code, string(b)
+}
+func JsonResult(w http.ResponseWriter, statusCode int, e *Error, data interface{}) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(statusCode)
+
+	if e == nil {
+		e = ErrorNone
+	}
+
+	//result := Result {code: e.code, msg: e.message, data: data}
+	result := Result{Code: e.code, Msg: e.message}
+
+	log.Printf(fmt.Sprintf("code: %s", e.code))
+
+	jsondata, err := json.Marshal(&result)
+	if err != nil {
+		w.Write([]byte(getJsonBuildingErrorJson()))
+	} else {
+		w.Write(jsondata)
+	}
+}
+
+var Json_ErrorBuildingJson []byte
+
+func getJsonBuildingErrorJson() []byte {
+	if Json_ErrorBuildingJson == nil {
+		Json_ErrorBuildingJson = []byte(fmt.Sprintf(`{"code": %d, "msg": %s}`, ErrorJsonBuilding.code, ErrorJsonBuilding.message))
+	}
+
+	return Json_ErrorBuildingJson
 }
 
 func Env(name string, required bool) string {

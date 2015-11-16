@@ -42,7 +42,7 @@ func main() {
 	m.Get("/search", searchHandler)
 
 	m.Group("/repositories", func(r martini.Router) {
-		r.Get("", getRsHandler)
+		r.Post("", getRsHandler)
 
 		r.Get("/:repname", getRHandler)
 		r.Get("/:repname/:itemname", getDHandler)

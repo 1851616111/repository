@@ -7,6 +7,7 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -45,7 +46,10 @@ var (
 )
 
 func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name string) (int, string) {
-
+	T1 := time.Now().UnixNano()
+	log.Printf("request----------->%+v", r)
+	log.Printf("request.body----------->%+v", r.Body)
+	log.Printf("request.header----------->%+v", r.Header)
 	repname := strings.TrimSpace(param["repname"])
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
@@ -71,6 +75,8 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 	if err := db.DB(DB_NAME).C(C_REPOSITORY).Insert(rep); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
+	total := time.Now().UnixNano() - T1
+	log.Println("total use ", total/1e6)
 	return rsp.Json(200, E(OK))
 }
 
@@ -185,12 +191,12 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 	//			Q = bson.M{C_REPOSITORY_PERMIT: ACCESS_PRIVATE,}
 	//		}
 	//
-	l := []dataItem{}
+
 	//	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(nil).Sort("ct").Skip((PAGE_INDEX - 1) * PAGE_SIZE).Limit(PAGE_SIZE).All(&l); err != nil {
 	//		rsp.Json(400, ErrDataBase(err))
 	//	}
-
-	return rsp.Json(200, E(OK), l)
+	JsonResult(rsp.w, 200, nil, 400)
+	return 200, "ok"
 }
 
 //curl http://127.0.0.1:8080/repositories/NBA/bear23 -d "{\"itemaccesstype\":\"public\", \"meta\":\"{}\",\"sample\":\"{}\",\"comment\":\"中国移 动北京终端详情\", \"label\":{\"sys\":{\"supply_style\":\"flow\"}}}" -H user:admin
@@ -357,7 +363,6 @@ func setSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *
 	if labelname = strings.TrimSpace(param["labelname"]); labelname == "" {
 		return rsp.Json(400, ErrNoParameter("labelname"))
 	}
-
 	s := new(Select)
 	s.LabelName = labelname
 
