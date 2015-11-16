@@ -48,7 +48,7 @@ func main() {
 		r.Get("/:repname", getRHandler)
 		r.Get("/:repname/:itemname", getDHandler)
 		r.Get("/:repname/:itemname/:tag", getTagHandler)
-
+		r.Post("/test/:repname", auth, createR2Handler)
 		r.Post("/:repname", auth, createRHandler)
 		r.Post("/:repname/:itemname", auth, createDHandler)
 		r.Post("/:repname/:itemname/:tag", auth, setTagHandler)

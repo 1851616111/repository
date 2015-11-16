@@ -44,6 +44,21 @@ var (
 	SUPPLY_STYLE_ALL = []string{SUPPLY_STYLE_SINGLE, SUPPLY_STYLE_BATCH, SUPPLY_STYLE_FLOW}
 	NED_CHECK_LABELS = []string{LABEL_NED_CHECK}
 )
+func createR2Handler(r *http.Request, rsp *Rsp, param martini.Params, login_name string) (int, string) {
+	log.Printf("request----------->%+v", r)
+	log.Printf("request.body----------->%+v", r.Body)
+	log.Printf("request.header----------->%+v", r.Header)
+	repname := strings.TrimSpace(param["repname"])
+	if repname == "" {
+		return rsp.Json(400, ErrNoParameter("repname"))
+	}
+
+	rep := new(repository)
+	rep.ParseRequeset(r)
+
+
+	return rsp.Json(200, E(OK), rep)
+}
 
 func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name string) (int, string) {
 	T1 := time.Now().UnixNano()
