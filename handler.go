@@ -70,8 +70,10 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 		return rsp.Json(400, ErrNoParameter("repname"))
 	}
 	log.Println("xxxxxxxxxxxxxxxxxx111111")
-	body, _ := ioutil.ReadAll(r.Body)
-
+	body, err := ioutil.ReadAll(r.Body)
+ 	if err != nil {
+		log.Println("----------------->err", err)
+	}
 
 	log.Println("read body --------------->", string(body))
 
