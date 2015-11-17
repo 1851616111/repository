@@ -40,6 +40,7 @@ const (
 	SUPPLY_STYLE_FLOW   = "flow"
 	CMD_INC             = "$inc"
 	CMD_SET             = "$set"
+	CMD_UNSET           = "$unset"
 	CMD_IN              = "$in"
 	CMD_OR              = "$or"
 )
@@ -719,10 +720,9 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	return rsp.Json(200, E(OK), res)
 }
 
-//curl http://10.1.235.98:8080/selects -d "repname=NBA&itemname=bear&select_labels=h"
-func updateLabelHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
-	repname := strings.TrimSpace(r.FormValue("repname"))
-	itemname := strings.TrimSpace(r.FormValue("itemname"))
+func updateLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
+	repname := strings.TrimSpace(param["repname"])
+	itemname := strings.TrimSpace(param["itemname"])
 	select_labels := strings.TrimSpace(r.FormValue("select_labels"))
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
@@ -750,7 +750,7 @@ func updateLabelHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 
 	u := bson.M{}
 	u["label.sys.select_labels"] = select_labels
-	u["order"] = order
+	u["label.sys.order"] = order
 	updater := bson.M{"$set": u}
 
 	go q_c.producer(exec{collectionName, selector, updater})
@@ -758,41 +758,25 @@ func updateLabelHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	return rsp.Json(200, E(OK))
 }
 
-//curl http://10.1.235.98:8080/selects -d "repname=NBA&itemname=bear&select_labels=h" -X DELETE
-func deleteLabelHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
-	repname := strings.TrimSpace(r.FormValue("repname"))
-	itemname := strings.TrimSpace(r.FormValue("itemname"))
-	select_labels := strings.TrimSpace(r.FormValue("select_labels"))
+func deleteSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
+
+	repname := strings.TrimSpace(param["repname"])
+	itemname := strings.TrimSpace(param["itemname"])
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
 	}
-
-	if select_labels == "" {
-		return rsp.Json(400, ErrNoParameter("select_labels"))
-	}
-	order := 1
-	if o := strings.TrimSpace(r.FormValue("order")); o != "" {
-		order, _ = strconv.Atoi(o)
+	if itemname == "" {
+		return rsp.Json(400, ErrNoParameter("itemname"))
 	}
 
-	selector := bson.M{COL_REPNAME: repname}
-	collectionName := C_REPOSITORY
-
-	if itemname != "" {
-		collectionName = C_DATAITEM
-		selector[COL_ITEM_NAME] = itemname
-	}
-
-	if n, _ := db.DB(DB_NAME).C(collectionName).Find(selector).Count(); n == 0 {
-		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s %s", repname, itemname)))
-	}
+	selector := bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname}
 
 	u := bson.M{}
-	u["label.sys.select_labels"] = select_labels
-	u["order"] = order
-	updater := bson.M{"$set": u}
+	u["label.sys.select_labels"] = 1
+	u["label.sys.order"] = 1
+	updater := bson.M{CMD_UNSET: u}
 
-	go q_c.producer(exec{collectionName, selector, updater})
+	go q_c.producer(exec{C_DATAITEM, selector, updater})
 
 	return rsp.Json(200, E(OK))
 }
