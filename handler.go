@@ -85,7 +85,7 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 	return rsp.Json(200, E(OK))
 }
 
-//curl http://10.1.235.98:8080/repositories/rep00001
+
 func getRHandler(r *http.Request, rsp *Rsp, param martini.Params) (int, string) {
 	repname := strings.TrimSpace(param["repname"])
 	if repname == "" {
@@ -97,7 +97,21 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params) (int, string) 
 		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s", COL_REPNAME, repname)))
 	}
 	rep.Optime = buildTime(rep.Optime)
-	return rsp.Json(200, E(OK), rep)
+
+	ds, err := db.getDataitems(Q)
+	get(err)
+	items := []string{}
+	for _, v := range ds {
+		items = append(items, v.Dataitem_name)
+	}
+	var res struct {
+		repository
+		Dataitems []string `json:"dataitems"`
+	}
+	res.repository = rep
+	res.Dataitems = items
+
+	return rsp.Json(200, E(OK), res)
 }
 
 //curl http://127.0.0.1:8080/repositories/rep123 -X DELETE -H admin:admin
