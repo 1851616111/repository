@@ -62,10 +62,9 @@ func (db *DB) getSelect(query bson.M) (Select, error) {
 	return *res, err
 }
 
-func (db *DB) getPermitByUser(userName string) ([]Repository_Permit, error) {
+func (db *DB) getPermitByUser(query bson.M) ([]Repository_Permit, error) {
 	l := []Repository_Permit{}
-	Q := bson.M{"user_name": userName}
-	if err := db.DB(DB_NAME).C(C_REPOSITORY_PERMIT).Find(Q).All(&l); err != nil {
+	if err := db.DB(DB_NAME).C(C_REPOSITORY_PERMIT).Find(query).All(&l); err != nil {
 		return nil, err
 	}
 	return l, nil

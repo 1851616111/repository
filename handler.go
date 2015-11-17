@@ -205,40 +205,51 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 			return rsp.Json(400, ErrInvalidParameter("size"))
 		}
 	}
+
+	targetName := strings.TrimSpace(r.FormValue("username"))
+	loginName := r.Header.Get("User")
 	Q := bson.M{}
-	if p := strings.TrimSpace(r.FormValue("username")); p != "" {
+	if loginName != "" && targetName == "" { //login already and search myrepositories
+		Q = bson.M{COL_CREATE_USER: loginName}
+	} else if loginName == "" && targetName != "" { // no login nd search targetName
+		Q = bson.M{COL_CREATE_USER: targetName, COL_ITEM_ACC: ACCESS_PUBLIC}
+	} else if loginName != "" && targetName != "" { //loging and search targetName
+		q := []bson.M{}
 		l := []string{}
-		reps, _ := db.getRepositories(bson.M{COL_REP_ACC: ACCESS_PUBLIC})
-		if len(reps) > 0 {
-			for _, v := range reps {
-				l = append(l, v.Repository_name)
-			}
-		}
-		p_reps, _ := db.getPermitByUser(p)
+		p_reps, _ := db.getPermitByUser(bson.M{COL_PERMIT_USER: loginName})
+
 		if len(p_reps) > 0 {
 			for _, v := range p_reps {
 				l = append(l, v.Repository_name)
 			}
+			q_priavte := bson.M{}
+			q_priavte[COL_REPNAME] = bson.M{CMD_IN: l}
+			q_priavte[COL_CREATE_USER] = targetName
+			q_priavte[COL_ITEM_ACC] = ACCESS_PRIVATE
+			q = append(q, q_priavte)
 		}
-		if len(l) > 0 {
-			Q[COL_REPNAME] = bson.M{CMD_IN: l}
+
+		q_public := bson.M{}
+		q_public[COL_CREATE_USER] = targetName
+		q_public[COL_ITEM_ACC] = ACCESS_PUBLIC
+		q = append(q, q_public)
+
+		switch len(q) {
+		case 1:
+			Q = q_public
+		case 2:
+			Q[CMD_OR] = q
 		}
-	} else if p := r.Header.Get("User"); p != "" {
-		Q[COL_CREATE_USER] = p
+	} else if loginName == targetName && targetName == "" { // invalid param
+		return rsp.Json(400, ErrNoParameter("username or user"))
 	}
 
 	ds := []dataItem{}
-	if len(Q) == 0 {
-		return rsp.Json(200, E(OK))
-	}
 	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(Q).Sort("ct").Skip((PAGE_INDEX - 1) * PAGE_SIZE).Limit(PAGE_SIZE).All(&ds); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
-	res := []names{}
-	for _, v := range ds {
-		res = append(res, names{Repository_name: v.Repository_name, Dataitem_name: v.Dataitem_name})
-	}
-	return rsp.Json(200, E(OK), res)
+	return rsp.Json(200, E(OK), ds)
+
 }
 
 //curl http://127.0.0.1:8080/repositories/NBA/bear23 -d "{\"itemaccesstype\":\"public\", \"meta\":\"{}\",\"sample\":\"{}\",\"comment\":\"中国移 动北京终端详情\", \"label\":{\"sys\":{\"supply_style\":\"flow\"}}}" -H user:admin
