@@ -672,7 +672,7 @@ func delTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int
 	return rsp.Json(200, E(OK))
 }
 
-//curl http://127.0.0.1:8089/repositories/NBA/bear23
+//curl http://127.0.0.1:8089/repositories/mobile/apps
 func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	repname := param["repname"]
 	if repname == "" {
@@ -692,13 +692,12 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 
 	tags, err := db.getTags(Q)
 	get(err)
-
 	var res struct {
 		dataItem
-		tags []tag `json:"taglist"`
+		Tags []tag `json:"taglist"`
 	}
 	res.dataItem = item
-	res.tags = tags
+	res.Tags = tags
 	return rsp.Json(200, E(OK), res)
 }
 
