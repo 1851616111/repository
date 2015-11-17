@@ -85,7 +85,6 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 	return rsp.Json(200, E(OK))
 }
 
-
 func getRHandler(r *http.Request, rsp *Rsp, param martini.Params) (int, string) {
 	repname := strings.TrimSpace(param["repname"])
 	if repname == "" {
@@ -673,7 +672,7 @@ func delTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int
 	return rsp.Json(200, E(OK))
 }
 
-//curl http://127.0.0.1:8080/repositories/NBA/bear23
+//curl http://127.0.0.1:8089/repositories/NBA/bear23
 func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	repname := param["repname"]
 	if repname == "" {
@@ -690,7 +689,17 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 		return rsp.Json(400, ErrDataBase(err))
 	}
 	item.Optime = buildTime(item.Optime)
-	return rsp.Json(200, E(OK), item)
+
+	tags, err := db.getTags(Q)
+	get(err)
+
+	var res struct {
+		dataItem
+		tags []tag `json:"taglist"`
+	}
+	res.dataItem = item
+	res.tags = tags
+	return rsp.Json(200, E(OK), res)
 }
 
 //curl http://10.1.235.98:8080/selects -d "repname=NBA&itemname=bear&select_labels=h"
