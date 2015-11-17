@@ -727,6 +727,9 @@ func updateLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB)
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
 	}
+	if itemname == "" {
+		return rsp.Json(400, ErrNoParameter("itemname"))
+	}
 
 	if select_labels == "" {
 		return rsp.Json(400, ErrNoParameter("select_labels"))
@@ -736,15 +739,9 @@ func updateLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB)
 		order, _ = strconv.Atoi(o)
 	}
 
-	selector := bson.M{COL_REPNAME: repname}
-	collectionName := C_REPOSITORY
+	selector := bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname}
 
-	if itemname != "" {
-		collectionName = C_DATAITEM
-		selector[COL_ITEM_NAME] = itemname
-	}
-
-	if n, _ := db.DB(DB_NAME).C(collectionName).Find(selector).Count(); n == 0 {
+	if n, _ := db.DB(DB_NAME).C(C_DATAITEM).Find(selector).Count(); n == 0 {
 		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s %s", repname, itemname)))
 	}
 
@@ -753,7 +750,7 @@ func updateLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB)
 	u["label.sys.order"] = order
 	updater := bson.M{"$set": u}
 
-	go q_c.producer(exec{collectionName, selector, updater})
+	go q_c.producer(exec{C_DATAITEM, selector, updater})
 
 	return rsp.Json(200, E(OK))
 }
