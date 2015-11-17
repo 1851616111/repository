@@ -49,7 +49,7 @@ var (
 	NED_CHECK_LABELS = []string{LABEL_NED_CHECK}
 )
 
-func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name string) (int, string) {
+func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, login_name string) (int, string) {
 
 	repname := strings.TrimSpace(param["repname"])
 	if repname == "" {
@@ -85,7 +85,7 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, login_name 
 	return rsp.Json(200, E(OK))
 }
 
-func getRHandler(r *http.Request, rsp *Rsp, param martini.Params) (int, string) {
+func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	repname := strings.TrimSpace(param["repname"])
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
@@ -114,7 +114,7 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params) (int, string) 
 }
 
 //curl http://127.0.0.1:8080/repositories/rep123 -X DELETE -H admin:admin
-func delRHandler(r *http.Request, rsp *Rsp, param martini.Params, loginName string) (int, string) {
+func delRHandler(r *http.Request, rsp *Rsp, param martini.Params, loginName string, db *DB) (int, string) {
 	repname := strings.TrimSpace(param["repname"])
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
@@ -134,7 +134,7 @@ func delRHandler(r *http.Request, rsp *Rsp, param martini.Params, loginName stri
 }
 
 //curl http://127.0.0.1:8080/repositories/NBA -d "{\"repaccesstype\":\"public\",\"comment\":\"中国移动北京终端详情\", \"label\":{\"sys\":{\"supply_style\":\"flow\",\"refresh\":\"3天\"}}}" -H user:admin -X PUT
-func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, loginName string) (int, string) {
+func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, loginName string, db *DB) (int, string) {
 	repname := param["repname"]
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
@@ -492,7 +492,7 @@ func delSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *
 //		if select_labels := strings.TrimSpace(r.FormValue("select_labels")); select_labels != "" {
 //			Q["select_labels"] = select_labels
 //		}
-//		if err := db.DB(DB_NAME).C(M_SELECT).Insert(s); err != nil {
+//		if err := db.se.DB(DB_NAME).C(M_SELECT).Insert(s); err != nil {
 //			return rsp.Json(400, err.Error())
 //		}
 //		if err != nil {
