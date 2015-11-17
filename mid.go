@@ -10,7 +10,7 @@ func (db *DB) getRepository(query bson.M) (repository, error) {
 
 func (db *DB) getRepositories(query bson.M) ([]repository, error) {
 	res := []repository{}
-	err := db.DB(DB_NAME).C(C_REPOSITORY).Find(query).All(res)
+	err := db.DB(DB_NAME).C(C_REPOSITORY).Find(query).All(&res)
 	return res, err
 }
 
@@ -26,7 +26,7 @@ func (db *DB) getDataitem(query bson.M) (dataItem, error) {
 
 func (db *DB) getDataitems(query bson.M) ([]dataItem, error) {
 	res := []dataItem{}
-	err := db.DB(DB_NAME).C(C_DATAITEM).Find(query).All(res)
+	err := db.DB(DB_NAME).C(C_DATAITEM).Find(query).All(&res)
 	return res, err
 }
 

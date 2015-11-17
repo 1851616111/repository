@@ -175,9 +175,7 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, loginName s
 	return rsp.Json(200, E(OK))
 }
 
-//curl http://127.0.0.1:8080/repositories
-//curl http://10.1.235.98:8080/repositories
-//curl http://10.1.235.98:8080/repositories?page=2&size=3
+//curl http://127.0.0.1:8089/repositories
 func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	page_index, page_size := PAGE_INDEX, PAGE_SIZE
 	if p := strings.TrimSpace(r.FormValue("page")); p != "" {
@@ -191,8 +189,7 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 			return rsp.Json(400, ErrInvalidParameter("size"))
 		}
 	}
-	//	({"$or": [{"name":{"$in":["stephen","stephen1"]}}, {"age":36}]})
-	var Q bson.M
+	Q := bson.M{}
 	if p := strings.TrimSpace(r.FormValue("username")); p != "" {
 		l := []string{}
 		reps, _ := db.getRepositories(bson.M{COL_REP_ACC: ACCESS_PUBLIC})
@@ -208,7 +205,7 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 			}
 		}
 		if len(l) > 0 {
-			Q[CMD_IN] = bson.M{COL_REPNAME: bson.M{CMD_IN: l}}
+			Q[COL_REPNAME] = bson.M{CMD_IN: l}
 		}
 	} else if p := r.Header.Get("User"); p != "" {
 		Q[COL_CREATE_USER] = p
