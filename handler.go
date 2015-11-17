@@ -213,28 +213,25 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 	if loginName != "" && targetName == "" { //login already and search myrepositories
 		Q = bson.M{COL_CREATE_USER: loginName}
 	} else if loginName == "" && targetName != "" { // no login nd search targetName
-		Q = bson.M{COL_CREATE_USER: targetName, COL_ITEM_ACC: ACCESS_PUBLIC}
+		Q = bson.M{COL_CREATE_USER: targetName, COL_REP_ACC: ACCESS_PUBLIC}
 	} else if loginName != "" && targetName != "" { //loging and search targetName
 		q := []bson.M{}
-		l := []string{}
 		p_reps, _ := db.getPermitByUser(bson.M{COL_PERMIT_USER: loginName})
-
+		l := []string{}
 		if len(p_reps) > 0 {
 			for _, v := range p_reps {
 				l = append(l, v.Repository_name)
 			}
-			q_priavte := bson.M{}
-			q_priavte[COL_REPNAME] = bson.M{CMD_IN: l}
-			q_priavte[COL_CREATE_USER] = targetName
-			q_priavte[COL_ITEM_ACC] = ACCESS_PRIVATE
-			q = append(q, q_priavte)
+			q_private := bson.M{}
+			q_private[COL_REPNAME] = bson.M{CMD_IN: l}
+			q_private[COL_CREATE_USER] = targetName
+			q_private[COL_REP_ACC] = ACCESS_PRIVATE
+			q = append(q, q_private)
 		}
 
-		q_public := bson.M{}
-		q_public[COL_CREATE_USER] = targetName
-		q_public[COL_ITEM_ACC] = ACCESS_PUBLIC
-		q = append(q, q_public)
+		q_public := bson.M{COL_CREATE_USER: targetName, COL_REP_ACC: ACCESS_PUBLIC}
 
+		q = append(q, q_public)
 		switch len(q) {
 		case 1:
 			Q = q_public
@@ -245,13 +242,13 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 		return rsp.Json(400, ErrNoParameter("username or user"))
 	}
 
-	ds := []dataItem{}
-	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(Q).Sort("ct").Select(bson.M{COL_REPNAME: "1", COL_ITEM_NAME: "1"}).Skip((PAGE_INDEX - 1) * PAGE_SIZE).Limit(PAGE_SIZE).All(&ds); err != nil {
+	rep := []repository{}
+	if err := db.DB(DB_NAME).C(C_REPOSITORY).Find(Q).Sort("ct").Select(bson.M{COL_REPNAME: "1"}).Skip((PAGE_INDEX - 1) * PAGE_SIZE).Limit(PAGE_SIZE).All(&rep); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
 
 	l := []names{}
-	for _, v := range ds {
+	for _, v := range rep {
 		l = append(l, names{Repository_name: v.Repository_name})
 	}
 	return rsp.Json(200, E(OK), l)
