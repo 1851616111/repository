@@ -245,11 +245,15 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 	}
 
 	ds := []dataItem{}
-	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(Q).Sort("ct").Skip((PAGE_INDEX - 1) * PAGE_SIZE).Limit(PAGE_SIZE).All(&ds); err != nil {
+	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(Q).Sort("ct").Select(bson.M{COL_REPNAME: "1", COL_ITEM_NAME: "1"}).Skip((PAGE_INDEX - 1) * PAGE_SIZE).Limit(PAGE_SIZE).All(&ds); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
-	return rsp.Json(200, E(OK), ds)
 
+	l := []names{}
+	for _, v := range ds {
+		l = append(l, names{Repository_name: v.Repository_name, Dataitem_name: v.Dataitem_name})
+	}
+	return rsp.Json(200, E(OK), l)
 }
 
 //curl http://127.0.0.1:8080/repositories/NBA/bear23 -d "{\"itemaccesstype\":\"public\", \"meta\":\"{}\",\"sample\":\"{}\",\"comment\":\"中国移 动北京终端详情\", \"label\":{\"sys\":{\"supply_style\":\"flow\"}}}" -H user:admin
