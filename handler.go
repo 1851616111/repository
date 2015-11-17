@@ -251,7 +251,7 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 
 	l := []names{}
 	for _, v := range ds {
-		l = append(l, names{Repository_name: v.Repository_name, Dataitem_name: v.Dataitem_name})
+		l = append(l, names{Repository_name: v.Repository_name})
 	}
 	return rsp.Json(200, E(OK), l)
 }

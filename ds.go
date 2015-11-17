@@ -36,7 +36,7 @@ type repository struct {
 }
 type names struct {
 	Repository_name string `json:"repname"`
-	Dataitem_name   string `json:"itemname"`
+	Dataitem_name   string `json:"itemname,omitempty"`
 }
 type dataItem struct {
 	Repository_name string      `json:"-"`
