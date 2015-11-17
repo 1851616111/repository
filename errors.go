@@ -37,6 +37,7 @@ const (
 	ErrorCodeNoParameter
 	ErrorCodeDataBase
 	ErrorCodeQueryDBNotFound
+	ErrorCodeOptFile
 
 	NumErrors
 )
@@ -55,6 +56,7 @@ func init() {
 	initError(ErrorCodeDataBase, "database operate")
 	initError(ErrorCodeGetDataItem, "failed to get data item")
 	initError(ErrorCodeQueryDBNotFound, "query %s no found")
+	initError(ErrorCodeOptFile, "file operation")
 
 	ErrorNone = E(OK)
 	ErrorUnkown = E(ErrorCodeUnkown)
@@ -131,5 +133,12 @@ func ErrDataBase(e error) *Error {
 			code:    ErrorCodeDataBase,
 			message: fmt.Sprintf("%s : %s", E(ErrorCodeDataBase).message, e.Error()),
 		}
+	}
+}
+
+func ErrFile(e error) *Error {
+	return &Error{
+		code:    ErrorCodeOptFile,
+		message: fmt.Sprintf("%s : %s", E(ErrorCodeOptFile).message, e.Error()),
 	}
 }

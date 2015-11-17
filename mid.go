@@ -1,6 +1,13 @@
 package main
 
-import "gopkg.in/mgo.v2/bson"
+import (
+	"fmt"
+	"gopkg.in/mgo.v2/bson"
+)
+
+const (
+	C_FS = "datahub_fs"
+)
 
 func (db *DB) getRepository(query bson.M) (repository, error) {
 	res := new(repository)
@@ -68,4 +75,36 @@ func (db *DB) getPermitByUser(query bson.M) ([]Repository_Permit, error) {
 		return nil, err
 	}
 	return l, nil
+}
+
+func (db *DB) setFile(repname, itemname string, b []byte) (string, *Error) {
+	f, err := db.DB(DB_NAME).GridFS(C_FS).Create("")
+	if err != nil {
+		return "", ErrFile(err)
+	}
+	_, err = f.Write(b)
+	if err != nil {
+		return "", ErrFile(err)
+	}
+	f.SetMeta(bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname})
+	f.SetName(fmt.Sprintf("%s/%s", repname, itemname))
+	err = f.Close()
+	if err != nil {
+		return "", ErrFile(err)
+	}
+	return f.Id().(bson.ObjectId).Hex(), nil
+}
+
+func (db *DB) getFile(fileName string) ([]byte, error) {
+	file, err := db.DB(DB_NAME).GridFS(C_FS).Open(fileName)
+	get(err)
+	b := make([]byte, 8192)
+	_, err = file.Read(b)
+	get(err)
+	fmt.Println(string(b))
+	get(err)
+	err = file.Close()
+	get(err)
+
+	return b, nil
 }
