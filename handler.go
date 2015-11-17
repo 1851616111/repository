@@ -97,12 +97,15 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	}
 	rep.Optime = buildTime(rep.Optime)
 
-	ds, err := db.getDataitems(Q)
-	get(err)
 	items := []string{}
-	for _, v := range ds {
-		items = append(items, v.Dataitem_name)
+	if p := strings.TrimSpace(r.FormValue("items")); p != "" {
+		ds, err := db.getDataitems(Q)
+		get(err)
+		for _, v := range ds {
+			items = append(items, v.Dataitem_name)
+		}
 	}
+
 	var res struct {
 		repository
 		Dataitems []string `json:"dataitems"`
