@@ -6,7 +6,8 @@ import (
 )
 
 const (
-	C_FS = "datahub_fs"
+	C_FS          = "datahub_fs"
+	MAX_FILE_SIZE = 8192
 )
 
 func (db *DB) getRepository(query bson.M) (repository, error) {
@@ -77,34 +78,42 @@ func (db *DB) getPermitByUser(query bson.M) ([]Repository_Permit, error) {
 	return l, nil
 }
 
-func (db *DB) setFile(repname, itemname string, b []byte) (string, *Error) {
+func setFileName(prefix, repname, itemname string) string {
+	return fmt.Sprintf("%s_%s_%s", prefix, repname, itemname)
+}
+
+func (db *DB) setFile(prefix, repName, itemName string, b []byte) *Error {
 	f, err := db.DB(DB_NAME).GridFS(C_FS).Create("")
 	if err != nil {
-		return "", ErrFile(err)
+		return ErrFile(err)
 	}
 	_, err = f.Write(b)
 	if err != nil {
-		return "", ErrFile(err)
+		return ErrFile(err)
 	}
-	f.SetMeta(bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname})
-	f.SetName(fmt.Sprintf("%s/%s", repname, itemname))
+	f.SetMeta(bson.M{"prefix": prefix, COL_REPNAME: repName, COL_ITEM_NAME: itemName})
+	f.SetName(setFileName(prefix, repName, itemName))
 	err = f.Close()
 	if err != nil {
-		return "", ErrFile(err)
+		return ErrFile(err)
 	}
-	return f.Id().(bson.ObjectId).Hex(), nil
+	return nil
 }
 
-func (db *DB) getFile(fileName string) ([]byte, error) {
-	file, err := db.DB(DB_NAME).GridFS(C_FS).Open(fileName)
+func (db *DB) getFile(prefix, repName, itemName string) ([]byte, error) {
+	file, err := db.DB(DB_NAME).GridFS(C_FS).Open(setFileName(prefix, repName, itemName))
 	get(err)
-	b := make([]byte, 8192)
-	_, err = file.Read(b)
-	get(err)
-	fmt.Println(string(b))
+	b := make([]byte, MAX_FILE_SIZE)
+	n, err := file.Read(b)
 	get(err)
 	err = file.Close()
 	get(err)
+	return b[:n], nil
+}
 
-	return b, nil
+func (db *DB) delFile(prefix, repName, itemName string) *Error {
+	if err := db.DB(DB_NAME).GridFS(C_FS).Remove(setFileName(prefix, repName, itemName)); err != nil {
+		return ErrFile(err)
+	}
+	return nil
 }

@@ -45,8 +45,8 @@ type dataItem struct {
 	Itemaccesstype  string      `json:"itemaccesstype,omitempty"`
 	Price           interface{} `bson:"-", json:"price,omitempty"`
 	Optime          string      `json:"optime,omitempty"`
-	Meta            string      `json:"meta"`
-	Sample          string      `json:"sample"`
+	Meta            string      `bson:"-", json:"meta"`
+	Sample          string      `bson:"-", json:"sample"`
 	Comment         string      `json:"comment"`
 	Stars           int         `json:"stars"`
 	Tags            int         `json:"tags"`

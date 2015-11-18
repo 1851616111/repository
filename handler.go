@@ -43,6 +43,8 @@ const (
 	CMD_UNSET           = "$unset"
 	CMD_IN              = "$in"
 	CMD_OR              = "$or"
+	PREFIX_META         = "meta"
+	PREFIX_SAMPLE       = "sample"
 )
 
 var (
@@ -254,7 +256,6 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 	return rsp.Json(200, E(OK), l)
 }
 
-//curl http://127.0.0.1:8080/repositories/NBA/bear23 -d "{\"itemaccesstype\":\"public\", \"meta\":\"{}\",\"sample\":\"{}\",\"comment\":\"中国移 动北京终端详情\", \"label\":{\"sys\":{\"supply_style\":\"flow\"}}}" -H user:admin
 func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string) (int, string) {
 	repname := param["repname"]
 	if repname == "" {
@@ -297,6 +298,18 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 
 	if err := ifInLabel(d.Label, LABEL_NED_CHECK); err != nil {
 		return rsp.Json(400, err)
+	}
+
+	if d.Meta != "" {
+		if err := db.setFile(PREFIX_META, repname, itemname, []byte(d.Meta)); err != nil {
+			return rsp.Json(400, err)
+		}
+	}
+
+	if d.Sample != "" {
+		if err := db.setFile(PREFIX_SAMPLE, repname, itemname, []byte(d.Sample)); err != nil {
+			return rsp.Json(400, err)
+		}
 	}
 
 	if err := db.DB(DB_NAME).C(C_DATAITEM).Insert(d); err != nil {
@@ -355,11 +368,15 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	}
 
 	if d.Meta != "" {
-		u[COL_ITEM_META] = d.Meta
+		if err := db.setFile(PREFIX_META, repname, itemname, []byte(d.Meta)); err != nil {
+			return rsp.Json(400, err)
+		}
 	}
 
 	if d.Sample != "" {
-		u[COL_ITEM_SAMPLE] = d.Sample
+		if err := db.setFile(PREFIX_SAMPLE, repname, itemname, []byte(d.Sample)); err != nil {
+			return rsp.Json(400, err)
+		}
 	}
 
 	if d.Comment != "" {
@@ -412,6 +429,8 @@ func delDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 	if err := db.delDataitem(Q); err != nil {
 		return rsp.Json(200, ErrDataBase(err))
 	}
+	go db.delFile(PREFIX_META, repname, itemname)
+	go db.delFile(PREFIX_SAMPLE, repname, itemname)
 
 	return rsp.Json(200, E(OK))
 }
@@ -705,6 +724,12 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 		return rsp.Json(400, ErrDataBase(err))
 	}
 	item.Optime = buildTime(item.Optime)
+	b_m, err := db.getFile(PREFIX_META, repname, itemname)
+	get(err)
+	b_s, err := db.getFile(PREFIX_SAMPLE, repname, itemname)
+	get(err)
+	item.Meta = strings.TrimSpace(string(b_m))
+	item.Sample = strings.TrimSpace(string(b_s))
 
 	tags, err := db.getTags(Q)
 	get(err)
