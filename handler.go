@@ -32,6 +32,7 @@ const (
 	COL_SELECT_ORDER    = "order"
 	COL_SELECT_ICON     = "icon"
 	COL_PERMIT_USER     = "user_name"
+	COL_PERMIT_REPNAME  = "repository_name"
 	PAGE_INDEX          = 1
 	PAGE_SIZE           = 3
 	LABEL_NED_CHECK     = "supply_style"
@@ -232,7 +233,7 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 		Q = bson.M{COL_CREATE_USER: targetName, COL_REP_ACC: ACCESS_PUBLIC}
 	} else if loginName != "" && targetName != "" { //loging and search targetName
 		q := []bson.M{}
-		p_reps, _ := db.getPermitByUser(bson.M{COL_PERMIT_USER: loginName})
+		p_reps, _ := db.getPermit(COL_PERMIT_REPNAME, bson.M{COL_PERMIT_USER: loginName})
 		l := []string{}
 		if len(p_reps) > 0 {
 			for _, v := range p_reps {
@@ -846,9 +847,9 @@ func getUsrPmtRepsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *D
 		return rsp.Json(400, ErrNoParameter("user_name"))
 	}
 
-	l := []Repository_Permit{}
+	l := []Rep_Permission{}
 	Q := bson.M{"user_name": user_name}
-	if err := db.DB(DB_NAME).C(C_REPOSITORY_PERMIT).Find(Q).All(&l); err != nil {
+	if err := db.DB(DB_NAME).C(C_REPOSITORY_PERMISSION).Find(Q).All(&l); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
 	return rsp.Json(200, E(OK), l)
@@ -870,7 +871,7 @@ func setUsrPmtRepsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *D
 	}
 
 	Exec := bson.M{COL_REPNAME: repname, "user_name": user_name}
-	if err := db.DB(DB_NAME).C(C_REPOSITORY_PERMIT).Insert(Exec); err != nil {
+	if err := db.DB(DB_NAME).C(C_REPOSITORY_PERMISSION).Insert(Exec); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
 	return rsp.Json(200, E(OK))

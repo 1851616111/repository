@@ -80,6 +80,19 @@ func main() {
 		r.Post("/:user_name", setUsrPmtRepsHandler)
 	}, auth)
 
+	m.Group("/permission", func(r martini.Router) {
+		r.Get("/:repname", chkRepPermission, getRepPmsHandler)
+		r.Get("/:repname/:itemname", chkItemPermission, getItemPmsHandler)
+
+		r.Post("/:repname", chkRepPermission, setRepPmsHandler)
+		r.Post("/:repname/:itemname", chkItemPermission, setItemPmsHandler)
+
+		r.Delete("/:repname", chkRepPermission, delRepPmsHandler)
+		r.Delete("/:repname/:itemname", chkItemPermission, delItemPmsHandler)
+
+		r.Put("/:repname", setRepPmsHandler)
+	})
+
 	http.Handle("/", m)
 
 	http.ListenAndServe(fmt.Sprintf(":%s", SERVICE_PORT), nil)

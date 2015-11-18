@@ -7,11 +7,12 @@ import (
 )
 
 const (
-	C_REPOSITORY        = "repository"
-	C_DATAITEM          = "dataitem"
-	C_REPOSITORY_PERMIT = "permituser1"
-	C_SELECT            = "select"
-	C_TAG               = "tag"
+	C_REPOSITORY            = "repository"
+	C_DATAITEM              = "dataitem"
+	C_REPOSITORY_PERMISSION = "permission_rep"
+	C_DATAITEM_PERMISSION   = "permission_item"
+	C_SELECT                = "select"
+	C_TAG                   = "tag"
 )
 
 type label struct {
@@ -63,9 +64,15 @@ type tag struct {
 	Optime          string `json:"optime,omitempty"`
 }
 
-type Repository_Permit struct {
+type Rep_Permission struct {
 	User_name       string `json:"-"`
 	Repository_name string `json:"repname"`
+	Write           int    `json:"write"`
+}
+
+type Item_Permission struct {
+	User_name     string `json:"-"`
+	Dataitem_name string `json:"itemname"`
 }
 
 type Dim_Table struct {
@@ -101,7 +108,7 @@ func initDb(session *mgo.Session) {
 	utee.Chk(err)
 	err = db.C(C_SELECT).EnsureIndex(mgo.Index{Key: []string{COL_SELECT_LABEL}, Unique: true})
 	utee.Chk(err)
-	err = db.C(C_REPOSITORY_PERMIT).EnsureIndex(mgo.Index{Key: []string{COL_REPNAME, COL_PERMIT_USER}, Unique: true})
+	err = db.C(C_REPOSITORY_PERMISSION).EnsureIndex(mgo.Index{Key: []string{COL_REPNAME, COL_PERMIT_USER}, Unique: true})
 	utee.Chk(err)
 	err = db.C(C_TAG).EnsureIndex(mgo.Index{Key: []string{COL_REPNAME, COL_ITEM_NAME, COL_TAG_NAME}, Unique: true})
 	utee.Chk(err)

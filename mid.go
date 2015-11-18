@@ -75,12 +75,16 @@ func (db *DB) getSelect(query bson.M) (Select, error) {
 	return *res, err
 }
 
-func (db *DB) getPermitByUser(query bson.M) ([]Repository_Permit, error) {
-	l := []Repository_Permit{}
-	if err := db.DB(DB_NAME).C(C_REPOSITORY_PERMIT).Find(query).All(&l); err != nil {
+func (db *DB) getPermit(collection string, query bson.M) ([]Rep_Permission, error) {
+	l := []Rep_Permission{}
+	if err := db.DB(DB_NAME).C(collection).Find(query).All(&l); err != nil {
 		return nil, err
 	}
 	return l, nil
+}
+
+func (db *DB) delPermit(collection string, exec bson.M) error {
+	return db.DB(DB_NAME).C(collection).Remove(exec)
 }
 
 func setFileName(prefix, repname, itemname string) string {

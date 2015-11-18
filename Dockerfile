@@ -7,6 +7,8 @@ RUN go get github.com/tools/godep
 RUN godep restore
 RUN godep go install
 
+EXPOSE 8089
+
 ENV SERVICE_NAME=datahub_repository
 
 ENTRYPOINT ["/go/bin/datahub_repository"]
