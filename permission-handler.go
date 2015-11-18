@@ -31,8 +31,8 @@ func setRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 	if r_p.User_name == "" {
 		return rsp.Json(400, ErrNoParameter("username"))
 	}
-	log.Println("-------------->", r_p.Write)
-	if r_p.Write != 1 {
+
+	if r_p.Write != 0 && r_p.Write != 1 {
 		return rsp.Json(400, ErrInvalidParameter("write"))
 	}
 

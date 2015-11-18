@@ -17,7 +17,7 @@ var SEARCH_DATAITEM_COLS = []string{COL_REPNAME, COL_ITEM_NAME}
 //http://127.0.0.1:8080/search -d "text=123 123 14"
 func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 
-	page_index, page_size := PAGE_INDEX, PAGE_SIZE
+	page_index, page_size := PAGE_INDEX, PAGE_SIZE_SEARCH
 	if p := strings.TrimSpace(r.FormValue("page")); p != "" {
 		if page_index, _ = strconv.Atoi(p); page_index <= 0 {
 			return rsp.Json(400, ErrInvalidParameter("page"))

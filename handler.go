@@ -35,6 +35,7 @@ const (
 	COL_PERMIT_REPNAME  = "repository_name"
 	PAGE_INDEX          = 1
 	PAGE_SIZE           = 3
+	PAGE_SIZE_SEARCH    = 10
 	LABEL_NED_CHECK     = "supply_style"
 	SUPPLY_STYLE_SINGLE = "single"
 	SUPPLY_STYLE_BATCH  = "batch"
