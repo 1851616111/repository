@@ -32,9 +32,14 @@ func (db *DB) getDataitem(query bson.M) (dataItem, error) {
 	return *res, err
 }
 
-func (db *DB) getDataitems(query bson.M) ([]dataItem, error) {
+func (db *DB) getDataitems(pageIndex, pageSize int, query bson.M) ([]dataItem, error) {
 	res := []dataItem{}
-	err := db.DB(DB_NAME).C(C_DATAITEM).Find(query).All(&res)
+	var err error
+	if pageSize == -1 {
+		err = db.DB(DB_NAME).C(C_DATAITEM).Find(query).Sort("-ct").Select(bson.M{COL_ITEM_NAME: "1"}).All(&res)
+	} else {
+		err = db.DB(DB_NAME).C(C_DATAITEM).Find(query).Sort("-ct").Select(bson.M{COL_ITEM_NAME: "1"}).Skip((pageIndex - 1) * pageSize).Limit(pageSize).All(&res)
+	}
 	return res, err
 }
 

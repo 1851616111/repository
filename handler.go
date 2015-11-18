@@ -89,6 +89,19 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 }
 
 func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
+	page_index, page_size := PAGE_INDEX, PAGE_SIZE
+	if p := strings.TrimSpace(r.FormValue("page")); p != "" {
+		if page_index, _ = strconv.Atoi(p); page_index <= 0 {
+			return rsp.Json(400, ErrInvalidParameter("page"))
+		}
+
+	}
+	if p := strings.TrimSpace(r.FormValue("size")); p != "" {
+		if page_size, _ = strconv.Atoi(p); page_size < -1 {
+			return rsp.Json(400, ErrInvalidParameter("size"))
+		}
+	}
+
 	repname := strings.TrimSpace(param["repname"])
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
@@ -102,7 +115,8 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 
 	items := []string{}
 	if p := strings.TrimSpace(r.FormValue("items")); p != "" {
-		ds, err := db.getDataitems(Q)
+		ds := []dataItem{}
+		ds, err := db.getDataitems(page_index, page_size, Q)
 		get(err)
 		for _, v := range ds {
 			items = append(items, v.Dataitem_name)
@@ -245,8 +259,16 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 	}
 
 	rep := []repository{}
-	if err := db.DB(DB_NAME).C(C_REPOSITORY).Find(Q).Sort("ct").Select(bson.M{COL_REPNAME: "1"}).Skip((PAGE_INDEX - 1) * PAGE_SIZE).Limit(PAGE_SIZE).All(&rep); err != nil {
-		return rsp.Json(400, ErrDataBase(err))
+
+	if page_size == -1 {
+		if err := db.DB(DB_NAME).C(C_REPOSITORY).Find(Q).Sort("-ct").Select(bson.M{COL_REPNAME: "1"}).All(&rep); err != nil {
+			return rsp.Json(400, ErrDataBase(err))
+		}
+	} else {
+		err := db.DB(DB_NAME).C(C_REPOSITORY).Find(Q).Sort("-ct").Select(bson.M{COL_REPNAME: "1"}).Skip((page_index - 1) * page_size).Limit(page_size).All(&rep)
+		if err != nil {
+			return rsp.Json(400, ErrDataBase(err))
+		}
 	}
 
 	l := []names{}

@@ -65,7 +65,7 @@ type tag struct {
 
 type Repository_Permit struct {
 	User_name       string `json:"-"`
-	Repository_name string `json:"repository_name"`
+	Repository_name string `json:"repname"`
 }
 
 type Dim_Table struct {
