@@ -110,13 +110,19 @@ func (db *DB) setFile(prefix, repName, itemName string, b []byte) *Error {
 }
 
 func (db *DB) getFile(prefix, repName, itemName string) ([]byte, error) {
-	file, err := db.DB(DB_NAME).GridFS(C_FS).Open(setFileName(prefix, repName, itemName))
-	get(err)
 	b := make([]byte, MAX_FILE_SIZE)
+	file, err := db.DB(DB_NAME).GridFS(C_FS).Open(setFileName(prefix, repName, itemName))
+	if err != nil {
+		return b, err
+	}
 	n, err := file.Read(b)
-	get(err)
+	if err != nil {
+		return b, err
+	}
 	err = file.Close()
-	get(err)
+	if err != nil {
+		return b, err
+	}
 	return b[:n], nil
 }
 

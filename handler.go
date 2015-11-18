@@ -731,7 +731,7 @@ func delTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int
 	return rsp.Json(200, E(OK))
 }
 
-//curl http://127.0.0.1:8089/repositories/mobile/apps
+//curl http://127.0.0.1:8089/repositories/mobile/app
 func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	repname := param["repname"]
 	if repname == "" {
@@ -749,9 +749,15 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	}
 	item.Optime = buildTime(item.Optime)
 	b_m, err := db.getFile(PREFIX_META, repname, itemname)
-	get(err)
+	if err != nil {
+		log.Println("get dataitem meta err :", err)
+		item.Meta = ""
+	}
 	b_s, err := db.getFile(PREFIX_SAMPLE, repname, itemname)
-	get(err)
+	if err != nil {
+		log.Println("get dataitem sample err :", err)
+		item.Sample = ""
+	}
 	item.Meta = strings.TrimSpace(string(b_m))
 	item.Sample = strings.TrimSpace(string(b_s))
 
