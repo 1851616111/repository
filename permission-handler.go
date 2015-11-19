@@ -46,7 +46,7 @@ func upsertRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB
 
 func getRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p Rep_Permission) (int, string) {
 	Q := bson.M{COL_REPNAME: p.Repository_name}
-	l, err := db.getPermit(C_REPOSITORY_PERMISSION, Q)
+	l, err := db.getPermits(C_REPOSITORY_PERMISSION, Q)
 	if err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
@@ -55,7 +55,7 @@ func getRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 
 func getItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p Item_Permission) (int, string) {
 	Q := bson.M{COL_ITEM_NAME: p.Dataitem_name}
-	l, err := db.getPermit(C_DATAITEM_PERMISSION, Q)
+	l, err := db.getPermits(C_DATAITEM_PERMISSION, Q)
 	if err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}

@@ -55,9 +55,9 @@ func (db *DB) getTag(query bson.M) (tag, error) {
 	return *res, err
 }
 
-func (db *DB) getTags(query bson.M) ([]tag, error) {
+func (db *DB) getTags(pageIndex, pageSize int, query bson.M) ([]tag, error) {
 	res := []tag{}
-	err := db.DB(DB_NAME).C(C_TAG).Find(query).All(&res)
+	err := db.DB(DB_NAME).C(C_TAG).Find(query).Sort("-optime").Skip((pageIndex - 1) * pageSize).Limit(pageSize).All(&res)
 	return res, err
 }
 
@@ -77,7 +77,7 @@ func (db *DB) getSelect(query bson.M) (Select, error) {
 	return *res, err
 }
 
-func (db *DB) getPermit(collection string, query bson.M) (interface{}, error) {
+func (db *DB) getPermits(collection string, query bson.M) (interface{}, error) {
 	var err error
 	switch collection {
 	case C_DATAITEM_PERMISSION:
@@ -151,4 +151,23 @@ func (db *DB) delFile(prefix, repName, itemName string) *Error {
 		return ErrFile(err)
 	}
 	return nil
+}
+
+func (db *DB) hasPermission(collection string, query bson.M) bool {
+	n, _ := db.DB(DB_NAME).C(collection).Find(query).Count()
+	switch n {
+	case 0:
+		return false
+	case 1:
+		return true
+	default:
+		log.Printf("query %s  total=%n invalid", collection, n)
+		return true
+	}
+}
+
+func buildTagsTime(tags []tag) {
+	for i, v := range tags {
+		tags[i].Optime = buildTime(v.Optime)
+	}
 }

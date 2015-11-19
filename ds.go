@@ -29,7 +29,6 @@ type repository struct {
 	//	Deposit         bool      `json:"deposit"`
 	Comment string      `json:"comment"`
 	Optime  string      `json:"optime,omitempty"`
-	Stars   int         `json:"stars"`
 	Items   int         `json:"items"`
 	Label   interface{} `json:"label"`
 	Ct      time.Time   `json:"-"`
@@ -49,7 +48,6 @@ type dataItem struct {
 	Meta            string      `bson:"-", json:"meta"`
 	Sample          string      `bson:"-", json:"sample"`
 	Comment         string      `json:"comment"`
-	Stars           int         `json:"stars"`
 	Tags            int         `json:"tags"`
 	Label           interface{} `json:"label"`
 	Ct              time.Time   `json:"-"`

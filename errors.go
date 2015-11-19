@@ -26,19 +26,13 @@ const (
 	ErrorCodeAuthFailed
 	ErrorCodePermissionDenied
 	ErrorCodeInvalidParameters
-	ErrorCodeCreateSubscription
-	ErrorCodeGetSubscription
-	ErrorCodeCancelSubscription
-	ErrorCodeQuerySubscription
-	ErrorCodeCreateTransaction
-	ErrorCodeGetTransaction
-	ErrorCodeQueryTransaction
-	ErrorCodeNoParameter
 	ErrorCodeDataBase
 	ErrorCodeQueryDBNotFound
 	ErrorCodeOptFile
 
 	NumErrors
+
+	ErrorCodeNoParameter = 1400
 )
 
 func init() {
