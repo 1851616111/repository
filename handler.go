@@ -847,7 +847,6 @@ func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 
 	if select_labels := strings.TrimSpace(r.FormValue("select_labels")); select_labels != "" {
 		m = bson.M{"label.sys.select_labels": select_labels}
-		log.Println("------------->",select_labels)
 	} else {
 		m = bson.M{"label.sys.select_labels": bson.M{"$exists": true}}
 	}
