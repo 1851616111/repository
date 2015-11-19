@@ -852,7 +852,7 @@ func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	}
 
 	l := []names{}
-	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(m).Limit(PAGE_SIZE).Sort("-label.sys.order").All(&l); err != nil {
+	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(m).Limit(10).Sort("-label.sys.order").All(&l); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
 
