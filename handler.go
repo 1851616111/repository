@@ -33,6 +33,7 @@ const (
 	COL_SELECT_ICON     = "icon"
 	COL_PERMIT_USER     = "user_name"
 	COL_PERMIT_REPNAME  = "repository_name"
+	COL_PERMIT_ITEMNAME = "dataitem_name"
 	COL_PERMIT_WRITE    = "write"
 	PAGE_INDEX          = 1
 	PAGE_SIZE           = 3
@@ -198,14 +199,10 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, loginName s
 		u[COL_COMMENT] = rep.Comment
 	}
 
-	if rep.Label != "" {
-		u[COL_LABEL] = rep.Label
-	}
-
 	if len(u) > 0 {
 		u[COL_OPTIME] = time.Now().String()
 		updater := bson.M{"$set": u}
-		go asynOpt(C_REPOSITORY, selector, updater)
+		go asynUpdateOpt(C_REPOSITORY, selector, updater)
 	}
 
 	return rsp.Json(200, E(OK))
@@ -343,7 +340,7 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		return rsp.Json(400, ErrDataBase(err))
 	}
 
-	go asynOpt(C_REPOSITORY, bson.M{COL_REPNAME: repname}, bson.M{CMD_INC: bson.M{"items": 1}, CMD_SET: bson.M{COL_OPTIME: now.String()}})
+	go asynUpdateOpt(C_REPOSITORY, bson.M{COL_REPNAME: repname}, bson.M{CMD_INC: bson.M{"items": 1}, CMD_SET: bson.M{COL_OPTIME: now.String()}})
 
 	return rsp.Json(200, E(OK))
 }
@@ -410,20 +407,13 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		u[COL_COMMENT] = d.Comment
 	}
 
-	if d.Label != "" {
-		if err := ifInLabel(d.Label, LABEL_NED_CHECK); err != nil {
-			return rsp.Json(400, err)
-		}
-		u[COL_LABEL] = d.Label
-	}
-
 	if len(u) > 0 {
 		now := time.Now().String()
 		u[COL_OPTIME] = now
 		updater := bson.M{"$set": u}
-		go asynOpt(C_DATAITEM, selector, updater)
+		go asynUpdateOpt(C_DATAITEM, selector, updater)
 
-		go asynOpt(C_REPOSITORY, bson.M{COL_REPNAME: repname}, bson.M{"$set": bson.M{COL_OPTIME: now}})
+		go asynUpdateOpt(C_REPOSITORY, bson.M{COL_REPNAME: repname}, bson.M{"$set": bson.M{COL_OPTIME: now}})
 	}
 	return rsp.Json(200, E(OK))
 }
@@ -440,7 +430,7 @@ func delDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 	}
 
 	Q := bson.M{COL_REPNAME: repname}
-	go asynOpt(C_REPOSITORY, Q, bson.M{CMD_INC: bson.M{"items": -1}, CMD_SET: bson.M{COL_OPTIME: time.Now().String()}})
+	go asynUpdateOpt(C_REPOSITORY, Q, bson.M{CMD_INC: bson.M{"items": -1}, CMD_SET: bson.M{COL_OPTIME: time.Now().String()}})
 
 	Q[COL_ITEM_NAME] = itemname
 	item, err := db.getDataitem(Q)
@@ -530,7 +520,7 @@ func updateSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, d
 	}
 
 	updater := bson.M{CMD_SET: u}
-	go asynOpt(C_SELECT, selector, updater)
+	go asynUpdateOpt(C_SELECT, selector, updater)
 	return rsp.Json(200, E(OK))
 }
 
@@ -616,9 +606,9 @@ func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, logi
 	now := time.Now().String()
 	t.Optime = now
 
-	go asynOpt(C_REPOSITORY, bson.M{COL_REPNAME: repname}, bson.M{CMD_SET: bson.M{COL_OPTIME: now}})
+	go asynUpdateOpt(C_REPOSITORY, bson.M{COL_REPNAME: repname}, bson.M{CMD_SET: bson.M{COL_OPTIME: now}})
 
-	go asynOpt(C_DATAITEM, Q, bson.M{CMD_INC: bson.M{"tags": 1}, CMD_SET: bson.M{COL_OPTIME: now}})
+	go asynUpdateOpt(C_DATAITEM, Q, bson.M{CMD_INC: bson.M{"tags": 1}, CMD_SET: bson.M{COL_OPTIME: now}})
 
 	if err := db.DB(DB_NAME).C(C_TAG).Insert(t); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
@@ -670,11 +660,11 @@ func updateTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, l
 	}
 
 	now := time.Now().String()
-	go asynOpt(C_REPOSITORY, bson.M{COL_REPNAME: repname}, bson.M{CMD_SET: bson.M{COL_OPTIME: now}})
+	go asynUpdateOpt(C_REPOSITORY, bson.M{COL_REPNAME: repname}, bson.M{CMD_SET: bson.M{COL_OPTIME: now}})
 
-	go asynOpt(C_DATAITEM, Q_item, bson.M{CMD_INC: bson.M{"tags": 1}, CMD_SET: bson.M{COL_OPTIME: now}})
+	go asynUpdateOpt(C_DATAITEM, Q_item, bson.M{CMD_INC: bson.M{"tags": 1}, CMD_SET: bson.M{COL_OPTIME: now}})
 
-	go asynOpt(C_TAG, Q_tag, bson.M{"$set": bson.M{COL_COMMENT: t.Comment, COL_OPTIME: now}})
+	go asynUpdateOpt(C_TAG, Q_tag, bson.M{"$set": bson.M{COL_COMMENT: t.Comment, COL_OPTIME: now}})
 
 	return rsp.Json(200, E(OK))
 }
@@ -723,7 +713,7 @@ func delTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int
 		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("itemname : %s", itemname)))
 	}
 
-	go asynOpt(C_DATAITEM, Q, bson.M{CMD_INC: bson.M{"tags": -1}, CMD_SET: bson.M{COL_OPTIME: time.Now().String()}})
+	go asynUpdateOpt(C_DATAITEM, Q, bson.M{CMD_INC: bson.M{"tags": -1}, CMD_SET: bson.M{COL_OPTIME: time.Now().String()}})
 
 	Q[COL_TAG_NAME] = tagname
 	err := db.delTag(Q)

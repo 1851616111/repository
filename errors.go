@@ -26,7 +26,6 @@ const (
 	ErrorCodeAuthFailed
 	ErrorCodePermissionDenied
 	ErrorCodeInvalidParameters
-	ErrorCodeGetDataItem
 	ErrorCodeCreateSubscription
 	ErrorCodeGetSubscription
 	ErrorCodeCancelSubscription
@@ -54,7 +53,6 @@ func init() {
 	initError(ErrorCodeInvalidParameters, "invalid parameters")
 	initError(ErrorCodeNoParameter, "no parameter")
 	initError(ErrorCodeDataBase, "database operate")
-	initError(ErrorCodeGetDataItem, "failed to get data item")
 	initError(ErrorCodeQueryDBNotFound, "query %s no found")
 	initError(ErrorCodeOptFile, "file operation")
 

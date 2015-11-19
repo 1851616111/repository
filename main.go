@@ -84,13 +84,11 @@ func main() {
 		r.Get("/:repname", chkRepPermission, getRepPmsHandler)
 		r.Get("/:repname/:itemname", chkItemPermission, getItemPmsHandler)
 
-		r.Post("/:repname", chkRepPermission, setRepPmsHandler)
-		r.Post("/:repname/:itemname", chkItemPermission, setItemPmsHandler)
+		r.Put("/:repname", chkRepPermission, upsertRepPmsHandler)
+		r.Put("/:repname/:itemname", chkItemPermission, setItemPmsHandler)
 
 		r.Delete("/:repname", chkRepPermission, delRepPmsHandler)
 		r.Delete("/:repname/:itemname", chkItemPermission, delItemPmsHandler)
-
-		r.Put("/:repname", chkRepPermission, updateRepPmsHandler)
 	})
 
 	http.Handle("/", m)
