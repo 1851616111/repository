@@ -118,12 +118,24 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	rep.Optime = buildTime(rep.Optime)
 
 	items := []string{}
+	ds := []dataItem{}
 	if p := strings.TrimSpace(r.FormValue("items")); p != "" {
-		ds := []dataItem{}
-		ds, err := db.getDataitems(page_index, page_size, Q)
-		get(err)
-		for _, v := range ds {
-			items = append(items, v.Dataitem_name)
+		if rep.Repaccesstype == ACCESS_PUBLIC {
+			ds, err = db.getDataitems(page_index, page_size, Q)
+			get(err)
+			for _, v := range ds {
+				items = append(items, v.Dataitem_name)
+			}
+		} else if user := r.Header.Get("User"); user != "" {
+			l, err := db.getPermit(COL_PERMIT_REPNAME, bson.M{COL_PERMIT_REPNAME: rep.Repository_name, COL_PERMIT_USER: user})
+			get(err)
+			if ll, ok := l.([]Rep_Permission); ok && len(ll) > 0 {
+				ds, err := db.getDataitems(page_index, page_size, Q)
+				get(err)
+				for _, v := range ds {
+					items = append(items, v.Dataitem_name)
+				}
+			}
 		}
 	}
 
@@ -606,13 +618,14 @@ func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, logi
 	now := time.Now().String()
 	t.Optime = now
 
-	go asynUpdateOpt(C_REPOSITORY, bson.M{COL_REPNAME: repname}, bson.M{CMD_SET: bson.M{COL_OPTIME: now}})
-
-	go asynUpdateOpt(C_DATAITEM, Q, bson.M{CMD_INC: bson.M{"tags": 1}, CMD_SET: bson.M{COL_OPTIME: now}})
 
 	if err := db.DB(DB_NAME).C(C_TAG).Insert(t); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
+
+	go asynUpdateOpt(C_REPOSITORY, bson.M{COL_REPNAME: repname}, bson.M{CMD_SET: bson.M{COL_OPTIME: now}})
+
+	go asynUpdateOpt(C_DATAITEM, Q, bson.M{CMD_INC: bson.M{"tags": 1}, CMD_SET: bson.M{COL_OPTIME: now}})
 
 	return rsp.Json(200, E(OK))
 }
@@ -758,6 +771,10 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 
 	tags, err := db.getTags(Q)
 	get(err)
+
+	for i, v := range tags {
+		tags[i].Optime = buildTime(v.Optime)
+	}
 	var res struct {
 		dataItem
 		Tags []tag `json:"taglist"`
@@ -830,6 +847,7 @@ func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 
 	if select_labels := strings.TrimSpace(r.FormValue("select_labels")); select_labels != "" {
 		m = bson.M{"label.sys.select_labels": select_labels}
+		log.Println("------------->",select_labels)
 	} else {
 		m = bson.M{"label.sys.select_labels": bson.M{"$exists": true}}
 	}
