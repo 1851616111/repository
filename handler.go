@@ -33,6 +33,7 @@ const (
 	COL_SELECT_ICON     = "icon"
 	COL_PERMIT_USER     = "user_name"
 	COL_PERMIT_REPNAME  = "repository_name"
+	COL_PERMIT_WRITE    = "write"
 	PAGE_INDEX          = 1
 	PAGE_SIZE           = 3
 	PAGE_SIZE_SEARCH    = 10
@@ -236,15 +237,17 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 		q := []bson.M{}
 		p_reps, _ := db.getPermit(COL_PERMIT_REPNAME, bson.M{COL_PERMIT_USER: loginName})
 		l := []string{}
-		if len(p_reps) > 0 {
-			for _, v := range p_reps {
-				l = append(l, v.Repository_name)
+		if l_p_reps, ok := p_reps.([]Rep_Permission); ok {
+			if len(l_p_reps) > 0 {
+				for _, v := range p_reps.([]Rep_Permission) {
+					l = append(l, v.Repository_name)
+				}
+				q_private := bson.M{}
+				q_private[COL_REPNAME] = bson.M{CMD_IN: l}
+				q_private[COL_CREATE_USER] = targetName
+				q_private[COL_REP_ACC] = ACCESS_PRIVATE
+				q = append(q, q_private)
 			}
-			q_private := bson.M{}
-			q_private[COL_REPNAME] = bson.M{CMD_IN: l}
-			q_private[COL_CREATE_USER] = targetName
-			q_private[COL_REP_ACC] = ACCESS_PRIVATE
-			q = append(q, q_private)
 		}
 
 		q_public := bson.M{COL_CREATE_USER: targetName, COL_REP_ACC: ACCESS_PUBLIC}
@@ -752,14 +755,16 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	if err != nil {
 		log.Println("get dataitem meta err :", err)
 		item.Meta = ""
+	} else {
+		item.Meta = strings.TrimSpace(string(b_m))
 	}
 	b_s, err := db.getFile(PREFIX_SAMPLE, repname, itemname)
 	if err != nil {
 		log.Println("get dataitem sample err :", err)
 		item.Sample = ""
+	} else {
+		item.Sample = strings.TrimSpace(string(b_s))
 	}
-	item.Meta = strings.TrimSpace(string(b_m))
-	item.Sample = strings.TrimSpace(string(b_s))
 
 	tags, err := db.getTags(Q)
 	get(err)

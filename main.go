@@ -90,7 +90,7 @@ func main() {
 		r.Delete("/:repname", chkRepPermission, delRepPmsHandler)
 		r.Delete("/:repname/:itemname", chkItemPermission, delItemPmsHandler)
 
-		r.Put("/:repname", setRepPmsHandler)
+		r.Put("/:repname", chkRepPermission, updateRepPmsHandler)
 	})
 
 	http.Handle("/", m)

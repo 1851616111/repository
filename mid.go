@@ -1,8 +1,10 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"gopkg.in/mgo.v2/bson"
+	"log"
 )
 
 const (
@@ -75,15 +77,33 @@ func (db *DB) getSelect(query bson.M) (Select, error) {
 	return *res, err
 }
 
-func (db *DB) getPermit(collection string, query bson.M) ([]Rep_Permission, error) {
-	l := []Rep_Permission{}
-	if err := db.DB(DB_NAME).C(collection).Find(query).All(&l); err != nil {
-		return nil, err
+func (db *DB) getPermit(collection string, query bson.M) (interface{}, error) {
+	var err error
+	switch collection {
+	case C_DATAITEM_PERMISSION:
+		l := []Item_Permission{}
+		err = db.DB(DB_NAME).C(collection).Find(query).All(&l)
+		if err != nil {
+			return l, err
+		}
+		log.Println(query)
+		log.Println(l)
+		return l, nil
+	case C_REPOSITORY_PERMISSION:
+		l := []Rep_Permission{}
+		err = db.DB(DB_NAME).C(collection).Find(query).All(&l)
+		if err != nil {
+			return l, err
+		}
+		log.Println(query)
+		log.Println(l)
+		return l, nil
 	}
-	return l, nil
+	return nil, errors.New("unknow err")
 }
 
 func (db *DB) delPermit(collection string, exec bson.M) error {
+	log.Println(exec)
 	return db.DB(DB_NAME).C(collection).Remove(exec)
 }
 
