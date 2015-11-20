@@ -36,7 +36,7 @@ const (
 	COL_PERMIT_ITEMNAME = "dataitem_name"
 	COL_PERMIT_WRITE    = "write"
 	PAGE_INDEX          = 1
-	PAGE_SIZE           = 3
+	PAGE_SIZE           = 6
 	PAGE_SIZE_SEARCH    = 10
 	PAGE_SIZE_SELECT    = 10
 	LABEL_NED_CHECK     = "supply_style"
@@ -804,7 +804,7 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 
 	var res struct {
 		dataItem
-		Tags []tag `json:"taglist,omitempty"`
+		Tags []tag `json:"taglist"`
 	}
 	res.dataItem = item
 	res.Tags = tags
@@ -858,7 +858,7 @@ func getDWithPermissionHandler(r *http.Request, rsp *Rsp, param martini.Params, 
 	return rsp.Json(200, E(OK), item)
 }
 
-func updateLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
+func updateSelectHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	repname := strings.TrimSpace(param["repname"])
 	itemname := strings.TrimSpace(param["itemname"])
 	select_labels := strings.TrimSpace(r.FormValue("select_labels"))
@@ -967,5 +967,18 @@ func setUsrPmtRepsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *D
 	if err := db.DB(DB_NAME).C(C_REPOSITORY_PERMISSION).Insert(Exec); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
+	return rsp.Json(200, E(OK))
+}
+
+func delRLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
+	return rsp.Json(200, E(OK))
+}
+func delDLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
+	return rsp.Json(200, E(OK))
+}
+func upsertRLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
+	return rsp.Json(200, E(OK))
+}
+func upsertDLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	return rsp.Json(200, E(OK))
 }

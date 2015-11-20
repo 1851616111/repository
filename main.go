@@ -45,27 +45,33 @@ func main() {
 		r.Get("", getRsHandler)
 
 		r.Get("/:repname", getRHandler)
+		r.Get("/:repname/label", getRHandler)
 		r.Get("/:repname/:itemname", getDHandler)
 		r.Get("/:repname/:itemname/subpermission", getDWithPermissionHandler)
 		r.Get("/:repname/:itemname/:tag", getTagHandler)
+		r.Get("/:repname/:itemname/label", getTagHandler)
 
 		r.Post("/:repname", auth, createRHandler)
 		r.Post("/:repname/:itemname", auth, createDHandler)
 		r.Post("/:repname/:itemname/:tag", auth, setTagHandler)
+		r.Post("/:repname/:itemname/label", auth, setTagHandler)
 
 		r.Put("/:repname", auth, updateRHandler)
+		r.Put("/:repname/label", auth, upsertDLabelHandler)
 		r.Put("/:repname/:itemname", auth, updateDHandler)
 		r.Put("/:repname/:itemname/:tag", auth, updateTagHandler)
+		r.Put("/:repname/:itemname/label", auth, upsertRLabelHandler)
 
 		r.Delete("/:repname", auth, delRHandler)
 		r.Delete("/:repname/:itemname", auth, delDHandler)
 		r.Delete("/:repname/:itemname/:tag", auth, delTagHandler)
+
 	})
 
 	m.Group("/selects", func(r martini.Router) {
 		r.Get("", getSelectsHandler)
-		r.Put("/:repname/:itemname", authAdmin, updateLabelHandler)
-		r.Post("/:repname/:itemname", authAdmin, updateLabelHandler)
+		r.Put("/:repname/:itemname", authAdmin, updateSelectHandler)
+		r.Post("/:repname/:itemname", authAdmin, updateSelectHandler)
 		r.Delete("/:repname/:itemname", authAdmin, deleteSelectLabelHandler)
 	})
 

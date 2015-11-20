@@ -117,4 +117,10 @@ func initDb(session *mgo.Session) {
 	utee.Chk(err)
 	err = db.C(C_TAG).EnsureIndex(mgo.Index{Key: []string{COL_REPNAME, COL_ITEM_NAME, COL_TAG_NAME}, Unique: true})
 	utee.Chk(err)
+	err = db.C(C_DATAITEM).EnsureIndexKey(COL_REPNAME)
+	utee.Chk(err)
+	err = db.C(C_DATAITEM).EnsureIndexKey(COL_ITEM_NAME)
+	utee.Chk(err)
+	err = db.C(C_DATAITEM).EnsureIndexKey(COL_COMMENT)
+	utee.Chk(err)
 }

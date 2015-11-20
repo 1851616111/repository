@@ -15,7 +15,7 @@ const (
 	MONGO_OPTION_All = "$i"
 )
 
-var SEARCH_DATAITEM_COLS = []string{COL_REPNAME, COL_ITEM_NAME}
+var SEARCH_DATAITEM_COLS = []string{COL_REPNAME, COL_ITEM_NAME, COL_COMMENT}
 
 //curl http://127.0.0.1:8089/search?text="123 123 14"
 func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
