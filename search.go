@@ -4,17 +4,20 @@ import (
 	"fmt"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
 )
 
 const (
-	MONGO_REGEX = "$regex"
+	MONGO_REGEX      = "$regex"
+	MONGO_OPTION     = "$options"
+	MONGO_OPTION_All = "$i"
 )
 
 var SEARCH_DATAITEM_COLS = []string{COL_REPNAME, COL_ITEM_NAME}
 
-//http://127.0.0.1:8080/search -d "text=123 123 14"
+//curl http://127.0.0.1:8089/search?text="123 123 14"
 func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 
 	page_index, page_size := PAGE_INDEX, PAGE_SIZE_SEARCH
@@ -29,31 +32,48 @@ func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 			return rsp.Json(400, ErrInvalidParameter("size"))
 		}
 	}
+	l := []names{}
 	res := map[string]interface{}{}
 	text := strings.TrimSpace(r.FormValue("text"))
-	searchs := strings.Split(text, " ")
-	for _, v := range searchs {
-		for _, col := range SEARCH_DATAITEM_COLS {
-			l := []names{}
-			db.DB(DB_NAME).C(C_DATAITEM).Find(bson.M{COL_ITEM_ACC: ACCESS_PUBLIC, col: bson.M{"$regex": v}}).Select(bson.M{COL_REPNAME: "1", COL_ITEM_NAME: "1", "ct": "1"}).All(&l)
-			for _, v := range l {
-				res[fmt.Sprintf("%s/%s", v.Repository_name, v.Dataitem_name)] = 1
+	if text != "" {
+		searchs := strings.Split(text, " ")
+		for _, v := range searchs {
+			for _, col := range SEARCH_DATAITEM_COLS {
+				l := []search{}
+				db.DB(DB_NAME).C(C_DATAITEM).Find(bson.M{COL_ITEM_ACC: ACCESS_PUBLIC, col: bson.M{MONGO_REGEX: v, MONGO_OPTION: MONGO_OPTION_All}}).Sort("-ct").Select(bson.M{COL_REPNAME: "1", COL_ITEM_NAME: "1", "ct": "1"}).All(&l)
+				for _, v := range l {
+					res[fmt.Sprintf("%s/%s", v.Repository_name, v.Dataitem_name)] = fmt.Sprintf("%d", v.Ct.Unix())
+				}
 			}
 		}
-	}
+		res_reverse := map[string]interface{}{}
+		for k, v := range res {
+			res_reverse[v.(string)] = k
+		}
 
-	var result struct {
-		Results []names `json:"results"`
-		Total   int     `json:"total"`
-	}
+		var keys []string
+		for k := range res_reverse {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
 
-	l := []names{}
-	for k, _ := range res {
-		str := strings.Split(k, "/")
-		l = append(l, names{str[0], str[1]})
+		for _, k := range keys {
+			str := strings.Split(res_reverse[k].(string), "/")
+			l = append(l, names{str[0], str[1]})
+		}
+	} else {
+		db.DB(DB_NAME).C(C_DATAITEM).Find(nil).Limit(PAGE_SIZE_SEARCH).Sort("-ct").Select(bson.M{COL_REPNAME: "1", COL_ITEM_NAME: "1", "ct": "1"}).All(&l)
 	}
 
 	length := len(l)
+	result := struct {
+		Results []names `json:"results"`
+		Total   int     `json:"total"`
+	}{
+		l,
+		length,
+	}
+
 	if length < page_index*page_size && length >= (page_index-1)*page_size {
 		result.Results = l[(page_index-1)*page_size : length]
 	} else if length < page_index*page_size {

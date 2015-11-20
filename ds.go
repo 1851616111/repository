@@ -38,6 +38,11 @@ type names struct {
 	Repository_name string `json:"repname"`
 	Dataitem_name   string `json:"itemname,omitempty"`
 }
+type search struct {
+	Repository_name string
+	Dataitem_name   string
+	Ct              time.Time
+}
 type dataItem struct {
 	Repository_name string      `json:"-"`
 	Dataitem_name   string      `json:"-"`

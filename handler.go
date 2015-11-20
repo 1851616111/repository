@@ -38,6 +38,7 @@ const (
 	PAGE_INDEX          = 1
 	PAGE_SIZE           = 3
 	PAGE_SIZE_SEARCH    = 10
+	PAGE_SIZE_SELECT    = 10
 	LABEL_NED_CHECK     = "supply_style"
 	SUPPLY_STYLE_API    = "api"
 	SUPPLY_STYLE_BATCH  = "batch"
@@ -925,7 +926,7 @@ func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	}
 
 	l := []names{}
-	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(m).Limit(10).Sort("-label.sys.order").All(&l); err != nil {
+	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(m).Limit(PAGE_SIZE_SELECT).Sort("-label.sys.order").All(&l); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
 
