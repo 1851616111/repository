@@ -39,7 +39,7 @@ const (
 	PAGE_SIZE           = 3
 	PAGE_SIZE_SEARCH    = 10
 	LABEL_NED_CHECK     = "supply_style"
-	SUPPLY_STYLE_SINGLE = "single"
+	SUPPLY_STYLE_API = "api"
 	SUPPLY_STYLE_BATCH  = "batch"
 	SUPPLY_STYLE_FLOW   = "flow"
 	CMD_INC             = "$inc"
@@ -52,7 +52,7 @@ const (
 )
 
 var (
-	SUPPLY_STYLE_ALL = []string{SUPPLY_STYLE_SINGLE, SUPPLY_STYLE_BATCH, SUPPLY_STYLE_FLOW}
+	SUPPLY_STYLE_ALL = []string{SUPPLY_STYLE_API, SUPPLY_STYLE_BATCH, SUPPLY_STYLE_FLOW}
 	NED_CHECK_LABELS = []string{LABEL_NED_CHECK}
 )
 
@@ -443,10 +443,8 @@ func delDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 		return rsp.Json(400, ErrNoParameter("itemname"))
 	}
 
-	Q := bson.M{COL_REPNAME: repname}
-	go asynUpdateOpt(C_REPOSITORY, Q, bson.M{CMD_INC: bson.M{"items": -1}, CMD_SET: bson.M{COL_OPTIME: time.Now().String()}})
+	Q := bson.M{COL_REPNAME: repname, COL_ITEM_NAME:itemname}
 
-	Q[COL_ITEM_NAME] = itemname
 	item, err := db.getDataitem(Q)
 
 	if err == mgo.ErrNotFound {
@@ -462,6 +460,8 @@ func delDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 	}
 	go db.delFile(PREFIX_META, repname, itemname)
 	go db.delFile(PREFIX_SAMPLE, repname, itemname)
+
+	go asynUpdateOpt(C_REPOSITORY, bson.M{COL_REPNAME: repname}, bson.M{CMD_INC: bson.M{"items": -1}, CMD_SET: bson.M{COL_OPTIME: time.Now().String()}})
 
 	return rsp.Json(200, E(OK))
 }
