@@ -39,7 +39,7 @@ const (
 	PAGE_SIZE           = 3
 	PAGE_SIZE_SEARCH    = 10
 	LABEL_NED_CHECK     = "supply_style"
-	SUPPLY_STYLE_API = "api"
+	SUPPLY_STYLE_API    = "api"
 	SUPPLY_STYLE_BATCH  = "batch"
 	SUPPLY_STYLE_FLOW   = "flow"
 	CMD_INC             = "$inc"
@@ -443,7 +443,7 @@ func delDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 		return rsp.Json(400, ErrNoParameter("itemname"))
 	}
 
-	Q := bson.M{COL_REPNAME: repname, COL_ITEM_NAME:itemname}
+	Q := bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname}
 
 	item, err := db.getDataitem(Q)
 
@@ -808,57 +808,53 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	res.dataItem = item
 	res.Tags = tags
 	return rsp.Json(200, E(OK), res)
+}
 
-	//	page_index, page_size := PAGE_INDEX, PAGE_SIZE
-	//	if p := strings.TrimSpace(r.FormValue("page")); p != "" {
-	//		if page_index, _ = strconv.Atoi(p); page_index <= 0 {
-	//			return rsp.Json(400, ErrInvalidParameter("page"))
-	//		}
-	//	}
-	//	if p := strings.TrimSpace(r.FormValue("size")); p != "" {
-	//		if page_size, _ = strconv.Atoi(p); page_size < -1 {
-	//			return rsp.Json(400, ErrInvalidParameter("size"))
-	//		}
-	//	}
-	//
-	//	user := r.Header.Get("User")
-	//	showItems := strings.TrimSpace(r.FormValue("items"))
-	//
-	//	Q := bson.M{COL_REPNAME: repname}
-	//	rep, err := db.getRepository(Q)
-	//	if err != nil && err == mgo.ErrNotFound {
-	//		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s", COL_REPNAME, repname)))
-	//	}
-	//	rep.Optime = buildTime(rep.Optime)
-	//
-	//	if rep.Repaccesstype == ACCESS_PRIVATE {
-	//		Q := bson.M{COL_PERMIT_REPNAME: rep.Repository_name, COL_PERMIT_USER: user}
-	//		if user != "" {
-	//			if !db.hasPermission(COL_PERMIT_REPNAME, Q) {
-	//				return rsp.Json(400, E(ErrorCodePermissionDenied))
-	//			}
-	//		} else {
-	//			return rsp.Json(400, E(ErrorCodePermissionDenied))
-	//		}
-	//	}
-	//
-	//	var res struct {
-	//		repository
-	//		Dataitems []string `json:"dataitems,omitempty"`
-	//	}
-	//	res.repository = rep
-	//
-	//	if showItems != "" {
-	//		items := []string{}
-	//		ds := []dataItem{}
-	//		ds, err = db.getDataitems(page_index, page_size, Q)
-	//		get(err)
-	//		for _, v := range ds {
-	//			items = append(items, v.Dataitem_name)
-	//		}
-	//		res.Dataitems = items
-	//	}
+//curl http://127.0.0.1:8089/repositories/mobile/app/subpermission
+func getDWithPermissionHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
+	repname := param["repname"]
+	if repname == "" {
+		return rsp.Json(400, ErrNoParameter("repname"))
+	}
+	itemname := param["itemname"]
+	if itemname == "" {
+		return rsp.Json(400, ErrNoParameter("itemname"))
+	}
 
+	user := r.Header.Get("User")
+	if user == "" {
+		return rsp.Json(400, E(ErrorCodeAuthFailed))
+	}
+
+	var err error
+	var rep repository
+	var item dataItem
+	Q := bson.M{COL_REPNAME: repname}
+	rep, err = db.getRepository(Q)
+	if err != nil && err == mgo.ErrNotFound {
+		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s", COL_REPNAME, repname)))
+	}
+
+	Q = bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname}
+	item, err = db.getDataitem(Q)
+	if err != nil && err == mgo.ErrNotFound {
+		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s,%s=%s ", COL_REPNAME, repname, COL_ITEM_NAME, itemname)))
+	}
+
+	Q = bson.M{COL_PERMIT_REPNAME: repname, COL_PERMIT_USER: user}
+	hasRepPermisssion := db.hasPermission(C_REPOSITORY_PERMISSION, Q)
+	Q = bson.M{COL_PERMIT_ITEMNAME: itemname, COL_PERMIT_USER: user}
+	hasRepPermission := db.hasPermission(C_DATAITEM_PERMISSION, Q)
+
+	if rep.Repaccesstype == ACCESS_PRIVATE && !hasRepPermisssion {
+		return rsp.Json(400, E(ErrorCodePermissionDenied), false)
+	}
+
+	if item.Itemaccesstype == ACCESS_PRIVATE && !hasRepPermission {
+		return rsp.Json(400, E(ErrorCodePermissionDenied), false)
+	}
+
+	return rsp.Json(200, E(OK), item)
 }
 
 func updateLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
