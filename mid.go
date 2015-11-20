@@ -86,8 +86,6 @@ func (db *DB) getPermits(collection string, query bson.M) (interface{}, error) {
 		if err != nil {
 			return l, err
 		}
-		log.Println(query)
-		log.Println(l)
 		return l, nil
 	case C_REPOSITORY_PERMISSION:
 		l := []Rep_Permission{}
@@ -95,8 +93,6 @@ func (db *DB) getPermits(collection string, query bson.M) (interface{}, error) {
 		if err != nil {
 			return l, err
 		}
-		log.Println(query)
-		log.Println(l)
 		return l, nil
 	}
 	return nil, errors.New("unknow err")

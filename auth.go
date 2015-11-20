@@ -1,15 +1,23 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/go-martini/martini"
+	"github.com/quexer/utee"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"strings"
 )
 
+var (
+	API_SERVER = utee.Env("API_SERVER", false)
+	API_PORT   = utee.Env("API_PORT", false)
+)
+
 const (
-	ADMIN = "admin"
-	PANXY = "panxy3@asiainfo.com"
+	AUTHORIZATION = "Authorization"
+	USER_TP_ADMIN = 2
 )
 
 func auth(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
@@ -24,12 +32,24 @@ func auth(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
 
 func authAdmin(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
 	login_Name := r.Header.Get("User")
-	if login_Name != ADMIN && login_Name != PANXY {
+	token := r.Header.Get(AUTHORIZATION)
+	b, err := httpGet(fmt.Sprintf("http://%s:%s/users/%s", API_SERVER, API_PORT, login_Name), AUTHORIZATION, token)
+	get(err)
+	result := new(Result)
+	err = json.Unmarshal(b, result)
+	get(err)
+	if result.Data != nil {
+		u := result.Data.(map[string]interface{})
+		if u["userType"].(float64) == USER_TP_ADMIN {
+			c.Map(login_Name)
+		} else {
+			http.Error(w, "unauthorized", 401)
+			return
+		}
+	} else {
 		http.Error(w, "unauthorized", 401)
 		return
 	}
-	c.Map(login_Name)
-	return
 }
 
 func chkRepPermission(w http.ResponseWriter, r *http.Request, param martini.Params, c martini.Context, db *DB) {

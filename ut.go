@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -285,4 +286,29 @@ func contains(l []string, str string) bool {
 		}
 	}
 	return false
+}
+
+func httpGet(getUrl string, credential ...string) ([]byte, error) {
+	var resp *http.Response
+	var err error
+	if len(credential) == 2 {
+		req, err := http.NewRequest("GET", getUrl, nil)
+		if err != nil {
+			return nil, fmt.Errorf("[http] err %s, %s\n", getUrl, err)
+		}
+		req.Header.Set(credential[0], credential[1])
+		resp, err = http.DefaultClient.Do(req)
+	} else {
+		resp, err = http.Get(getUrl)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("[http get] status err %s, %d\n", getUrl, resp.StatusCode)
+	}
+	return ioutil.ReadAll(resp.Body)
 }
