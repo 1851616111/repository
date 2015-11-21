@@ -762,15 +762,32 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 		}
 	}
 
+	Q := bson.M{COL_REPNAME: repname}
+	rep, err := db.getRepository(Q)
+	if err != nil && err == mgo.ErrNotFound {
+		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s", COL_REPNAME, repname)))
+	}
 	user := r.Header.Get("User")
 
-	Q := bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname}
+	switch rep.Repaccesstype {
+	case ACCESS_PRIVATE:
+		if user == "" {
+			return rsp.Json(400, E(ErrorCodePermissionDenied))
+		} else {
+			Q := bson.M{COL_PERMIT_REPNAME: rep.Repository_name, COL_PERMIT_USER: user}
+			if !db.hasPermission(COL_PERMIT_REPNAME, Q) {
+				return rsp.Json(400, E(ErrorCodePermissionDenied))
+			}
+		}
+	}
+
+	Q = bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname}
 	item, err := db.getDataitem(Q)
 	if err != nil && err == mgo.ErrNotFound {
 		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s,%s=%s ", COL_REPNAME, repname, COL_ITEM_NAME, itemname)))
 	}
-
 	item.Optime = buildTime(item.Optime)
+
 	b_m, err := db.getFile(PREFIX_META, repname, itemname)
 	if err != nil {
 		log.Println("get dataitem meta err :", err)
@@ -786,20 +803,9 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	} else {
 		item.Sample = strings.TrimSpace(string(b_s))
 	}
-	tags := []tag{}
 
-	switch item.Itemaccesstype {
-	case ACCESS_PRIVATE:
-		Q := bson.M{COL_PERMIT_ITEMNAME: item.Dataitem_name, COL_PERMIT_USER: user}
-		if user != "" && db.hasPermission(COL_PERMIT_ITEMNAME, Q) {
-			tags, err = db.getTags(page_index, page_size, Q)
-			get(err)
-		}
-	case ACCESS_PUBLIC:
-		tags, err = db.getTags(page_index, page_size, Q)
-		get(err)
-	}
-
+	tags, err := db.getTags(page_index, page_size, Q)
+	get(err)
 	buildTagsTime(tags)
 
 	var res struct {
@@ -808,6 +814,7 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	}
 	res.dataItem = item
 	res.Tags = tags
+
 	return rsp.Json(200, E(OK), res)
 }
 
