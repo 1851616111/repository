@@ -917,6 +917,7 @@ func deleteSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, d
 }
 
 func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
+	username := r.Header.Get("User")
 	var m bson.M
 	if select_labels := strings.TrimSpace(r.FormValue("select_labels")); select_labels != "" {
 		m = bson.M{"label.sys.select_labels": select_labels}
@@ -924,24 +925,26 @@ func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 		m = bson.M{"label.sys.select_labels": bson.M{"$exists": true}}
 	}
 
-	public := db.getPublicReps()
-	username := r.Header.Get("User")
-	l := db.getPrivateReps(username)
-
 	Q := bson.M{}
-	if l = append(l, public...); len(l) > 0 {
+	l := db.getPublicReps()
+	if username != "" {
+		private := db.getPrivateReps(username)
+		l = append(l, private...)
+	}
+
+	if len(l) > 0 {
 		q := bson.M{COL_REPNAME: bson.M{CMD_IN: l}}
 		Q[CMD_AND] = []bson.M{q, m}
 	} else {
 		Q = m
 	}
 
-	ns := []names{}
-	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(Q).Limit(PAGE_SIZE_SELECT).Sort("-label.sys.order").All(&ns); err != nil {
+	res := []names{}
+	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(Q).Limit(PAGE_SIZE_SELECT).Sort("-label.sys.order").All(&res); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
 
-	return rsp.Json(200, E(OK), l)
+	return rsp.Json(200, E(OK), res)
 }
 
 //curl http://127.0.0.1:8080/permit/michael -H michael:pan
