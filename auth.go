@@ -91,5 +91,5 @@ func chkItemPermission(w http.ResponseWriter, r *http.Request, param martini.Par
 		http.Error(w, "no privilage", 401)
 		return
 	}
-	c.Map(Item_Permission{Dataitem_name: itemname})
+	c.Map(Item_Permission{Repository_name: repName, Dataitem_name: itemname})
 }

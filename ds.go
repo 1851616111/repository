@@ -68,13 +68,14 @@ type tag struct {
 
 type Rep_Permission struct {
 	User_name       string `json:"username"`
-	Repository_name string `json:"repname"`
-	Write           int    `bson:",omitempty", json:"write"`
+	Repository_name string `json:"-"`
+	Opt_permission  int    `json:"opt_permission"`
 }
 
 type Item_Permission struct {
-	User_name     string `json:"username"`
-	Dataitem_name string `json:"itemname"`
+	User_name       string `json:"username"`
+	Repository_name string `json:"-"`
+	Dataitem_name   string `json:"-"`
 }
 
 type Dim_Table struct {

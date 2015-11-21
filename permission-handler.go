@@ -29,8 +29,8 @@ func upsertRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB
 		return rsp.Json(400, ErrNoParameter("username"))
 	}
 
-	if r_p.Write != 0 && r_p.Write != 1 {
-		return rsp.Json(400, ErrInvalidParameter("write"))
+	if r_p.Opt_permission != 0 && r_p.Opt_permission != 1 {
+		return rsp.Json(400, ErrInvalidParameter("opt_permission"))
 	}
 	r_p.Repository_name = p.Repository_name
 
@@ -54,7 +54,7 @@ func getRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 }
 
 func getItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p Item_Permission) (int, string) {
-	Q := bson.M{COL_ITEM_NAME: p.Dataitem_name}
+	Q := bson.M{COL_PERMIT_REPNAME: p.Repository_name, COL_PERMIT_ITEMNAME: p.Dataitem_name}
 	l, err := db.getPermits(C_DATAITEM_PERMISSION, Q)
 	if err != nil {
 		return rsp.Json(400, ErrDataBase(err))
@@ -94,8 +94,9 @@ func setItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, 
 		return rsp.Json(400, ErrNoParameter("User_name"))
 	}
 	i_p.Dataitem_name = p.Dataitem_name
+	i_p.Repository_name = p.Repository_name
 
-	Q := bson.M{COL_PERMIT_ITEMNAME: p.Dataitem_name, COL_PERMIT_USER: i_p.User_name}
+	Q := bson.M{COL_PERMIT_REPNAME: p.Repository_name, COL_PERMIT_ITEMNAME: p.Dataitem_name, COL_PERMIT_USER: i_p.User_name}
 
 	if _, err := db.DB(DB_NAME).C(C_DATAITEM_PERMISSION).Upsert(Q, i_p); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
@@ -110,7 +111,7 @@ func delItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, 
 		return rsp.Json(400, ErrNoParameter(username))
 	}
 
-	exec := bson.M{COL_REPNAME: p.Dataitem_name, COL_CREATE_USER: username}
+	exec := bson.M{COL_PERMIT_REPNAME: p.Repository_name, COL_PERMIT_ITEMNAME: p.Dataitem_name, COL_PERMIT_USER: username}
 	if err := db.delPermit(C_DATAITEM_PERMISSION, exec); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
