@@ -9,14 +9,17 @@ import (
 	"strings"
 )
 
-var (
-	API_SERVER = Env("API_SERVER", false)
-	API_PORT   = Env("API_PORT", false)
-)
-
 const (
 	AUTHORIZATION = "Authorization"
-	USER_TP_ADMIN = 2
+
+	USER_SERVICE_RET_USERTYPE = "userType"
+)
+
+var (
+	API_SERVER         = Env("API_SERVER", false)
+	API_PORT           = Env("API_PORT", false)
+	USER_TP_ADMIN  int = 2
+	USER_TP_UNKNOW     = -1
 )
 
 func auth(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
@@ -29,9 +32,12 @@ func auth(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
 
 }
 
-func authAdmin(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
+func getUserType(r *http.Request, db *DB) int {
 	login_Name := r.Header.Get("User")
 	token := r.Header.Get(AUTHORIZATION)
+	if login_Name == "" || login_Name == "" {
+		return USER_TP_UNKNOW
+	}
 	b, err := httpGet(fmt.Sprintf("http://%s:%s/users/%s", API_SERVER, API_PORT, login_Name), AUTHORIZATION, token)
 	get(err)
 	result := new(Result)
@@ -39,12 +45,19 @@ func authAdmin(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB
 	get(err)
 	if result.Data != nil {
 		u := result.Data.(map[string]interface{})
-		if u["userType"].(float64) == USER_TP_ADMIN {
-			c.Map(login_Name)
-		} else {
-			http.Error(w, "unauthorized", 401)
-			return
+		if userType, exist := u[USER_SERVICE_RET_USERTYPE]; exist {
+			return int(userType.(float64))
 		}
+	}
+	return USER_TP_UNKNOW
+}
+
+func authAdmin(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
+
+	if getUserType(r, db) == USER_TP_ADMIN {
+		login_Name := r.Header.Get("User")
+		c.Map(login_Name)
+		return
 	} else {
 		http.Error(w, "unauthorized", 401)
 		return
