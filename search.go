@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"gopkg.in/mgo.v2/bson"
+	"log"
 	"net/http"
 	"sort"
 	"strconv"
@@ -79,7 +80,8 @@ func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 			l = append(l, names{str[0], str[1]})
 		}
 	} else {
-		Q = bson.M{COL_REPNAME: bson.M{CMD_IN: pub}}
+		Q := bson.M{COL_REPNAME: bson.M{CMD_IN: pub}}
+		log.Println(Q)
 		db.DB(DB_NAME).C(C_DATAITEM).Find(Q).Limit(PAGE_SIZE_SEARCH).Sort("-ct").Select(bson.M{COL_REPNAME: "1", COL_ITEM_NAME: "1", "ct": "1"}).All(&l)
 	}
 
