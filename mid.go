@@ -185,7 +185,7 @@ func (db *DB) getPrivateReps(userName string) []string {
 
 func (db *DB) getPublicReps() []string {
 	s := []string{}
-	if l, _ := db.getRepositories(bson.M{COL_REPNAME: ACCESS_PUBLIC}); len(l) > 0 {
+	if l, _ := db.getRepositories(bson.M{COL_REP_ACC: ACCESS_PUBLIC}); len(l) > 0 {
 		for _, v := range l {
 			s = append(s, v.Repository_name)
 		}
