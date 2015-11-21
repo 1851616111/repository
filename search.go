@@ -36,12 +36,14 @@ func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 
 	username := r.Header.Get("User")
 	Q := bson.M{}
-	public := db.getPublicReps()
-	list := db.getPrivateReps(username)
-	list = append(list, public...)
+	pub := db.getPublicReps()
+	if username != "" {
+		private := db.getPrivateReps(username)
+		pub = append(pub, private...)
+	}
 
-	if len(list) > 0 {
-		Q = bson.M{COL_REPNAME: bson.M{CMD_IN: list}}
+	if len(pub) > 0 {
+		Q = bson.M{COL_REPNAME: bson.M{CMD_IN: pub}}
 	}
 
 	l := []names{}
@@ -77,7 +79,7 @@ func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 			l = append(l, names{str[0], str[1]})
 		}
 	} else {
-		Q = bson.M{COL_REPNAME: bson.M{CMD_IN: public}}
+		Q = bson.M{COL_REPNAME: bson.M{CMD_IN: l}}
 		db.DB(DB_NAME).C(C_DATAITEM).Find(Q).Limit(PAGE_SIZE_SEARCH).Sort("-ct").Select(bson.M{COL_REPNAME: "1", COL_ITEM_NAME: "1", "ct": "1"}).All(&l)
 	}
 
