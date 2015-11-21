@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/quexer/utee"
 	"gopkg.in/mgo.v2"
 	"time"
 )
@@ -97,7 +96,7 @@ type DB struct {
 
 func connect(db_connection string) *mgo.Session {
 	session, err := mgo.Dial(db_connection)
-	utee.Chk(err)
+	get(err)
 	initDb(session)
 	return session
 }
@@ -106,21 +105,21 @@ func connect(db_connection string) *mgo.Session {
 func initDb(session *mgo.Session) {
 	db := session.DB(DB_NAMESPACE_MONGO)
 	err := db.C(C_REPOSITORY).EnsureIndex(mgo.Index{Key: []string{COL_REPNAME}, Unique: true})
-	utee.Chk(err)
+	get(err)
 	err = db.C(C_DATAITEM).EnsureIndex(mgo.Index{Key: []string{COL_REPNAME, COL_ITEM_NAME}, Unique: true})
-	utee.Chk(err)
+	get(err)
 	err = db.C(C_SELECT).EnsureIndex(mgo.Index{Key: []string{COL_SELECT_LABEL}, Unique: true})
-	utee.Chk(err)
+	get(err)
 	err = db.C(C_REPOSITORY_PERMISSION).EnsureIndex(mgo.Index{Key: []string{COL_REPNAME, COL_PERMIT_USER}, Unique: true})
-	utee.Chk(err)
+	get(err)
 	err = db.C(C_DATAITEM_PERMISSION).EnsureIndex(mgo.Index{Key: []string{COL_REPNAME, COL_PERMIT_USER}, Unique: true})
-	utee.Chk(err)
+	get(err)
 	err = db.C(C_TAG).EnsureIndex(mgo.Index{Key: []string{COL_REPNAME, COL_ITEM_NAME, COL_TAG_NAME}, Unique: true})
-	utee.Chk(err)
+	get(err)
 	err = db.C(C_DATAITEM).EnsureIndexKey(COL_REPNAME)
-	utee.Chk(err)
+	get(err)
 	err = db.C(C_DATAITEM).EnsureIndexKey(COL_ITEM_NAME)
-	utee.Chk(err)
+	get(err)
 	err = db.C(C_DATAITEM).EnsureIndexKey(COL_COMMENT)
-	utee.Chk(err)
+	get(err)
 }

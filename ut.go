@@ -129,14 +129,6 @@ func getJsonBuildingErrorJson() []byte {
 	return Json_ErrorBuildingJson
 }
 
-func Env(name string, required bool) string {
-	s := os.Getenv(name)
-	if required && s == "" {
-		panic("env variable required, " + name)
-	}
-	return s
-}
-
 func (p *Select) ParseRequeset(r *http.Request) error {
 	t := reflect.TypeOf(*p)
 	v := reflect.ValueOf(p).Elem()
@@ -311,4 +303,15 @@ func httpGet(getUrl string, credential ...string) ([]byte, error) {
 		return nil, fmt.Errorf("[http get] status err %s, %d\n", getUrl, resp.StatusCode)
 	}
 	return ioutil.ReadAll(resp.Body)
+}
+
+func Env(name string, required bool, showLog ...bool) string {
+	s := os.Getenv(name)
+	if required && s == "" {
+		panic("env variable required, " + name)
+	}
+	if len(showLog) == 0 || showLog[0] {
+		log.Printf("[env][%s] %s\n", name, s)
+	}
+	return s
 }

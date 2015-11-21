@@ -4,15 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-martini/martini"
-	"github.com/quexer/utee"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
 	"strings"
 )
 
 var (
-	API_SERVER = utee.Env("API_SERVER", false)
-	API_PORT   = utee.Env("API_PORT", false)
+	API_SERVER = Env("API_SERVER", false)
+	API_PORT   = Env("API_PORT", false)
 )
 
 const (

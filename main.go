@@ -3,19 +3,18 @@ package main
 import (
 	"fmt"
 	"github.com/go-martini/martini"
-	"github.com/quexer/utee"
 	"net/http"
 )
 
 var (
 	DB_NAMESPACE_MONGO = "datahub"
 	DB_NAME            = "datahub"
-	SERVICE_PORT       = utee.Env("goservice_port", false)
+	SERVICE_PORT       = Env("goservice_port", false)
 
-	DB_MONGO_USER   = utee.Env("DB_MONGO_USER", false)
-	DB_MONGO_PASSWD = utee.Env("DB_MONGO_PASSWD", false)
-	DB_MONGO_URL    = utee.Env("MONGO_PORT_27017_TCP_ADDR", false)
-	DB_MONGO_PORT   = utee.Env("MONGO_PORT_27017_TCP_PORT", false)
+	DB_MONGO_USER   = Env("DB_MONGO_USER", false)
+	DB_MONGO_PASSWD = Env("DB_MONGO_PASSWD", false)
+	DB_MONGO_URL    = Env("MONGO_PORT_27017_TCP_ADDR", false)
+	DB_MONGO_PORT   = Env("MONGO_PORT_27017_TCP_PORT", false)
 
 	DB_URL_MONGO = fmt.Sprintf(`%s:%s/datahub?maxPoolSize=50`, DB_MONGO_URL, DB_MONGO_PORT)
 	db           DB
