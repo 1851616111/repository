@@ -918,15 +918,26 @@ func deleteSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, d
 
 func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	var m bson.M
-
 	if select_labels := strings.TrimSpace(r.FormValue("select_labels")); select_labels != "" {
 		m = bson.M{"label.sys.select_labels": select_labels}
 	} else {
 		m = bson.M{"label.sys.select_labels": bson.M{"$exists": true}}
 	}
 
-	l := []names{}
-	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(m).Limit(PAGE_SIZE_SELECT).Sort("-label.sys.order").All(&l); err != nil {
+	public := db.getPublicReps()
+	username := r.Header.Get("User")
+	l := db.getPrivateReps(username)
+
+	Q := bson.M{}
+	if l = append(l, public...); len(l) > 0 {
+		q := bson.M{COL_REPNAME: bson.M{CMD_IN: l}}
+		Q[CMD_AND] = []bson.M{q, m}
+	} else {
+		Q = m
+	}
+
+	ns := []names{}
+	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(Q).Limit(PAGE_SIZE_SELECT).Sort("-label.sys.order").All(&ns); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
 

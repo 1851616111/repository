@@ -10,9 +10,10 @@ import (
 )
 
 const (
-	MONGO_REGEX      = "$regex"
-	MONGO_OPTION     = "$options"
-	MONGO_OPTION_All = "$i"
+	CMD_REGEX    = "$regex"
+	CMD_OPTION   = "$options"
+	CMD_AND      = "$and"
+	CMD_CASE_ALL = "$i"
 )
 
 var SEARCH_DATAITEM_COLS = []string{COL_REPNAME, COL_ITEM_NAME, COL_COMMENT}
@@ -32,6 +33,17 @@ func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 			return rsp.Json(400, ErrInvalidParameter("size"))
 		}
 	}
+
+	username := r.Header.Get("User")
+	Q := bson.M{}
+	public := db.getPublicReps()
+	list := db.getPrivateReps(username)
+	list = append(list, public...)
+
+	if len(list) > 0 {
+		Q = bson.M{COL_REPNAME: bson.M{CMD_IN: list}}
+	}
+
 	l := []names{}
 	res := map[string]interface{}{}
 	text := strings.TrimSpace(r.FormValue("text"))
@@ -39,8 +51,11 @@ func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 		searchs := strings.Split(text, " ")
 		for _, v := range searchs {
 			for _, col := range SEARCH_DATAITEM_COLS {
+				Query := bson.M{}
+				q := bson.M{col: bson.M{CMD_REGEX: v, CMD_OPTION: CMD_CASE_ALL}}
+				Query[CMD_AND] = []bson.M{q, Q}
 				l := []search{}
-				db.DB(DB_NAME).C(C_DATAITEM).Find(bson.M{COL_ITEM_ACC: ACCESS_PUBLIC, col: bson.M{MONGO_REGEX: v, MONGO_OPTION: MONGO_OPTION_All}}).Sort("-ct").Select(bson.M{COL_REPNAME: "1", COL_ITEM_NAME: "1", "ct": "1"}).All(&l)
+				db.DB(DB_NAME).C(C_DATAITEM).Find(Query).Sort("-ct").Select(bson.M{COL_REPNAME: "1", COL_ITEM_NAME: "1", "ct": "1"}).All(&l)
 				for _, v := range l {
 					res[fmt.Sprintf("%s/%s", v.Repository_name, v.Dataitem_name)] = fmt.Sprintf("%d", v.Ct.Unix())
 				}
@@ -62,7 +77,8 @@ func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 			l = append(l, names{str[0], str[1]})
 		}
 	} else {
-		db.DB(DB_NAME).C(C_DATAITEM).Find(nil).Limit(PAGE_SIZE_SEARCH).Sort("-ct").Select(bson.M{COL_REPNAME: "1", COL_ITEM_NAME: "1", "ct": "1"}).All(&l)
+		Q = bson.M{COL_REPNAME: bson.M{CMD_IN: public}}
+		db.DB(DB_NAME).C(C_DATAITEM).Find(Q).Limit(PAGE_SIZE_SEARCH).Sort("-ct").Select(bson.M{COL_REPNAME: "1", COL_ITEM_NAME: "1", "ct": "1"}).All(&l)
 	}
 
 	length := len(l)

@@ -167,3 +167,28 @@ func buildTagsTime(tags []tag) {
 		tags[i].Optime = buildTime(v.Optime)
 	}
 }
+
+func (db *DB) getPrivateReps(userName string) []string {
+	l := []string{}
+	if userName != "" {
+		p_reps, _ := db.getPermits(COL_PERMIT_REPNAME, bson.M{COL_PERMIT_USER: userName})
+		if l_p_reps, ok := p_reps.([]Rep_Permission); ok {
+			if len(l_p_reps) > 0 {
+				for _, v := range p_reps.([]Rep_Permission) {
+					l = append(l, v.Repository_name)
+				}
+			}
+		}
+	}
+	return l
+}
+
+func (db *DB) getPublicReps() []string {
+	s := []string{}
+	if l, _ := db.getRepositories(bson.M{COL_REPNAME: ACCESS_PUBLIC}); len(l) > 0 {
+		for _, v := range l {
+			s = append(s, v.Repository_name)
+		}
+	}
+	return s
+}
