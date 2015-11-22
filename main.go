@@ -43,6 +43,8 @@ func main() {
 	m.Group("/repositories", func(r martini.Router) {
 		r.Get("", getRsHandler)
 
+		r.Get("/statis", authAdmin, getStatisHandler)
+
 		r.Get("/:repname", getRHandler)
 		r.Get("/:repname/:itemname", getDHandler)
 		r.Get("/:repname/:itemname/subpermission", getDWithPermissionHandler)
@@ -62,7 +64,6 @@ func main() {
 		r.Delete("/:repname/:itemname", auth, delDHandler)
 		r.Delete("/:repname/:itemname/:tag", auth, delTagHandler)
 
-		r.Get("/statis", authAdmin, getStatisHandler)
 	})
 
 	m.Group("/selects", func(r martini.Router) {

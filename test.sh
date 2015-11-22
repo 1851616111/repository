@@ -1,4 +1,5 @@
 curl http://10.1.235.98:8888/repositories/app -H "Authorization: Basic Y2hhaXpzQGFzaWFpbmZvLmNvbTo4ZGRjZmYzYTgwZjQxODljYTFjOWQ0ZDkwMmMzYzkwOQ===="
+curl http://54.223.58.0:8888/repositories/app -H "Authorization: Basic Y2hhaXpzQGFzaWFpbmZvLmNvbTo4ZGRjZmYzYTgwZjQxODljYTFjOWQ0ZDkwMmMzYzkwOQ===="
 curl http://10.1.235.98:8888/permission/chai -H user:chaizs@asiainfo.com
 
 permission
@@ -39,3 +40,8 @@ curl -X GET http://54.223.58.0:8888/repositories/chai/zong
 
 curl http://54.223.58.0:8888/repositories/app -H "Authorization: Basic cGFueHkzQGFzaWFpbmZvLmNvbTo4ZGRjZmYzYTgwZjQxODljYTFjOWQ0ZDkwMmMzYzkwOQ=="
 curl http://54.223.58.0:8888/permission/chai -H user:chaizs@asiainfo.com
+
+
+statis
+-------------------------------------------------------------------------------------------------------
+curl http://54.223.58.0:8888/repositories/statis -H "Authorization:Token ea04f8171687b5fe6b08be6d75b88159"
