@@ -43,7 +43,7 @@ func main() {
 	m.Group("/repositories", func(r martini.Router) {
 		r.Get("", getRsHandler)
 
-		r.Get("/statis", authAdmin, getStatisHandler)
+		r.Get("/statis", getStatisHandler)
 
 		r.Get("/:repname", getRHandler)
 		r.Get("/:repname/:itemname", getDHandler)
