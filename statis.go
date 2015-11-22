@@ -17,7 +17,7 @@ func getStatisHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (
 		n, err := db.DB(DB_NAME).C(C_TAG).Find(Q).Count()
 		get(err)
 		if n < v.Tags {
-			log.Println("correct %s/%s tags = %d", v.Repository_name, v.Dataitem_name, n)
+			log.Printf("correct %s/%s tags = %d", v.Repository_name, v.Dataitem_name, n)
 		}
 		exec := bson.M{CMD_SET: bson.M{COL_ITEM_TAGS: n}}
 		go asynUpdateOpt(C_DATAITEM, Q, exec)
