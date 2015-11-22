@@ -10,6 +10,7 @@ import (
 const (
 	C_FS          = "datahub_fs"
 	MAX_FILE_SIZE = 8192
+	ALL_DATAITEMS = -1
 )
 
 func (db *DB) getRepository(query bson.M) (repository, error) {
@@ -37,8 +38,8 @@ func (db *DB) getDataitem(query bson.M) (dataItem, error) {
 func (db *DB) getDataitems(pageIndex, pageSize int, query bson.M) ([]dataItem, error) {
 	res := []dataItem{}
 	var err error
-	if pageSize == -1 {
-		err = db.DB(DB_NAME).C(C_DATAITEM).Find(query).Sort("-ct").Select(bson.M{COL_ITEM_NAME: "1"}).All(&res)
+	if pageSize == ALL_DATAITEMS {
+		err = db.DB(DB_NAME).C(C_DATAITEM).Find(query).Sort("-ct").Select(bson.M{COL_ITEM_NAME: "1", COL_REPNAME: "1", COL_ITEM_TAGS: "1"}).All(&res)
 	} else {
 		err = db.DB(DB_NAME).C(C_DATAITEM).Find(query).Sort("-ct").Select(bson.M{COL_ITEM_NAME: "1"}).Skip((pageIndex - 1) * pageSize).Limit(pageSize).All(&res)
 	}

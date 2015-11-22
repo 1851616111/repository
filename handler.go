@@ -21,6 +21,7 @@ const (
 	COL_REP_ACC         = "repaccesstype"
 	COL_ITEM_NAME       = "dataitem_name"
 	COL_ITEM_ACC        = "itemaccesstype"
+	COL_ITEM_TAGS       = "tags"
 	COL_COMMENT         = "comment"
 	COL_CREATE_USER     = "create_user"
 	COL_LABEL           = "label"
