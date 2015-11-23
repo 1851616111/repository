@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"reflect"
@@ -69,7 +68,7 @@ func chk(err error) {
 }
 func get(err error) {
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 }
 
@@ -108,8 +107,6 @@ func JsonResult(w http.ResponseWriter, statusCode int, e *Error, data interface{
 
 	//result := Result {code: e.code, msg: e.message, data: data}
 	result := Result{Code: e.code, Msg: e.message}
-
-	log.Printf(fmt.Sprintf("code: %s", e.code))
 
 	jsondata, err := json.Marshal(&result)
 	if err != nil {
@@ -311,7 +308,7 @@ func Env(name string, required bool, showLog ...bool) string {
 		panic("env variable required, " + name)
 	}
 	if len(showLog) == 0 || showLog[0] {
-		log.Printf("[env][%s] %s\n", name, s)
+		log.Infof("[env][%s] %s\n", name, s)
 	}
 	return s
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"gopkg.in/mgo.v2/bson"
-	"log"
 )
 
 const (
@@ -39,7 +38,7 @@ func (q *Queue) serve(db *DB) {
 func (db *DB) handle(e exec) {
 	err := db.DB(DB_NAME).C(e.collectionName).Update(e.selector, e.update)
 	if err != nil {
-		log.Println("queue handle execute update err ", err)
+		log.Errorf("queue handle execute update err ", err)
 	}
 	db.Close()
 }

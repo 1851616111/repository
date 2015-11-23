@@ -5,7 +5,6 @@ import (
 	"github.com/go-martini/martini"
 	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strings"
 )
@@ -19,7 +18,7 @@ func upsertRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
-		log.Println("read request body err", err)
+		log.Error("read request body err", err)
 	}
 
 	r_p := new(Rep_Permission)
@@ -84,7 +83,7 @@ func setItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, 
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
-		log.Println("read request body err", err)
+		log.Error("read request body err", err)
 	}
 
 	i_p := new(Item_Permission)

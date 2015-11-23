@@ -7,7 +7,6 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -68,7 +67,7 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
-		log.Println("read request body err", err)
+		log.Error("read request body err:", err)
 	}
 
 	rep := new(repository)
@@ -315,7 +314,8 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
-		log.Println("read request body err", err)
+		log.Error("read request body err ", err)
+
 	}
 	if len(body) == 0 {
 		return rsp.Json(400, ErrNoParameter(""))
@@ -478,7 +478,7 @@ func setSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
-		log.Println("read request body err", err)
+		log.Error("read request body err :", err)
 	}
 
 	s := new(Select)
@@ -505,7 +505,7 @@ func updateSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, d
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
-		log.Println("read request body err", err)
+		log.Error("read request body err", err)
 	}
 	if len(body) == 0 {
 		return rsp.Json(400, ErrNoParameter(""))
@@ -609,7 +609,7 @@ func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, logi
 	body, _ := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
-		log.Println("read request body err", err)
+		log.Error("read request body err", err)
 	}
 	if len(body) == 0 {
 		return rsp.Json(400, ErrNoParameter(""))
@@ -791,7 +791,7 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 
 	b_m, err := db.getFile(PREFIX_META, repname, itemname)
 	if err != nil {
-		log.Println("get dataitem meta err :", err)
+		log.Error("get dataitem meta err :", err)
 		item.Meta = ""
 	} else {
 		item.Meta = strings.TrimSpace(string(b_m))
@@ -799,7 +799,7 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 
 	b_s, err := db.getFile(PREFIX_SAMPLE, repname, itemname)
 	if err != nil {
-		log.Println("get dataitem sample err :", err)
+		log.Error("get dataitem sample err :", err)
 		item.Sample = ""
 	} else {
 		item.Sample = strings.TrimSpace(string(b_s))

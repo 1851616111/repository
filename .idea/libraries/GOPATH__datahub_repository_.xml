@@ -8,27 +8,30 @@
     <JAVADOC />
     <SOURCES />
     <excluded>
-      <root url="file://$PROJECT_DIR$/../../docker/docker/pkg/tarsum/testdata" />
       <root url="file://$PROJECT_DIR$/../datahub_api_specification/.git" />
-      <root url="file://$PROJECT_DIR$/../../go-martini/martini/.git" />
-      <root url="file://$PROJECT_DIR$/.git" />
       <root url="file://$PROJECT_DIR$/../datahub_api_specification/.idea" />
-      <root url="file://$PROJECT_DIR$/../../docker/docker/hack/make/.build-rpm" />
       <root url="file://$PROJECT_DIR$/../../docker/docker/hack/make/.build-deb" />
-      <root url="file://$PROJECT_DIR$/../../codegangsta/inject/.git" />
       <root url="file://$PROJECT_DIR$/../../docker/docker/docs/reference/api/_static" />
+      <root url="file://$PROJECT_DIR$/../../codegangsta/inject/.git" />
       <root url="file://$PROJECT_DIR$/../../docker/docker/hack/make/.resources-windows" />
-      <root url="file://$PROJECT_DIR$/../../../git.mrocker.com/zlp/mpush_portal_angular/.git" />
-      <root url="file://$PROJECT_DIR$/../../docker/docker/.git" />
       <root url="file://$PROJECT_DIR$/Godeps/_workspace" />
       <root url="file://$PROJECT_DIR$/../../../git.mrocker.com/cuixg/gateway/.git" />
-      <root url="file://$PROJECT_DIR$/../../docker/docker/pkg/archive/testdata" />
-      <root url="file://$PROJECT_DIR$/../../../gopkg.in/mgo.v2/.git" />
       <root url="file://$PROJECT_DIR$/../../docker/docker/.idea" />
       <root url="file://$PROJECT_DIR$/../../../git.mrocker.com/cuixg/connector/.git" />
+      <root url="file://$PROJECT_DIR$/../datahub_subscriptions/Godeps/_workspace" />
       <root url="file://$PROJECT_DIR$/../../../git.mrocker.com/cuixg/apns/.git" />
-      <root url="file://$PROJECT_DIR$" />
       <root url="file://$PROJECT_DIR$/../../../git.mrocker.com/cuixg/mtool/.git" />
+      <root url="file://$PROJECT_DIR$/../../docker/docker/pkg/tarsum/testdata" />
+      <root url="file://$PROJECT_DIR$/.git" />
+      <root url="file://$PROJECT_DIR$/../../go-martini/martini/.git" />
+      <root url="file://$PROJECT_DIR$/../../docker/docker/hack/make/.build-rpm" />
+      <root url="file://$PROJECT_DIR$/../datahub_subscriptions/.idea" />
+      <root url="file://$PROJECT_DIR$/../../../git.mrocker.com/zlp/mpush_portal_angular/.git" />
+      <root url="file://$PROJECT_DIR$/../../docker/docker/.git" />
+      <root url="file://$PROJECT_DIR$/../datahub_subscriptions/.git" />
+      <root url="file://$PROJECT_DIR$/../../docker/docker/pkg/archive/testdata" />
+      <root url="file://$PROJECT_DIR$/../../../gopkg.in/mgo.v2/.git" />
+      <root url="file://$PROJECT_DIR$" />
       <root url="file://$PROJECT_DIR$/.idea" />
     </excluded>
   </library>

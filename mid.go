@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"gopkg.in/mgo.v2/bson"
-	"log"
 )
 
 const (
@@ -100,7 +99,6 @@ func (db *DB) getPermits(collection string, query bson.M) (interface{}, error) {
 }
 
 func (db *DB) delPermit(collection string, exec bson.M) error {
-	log.Println(exec)
 	return db.DB(DB_NAME).C(collection).Remove(exec)
 }
 
@@ -158,7 +156,7 @@ func (db *DB) hasPermission(collection string, query bson.M) bool {
 	case 1:
 		return true
 	default:
-		log.Printf("query %s  total=%n invalid", collection, n)
+		log.Errorf("query %s  total=%n invalid", collection, n)
 		return true
 	}
 }
