@@ -992,16 +992,3 @@ func setUsrPmtRepsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *D
 	}
 	return rsp.Json(200, E(OK))
 }
-
-func delRLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
-	return rsp.Json(200, E(OK))
-}
-func delDLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
-	return rsp.Json(200, E(OK))
-}
-func upsertRLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
-	return rsp.Json(200, E(OK))
-}
-func upsertDLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
-	return rsp.Json(200, E(OK))
-}

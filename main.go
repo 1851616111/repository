@@ -55,13 +55,15 @@ func main() {
 		r.Post("/:repname/:itemname/:tag", auth, setTagHandler)
 
 		r.Put("/:repname", auth, updateRHandler)
-		r.Put("/:repname/label", chkRepPermission, upsertDLabelHandler)
+		r.Put("/:repname/label", upsertRLabelHandler)
 		r.Put("/:repname/:itemname", auth, updateDHandler)
+		r.Put("/:repname/:itemname/label", auth, upsertDLabelHandler)
 		r.Put("/:repname/:itemname/:tag", auth, updateTagHandler)
-		r.Put("/:repname/:itemname/label", auth, upsertRLabelHandler)
 
 		r.Delete("/:repname", auth, delRHandler)
+		r.Delete("/:repname/label", delRLabelHandler)
 		r.Delete("/:repname/:itemname", auth, delDHandler)
+		r.Delete("/:repname/:itemname/label", delDLabelHandler)
 		r.Delete("/:repname/:itemname/:tag", auth, delTagHandler)
 
 	})
