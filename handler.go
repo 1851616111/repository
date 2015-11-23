@@ -126,7 +126,7 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	if rep.Repaccesstype == ACCESS_PRIVATE {
 		Q := bson.M{COL_PERMIT_REPNAME: rep.Repository_name, COL_PERMIT_USER: user}
 		if user != "" {
-			if !db.hasPermission(COL_PERMIT_REPNAME, Q) {
+			if rep.Create_user != user && !db.hasPermission(COL_PERMIT_REPNAME, Q) {
 				return rsp.Json(400, E(ErrorCodePermissionDenied))
 			}
 		} else {
@@ -769,17 +769,16 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	if err != nil && err == mgo.ErrNotFound {
 		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s", COL_REPNAME, repname)))
 	}
-	user := r.Header.Get("User")
 
-	switch rep.Repaccesstype {
-	case ACCESS_PRIVATE:
-		if user == "" {
-			return rsp.Json(400, E(ErrorCodePermissionDenied))
-		} else {
-			Q := bson.M{COL_PERMIT_REPNAME: rep.Repository_name, COL_PERMIT_USER: user}
-			if !db.hasPermission(COL_PERMIT_REPNAME, Q) {
+	user := r.Header.Get("User")
+	if rep.Repaccesstype == ACCESS_PRIVATE {
+		Q := bson.M{COL_PERMIT_REPNAME: rep.Repository_name, COL_PERMIT_USER: user}
+		if user != "" {
+			if rep.Create_user != user && !db.hasPermission(COL_PERMIT_REPNAME, Q) {
 				return rsp.Json(400, E(ErrorCodePermissionDenied))
 			}
+		} else {
+			return rsp.Json(400, E(ErrorCodePermissionDenied))
 		}
 	}
 
