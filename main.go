@@ -35,7 +35,9 @@ func main() {
 	m.Use(func(w http.ResponseWriter, c martini.Context) {
 		rsp := &Rsp{w: w}
 		c.Map(rsp)
-		c.Map(&db)
+		copy := db.Copy()
+		c.Map(&DB{*copy})
+		defer db.Close()
 	})
 
 	m.Get("/search", searchHandler)
