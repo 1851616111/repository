@@ -9,8 +9,10 @@
     <SOURCES />
     <excluded>
       <root url="file://$PROJECT_DIR$/../../docker/docker/pkg/tarsum/testdata" />
+      <root url="file://$PROJECT_DIR$/../datahub_api_specification/.git" />
       <root url="file://$PROJECT_DIR$/../../go-martini/martini/.git" />
       <root url="file://$PROJECT_DIR$/.git" />
+      <root url="file://$PROJECT_DIR$/../datahub_api_specification/.idea" />
       <root url="file://$PROJECT_DIR$/../../docker/docker/hack/make/.build-rpm" />
       <root url="file://$PROJECT_DIR$/../../docker/docker/hack/make/.build-deb" />
       <root url="file://$PROJECT_DIR$/../../codegangsta/inject/.git" />

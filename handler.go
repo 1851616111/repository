@@ -19,6 +19,7 @@ const (
 	ACCESS_PUBLIC       = "public"
 	COL_REPNAME         = "repository_name"
 	COL_REP_ACC         = "repaccesstype"
+	COL_REP_ITEMS       = "items"
 	COL_ITEM_NAME       = "dataitem_name"
 	COL_ITEM_ACC        = "itemaccesstype"
 	COL_ITEM_TAGS       = "tags"

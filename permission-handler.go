@@ -10,6 +10,11 @@ import (
 	"strings"
 )
 
+const (
+	PERMISSION_WRITE = 1
+	PERMISSION_READ  = 0
+)
+
 func upsertRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p Rep_Permission) (int, string) {
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
@@ -29,7 +34,7 @@ func upsertRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB
 		return rsp.Json(400, ErrNoParameter("username"))
 	}
 
-	if r_p.Opt_permission != 0 && r_p.Opt_permission != 1 {
+	if r_p.Opt_permission != PERMISSION_READ && r_p.Opt_permission != PERMISSION_WRITE {
 		return rsp.Json(400, ErrInvalidParameter("opt_permission"))
 	}
 	r_p.Repository_name = p.Repository_name
