@@ -38,7 +38,7 @@ func main() {
 		c.Map(rsp)
 		copy := db.Copy()
 		c.Map(&DB{*copy})
-		defer db.Close()
+		defer copy.Close()
 	})
 
 	m.Get("/search", searchHandler)
