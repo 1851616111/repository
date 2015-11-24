@@ -36,6 +36,15 @@ curl -X GET http://10.1.235.98:8888/repositories/chai/zong  -H "Authorization: T
 
 curl -X PUT http://54.223.58.0:8888/repositories/chai/zong  -H "Authorization: Token 5c69d07b6143bc4c443564203b3704fd" -d '{"comment":"123"}'
 curl -X GET http://54.223.58.0:8888/repositories/chai/zong
+
+curl -X POST http://127.0.0.1:8088/repositories/test1234321 -d '{"repaccesstype": "public","comment": "中国移动北京终端详情","label": { "sys": {},"opt": {}, "owner": {},"other": {}}}'
+
+
+
+
+
+
+
 -------------------------------------------------------------------------------------------------------
 
 
@@ -53,13 +62,14 @@ label
 curl http://127.0.0.1:8088/repositories/app/label -d "owner.abc=100&other.name=panxy3" -X PUT -H user:panxy3@asiainfo.com
 curl http://127.0.0.1:8088/repositories/liu/xu/label -d "other.name=1" -X PUT -H user:panxy3@asiainfo.com
 
-curl -X DELETE  http://127.0.0.1:8088/repositories/app/label?owner.abc=100 -H user:panxy3@asiainfo.com
+curl -X PUT  http://127.0.0.1:8088/repositories/app/label -d "other.name=panxy3" -H user:panxy3@asiainfo.com
 curl -X DELETE  http://127.0.0.1:8088/repositories/liu/xu/label?other.name=1 -H user:panxy3@asiainfo.com
 
-curl http://10.1.235.98:8089/repositories/app/label -d "owner.abc=100&other.name=panxy3" -X PUT -H "Authorization:Token 58e83462759adf3881079bd9b4dc68c8" -x proxy.asiainfo.com:8080
-curl http://10.1.235.98:8888/repositories/liu/xu/label -d "other.name=1" -X PUT -H "Authorization:Token 58e83462759adf3881079bd9b4dc68c8"
+curl http://10.1.235.98:8089/repositories/app0001/label -d "other.name=panxy3" -X PUT -H user:panxy3@asiainfo.com
+curl http://10.1.235.98:8888/repositories/liu/xu/label -d "other.name=1" -X PUT -H "Authorization:Token ff2592ae306c68eafd89edd4b1a8e022"
 
-curl -X DELETE  http://10.1.235.98:8088/repositories/app/label?owner.abc=100 -H user:panxy3@asiainfo.com
+curl -X DELETE  http://10.1.235.98:8088/repositories/app0001/label?other.name -H user:panxy3@asiainfo.com
+curl -X DELETE  http://127.0.0.1:8088/repositories/app0001/label?other.name -H user:panxy3@asiainfo.com
 curl -X DELETE  http://10.1.235.98:8088/repositories/liu/xu/label?other.name=1 -H user:panxy3@asiainfo.com
 
 

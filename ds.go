@@ -14,6 +14,17 @@ const (
 	C_TAG                   = "tag"
 )
 
+var (
+	COL_LABEL_CHILDREN = []string{"sys", "opt", "owner", "other"}
+)
+
+type Label struct {
+	Sys   map[string]interface{} `json:"sys"`
+	Opt   map[string]interface{} `json:"opt"`
+	Owner map[string]interface{} `json:"owner"`
+	Other map[string]interface{} `json:"other"`
+}
+
 type repository struct {
 	Repository_name string `json:"-"`
 	Create_user     string `json:"create_user,omitempty"`
@@ -49,6 +60,18 @@ type dataItem struct {
 	Label           interface{} `json:"label"`
 	Ct              time.Time   `json:"-"`
 	st              time.Time
+}
+
+func (rep *repository) chkLabel() {
+	if m, ok := rep.Label.(map[string]interface{}); ok {
+		for _, v := range COL_LABEL_CHILDREN {
+			if _, ok := m[v]; !ok {
+				m[v] = make(map[string]interface{})
+			}
+		}
+	} else {
+		rep.Label = new(Label)
+	}
 }
 
 type tag struct {

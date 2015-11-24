@@ -87,6 +87,8 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	rep.Create_user = login_name
 	rep.Repository_name = repname
 	rep.Items = 0
+	rep.chkLabel()
+
 	if err := db.DB(DB_NAME).C(C_REPOSITORY).Insert(rep); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
@@ -123,9 +125,10 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	rep.Optime = buildTime(rep.Optime)
 
 	if rep.Repaccesstype == ACCESS_PRIVATE {
-		Q := bson.M{COL_PERMIT_REPNAME: rep.Repository_name, COL_PERMIT_USER: user}
+		Q = bson.M{COL_PERMIT_REPNAME: repname, COL_PERMIT_USER: user}
 		if user != "" {
-			if rep.Create_user != user && !db.hasPermission(COL_PERMIT_REPNAME, Q) {
+			if rep.Create_user != user && !db.hasPermission(C_REPOSITORY_PERMISSION, Q) {
+				Log.Debugf("[Auth] login name %s, repository name %s.", user, rep.Create_user)
 				return rsp.Json(400, E(ErrorCodePermissionDenied))
 			}
 		} else {

@@ -16,19 +16,20 @@ var (
 	DB_MONGO_URL    = Env("MONGO_PORT_27017_TCP_ADDR", false)
 	DB_MONGO_PORT   = Env("MONGO_PORT_27017_TCP_PORT", false)
 
-	DB_URL_MONGO = fmt.Sprintf(`%s:%s/datahub?maxPoolSize=500`, DB_MONGO_URL, DB_MONGO_PORT)
-	db			DB
-	q_c          Queue
-	Log          = NewLogger("http handler")
+	db  DB
+	q_c Queue
+	Log = NewLogger("http handler")
 )
 
 func init() {
-	if DB_MONGO_URL == "" ||  DB_MONGO_PORT == "" {
+	if DB_MONGO_URL == "" || DB_MONGO_PORT == "" {
 		DB_MONGO_URL = "10.1.235.98"
 		DB_MONGO_PORT = "27017"
-		DB_URL_MONGO = fmt.Sprintf(`%s:%s/datahub?maxPoolSize=50`, DB_MONGO_URL, DB_MONGO_PORT)
 	}
-	se := connect(DB_URL_MONGO)
+
+	DB_URL := fmt.Sprintf(`%s:%s/datahub?maxPoolSize=500`, DB_MONGO_URL, DB_MONGO_PORT)
+
+	se := connect(DB_URL)
 	db = DB{*se}
 	q_c = Queue{queueChannel}
 }
