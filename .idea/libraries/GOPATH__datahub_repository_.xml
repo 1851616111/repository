@@ -26,12 +26,14 @@
       <root url="file://$PROJECT_DIR$/../../go-martini/martini/.git" />
       <root url="file://$PROJECT_DIR$/../../docker/docker/hack/make/.build-rpm" />
       <root url="file://$PROJECT_DIR$/../datahub_subscriptions/.idea" />
+      <root url="file://$PROJECT_DIR$/../../../gopkg.in/mgo.v2/.idea" />
       <root url="file://$PROJECT_DIR$/../../../git.mrocker.com/zlp/mpush_portal_angular/.git" />
       <root url="file://$PROJECT_DIR$/../../docker/docker/.git" />
       <root url="file://$PROJECT_DIR$/../datahub_subscriptions/.git" />
       <root url="file://$PROJECT_DIR$/../../docker/docker/pkg/archive/testdata" />
       <root url="file://$PROJECT_DIR$/../../../gopkg.in/mgo.v2/.git" />
       <root url="file://$PROJECT_DIR$" />
+      <root url="file://$PROJECT_DIR$/../../go-martini/martini/.idea" />
       <root url="file://$PROJECT_DIR$/.idea" />
     </excluded>
   </library>

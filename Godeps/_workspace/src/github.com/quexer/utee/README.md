@@ -1,2 +1,0 @@
-# utee
-utilities for golang

@@ -851,15 +851,15 @@ func getDWithPermissionHandler(r *http.Request, rsp *Rsp, param martini.Params, 
 	}
 
 	Q = bson.M{COL_PERMIT_REPNAME: repname, COL_PERMIT_USER: user}
-	hasRepPermisssion := db.hasPermission(C_REPOSITORY_PERMISSION, Q)
+	hasRepPermission := db.hasPermission(C_REPOSITORY_PERMISSION, Q)
 	Q = bson.M{COL_PERMIT_ITEMNAME: itemname, COL_PERMIT_USER: user}
-	hasRepPermission := db.hasPermission(C_DATAITEM_PERMISSION, Q)
+	hasItemPermission := db.hasPermission(C_DATAITEM_PERMISSION, Q)
 
-	if rep.Repaccesstype == ACCESS_PRIVATE && !hasRepPermisssion {
+	if rep.Repaccesstype == ACCESS_PRIVATE && !hasRepPermission {
 		return rsp.Json(400, E(ErrorCodePermissionDenied), false)
 	}
 
-	if item.Itemaccesstype == ACCESS_PRIVATE && !hasRepPermission {
+	if item.Itemaccesstype == ACCESS_PRIVATE && !hasItemPermission {
 		return rsp.Json(400, E(ErrorCodePermissionDenied), false)
 	}
 

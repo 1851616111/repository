@@ -13,10 +13,6 @@
 			"Rev": "9987fc59f060a063247d22472c2fb48654bac5f6"
 		},
 		{
-			"ImportPath": "github.com/quexer/utee",
-			"Rev": "aba2fc28aa183a82a149c7767320f1ad67942bd2"
-		},
-		{
 			"ImportPath": "gopkg.in/mgo.v2",
 			"Comment": "r2015.10.05-1-g4d04138",
 			"Rev": "4d04138ffef2791c479c0c8bbffc30b34081b8d9"

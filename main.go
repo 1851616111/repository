@@ -27,7 +27,6 @@ func init() {
 	se := connect(DB_URL_MONGO)
 	db = DB{*se}
 	q_c = Queue{queueChannel}
-
 }
 
 func main() {
