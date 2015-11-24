@@ -38,7 +38,7 @@ func (q *Queue) serve(db *DB) {
 func (db *DB) handle(e exec) {
 	err := db.DB(DB_NAME).C(e.collectionName).Update(e.selector, e.update)
 	if err != nil {
-		log.Errorf("queue handle execute update err ", err)
+		Log.Errorf("queue handle execute update err ", err)
 	}
 	db.Close()
 }

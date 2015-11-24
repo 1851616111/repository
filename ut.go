@@ -68,7 +68,7 @@ func chk(err error) {
 }
 func get(err error) {
 	if err != nil {
-		log.Error(err)
+		Log.Error(err)
 	}
 }
 
@@ -308,7 +308,7 @@ func Env(name string, required bool, showLog ...bool) string {
 		panic("env variable required, " + name)
 	}
 	if len(showLog) == 0 || showLog[0] {
-		log.Infof("[env][%s] %s\n", name, s)
+		Log.Infof("[env][%s] %s\n", name, s)
 	}
 	return s
 }

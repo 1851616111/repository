@@ -156,7 +156,7 @@ func (db *DB) hasPermission(collection string, query bson.M) bool {
 	case 1:
 		return true
 	default:
-		log.Errorf("query %s  total=%n invalid", collection, n)
+		Log.Errorf("query %s  total=%n invalid", collection, n)
 		return true
 	}
 }

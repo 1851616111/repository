@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	logger "github.com/asiainfoLDP/datahub_repository/log"
 	"github.com/go-martini/martini"
 	"net/http"
 )
@@ -20,7 +19,7 @@ var (
 	DB_URL_MONGO = fmt.Sprintf(`%s:%s/datahub?maxPoolSize=50`, DB_MONGO_URL, DB_MONGO_PORT)
 	db           DB
 	q_c          Queue
-	log          = logger.NewLogger("http handler")
+	Log          = NewLogger("http handler")
 )
 
 func init() {
@@ -104,7 +103,7 @@ func main() {
 
 	http.Handle("/", m)
 
-	log.Infof("service listen on %s", SERVICE_PORT)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", SERVICE_PORT), nil))
+	Log.Infof("service listen on %s", SERVICE_PORT)
+	Log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", SERVICE_PORT), nil))
 
 }
