@@ -16,7 +16,7 @@ var (
 	DB_MONGO_URL    = Env("MONGO_PORT_27017_TCP_ADDR", false)
 	DB_MONGO_PORT   = Env("MONGO_PORT_27017_TCP_PORT", false)
 
-	DB_URL_MONGO = fmt.Sprintf(`%s:%s/datahub?maxPoolSize=50`, DB_MONGO_URL, DB_MONGO_PORT)
+	DB_URL_MONGO = fmt.Sprintf(`%s:%s/datahub?maxPoolSize=500`, DB_MONGO_URL, DB_MONGO_PORT)
 	db			DB
 	q_c          Queue
 	Log          = NewLogger("http handler")
