@@ -105,7 +105,7 @@ func setItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, 
 	if _, err := db.DB(DB_NAME).C(C_DATAITEM_PERMISSION).Upsert(Q, i_p); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
-
+	db.Close()
 	return rsp.Json(200, E(OK))
 }
 
@@ -119,5 +119,6 @@ func delItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, 
 	if err := db.delPermit(C_DATAITEM_PERMISSION, exec); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
+	db.Close()
 	return rsp.Json(200, E(OK))
 }

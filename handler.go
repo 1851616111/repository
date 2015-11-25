@@ -93,10 +93,12 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		return rsp.Json(400, ErrDataBase(err))
 	}
 
+	db.Close()
 	return rsp.Json(200, E(OK))
 }
 
 func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
+
 	repname := strings.TrimSpace(param["repname"])
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
@@ -153,19 +155,21 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 		res.Dataitems = items
 	}
 
+	db.Close()
 	return rsp.Json(200, E(OK), res)
 }
 
 //curl http://127.0.0.1:8080/repositories/rep123 -X DELETE -H admin:admin
-func delRHandler(r *http.Request, rsp *Rsp, param martini.Params, loginName string, db *DB) (int, string) {
+func delRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string) (int, string) {
+
 	repname := strings.TrimSpace(param["repname"])
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
 	}
 	Q := bson.M{COL_REPNAME: repname}
 	rep, err := db.getRepository(Q)
-	if err != nil {
-		return rsp.Json(400, ErrDataBase(err))
+	if err != nil && err == mgo.ErrNotFound {
+		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s", COL_REPNAME, repname)))
 	}
 	if rep.Create_user != loginName {
 		return rsp.Json(400, E(ErrorCodePermissionDenied))
@@ -173,11 +177,13 @@ func delRHandler(r *http.Request, rsp *Rsp, param martini.Params, loginName stri
 	if err := db.delRepository(Q); err != nil {
 		return rsp.Json(200, ErrDataBase(err))
 	}
+	db.Close()
 	return rsp.Json(200, E(OK))
 }
 
 //curl http://127.0.0.1:8080/repositories/NBA -d "{\"repaccesstype\":\"public\",\"comment\":\"中国移动北京终端详情\", \"label\":{\"sys\":{\"supply_style\":\"flow\",\"refresh\":\"3天\"}}}" -H user:admin -X PUT
 func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, loginName string, db *DB) (int, string) {
+
 	repname := param["repname"]
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
@@ -224,6 +230,7 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, loginName s
 		go asynUpdateOpt(C_REPOSITORY, selector, updater)
 	}
 
+	db.Close()
 	return rsp.Json(200, E(OK))
 }
 
@@ -296,10 +303,12 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 	for _, v := range rep {
 		l = append(l, names{Repository_name: v.Repository_name})
 	}
+	db.Close()
 	return rsp.Json(200, E(OK), l)
 }
 
 func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string) (int, string) {
+
 	repname := param["repname"]
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
@@ -362,6 +371,7 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 
 	go asynUpdateOpt(C_REPOSITORY, bson.M{COL_REPNAME: repname}, bson.M{CMD_INC: bson.M{"items": 1}, CMD_SET: bson.M{COL_OPTIME: now.String()}})
 
+	db.Close()
 	return rsp.Json(200, E(OK))
 }
 
@@ -435,6 +445,7 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 
 		go asynUpdateOpt(C_REPOSITORY, bson.M{COL_REPNAME: repname}, bson.M{"$set": bson.M{COL_OPTIME: now}})
 	}
+	db.Close()
 	return rsp.Json(200, E(OK))
 }
 
@@ -468,7 +479,7 @@ func delDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 	go db.delFile(PREFIX_SAMPLE, repname, itemname)
 
 	go asynUpdateOpt(C_REPOSITORY, bson.M{COL_REPNAME: repname}, bson.M{CMD_INC: bson.M{"items": -1}, CMD_SET: bson.M{COL_OPTIME: time.Now().String()}})
-
+	db.Close()
 	return rsp.Json(200, E(OK))
 }
 
@@ -496,6 +507,8 @@ func setSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *
 	if err := db.DB(DB_NAME).C(C_SELECT).Insert(s); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
+
+	db.Close()
 	return rsp.Json(200, E(OK))
 }
 
@@ -541,6 +554,8 @@ func updateSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, d
 
 	updater := bson.M{CMD_SET: u}
 	go asynUpdateOpt(C_SELECT, selector, updater)
+
+	db.Close()
 	return rsp.Json(200, E(OK))
 }
 
@@ -553,6 +568,7 @@ func delSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *
 	if err := db.delSelect(Q); err == mgo.ErrNotFound {
 		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("labelname : %s", labelname)))
 	}
+	db.Close()
 	return rsp.Json(200, E(OK))
 }
 
@@ -581,6 +597,7 @@ func getSelectLabelsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	if err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
+	db.Close()
 	return rsp.Json(200, E(OK), l)
 }
 
@@ -634,6 +651,7 @@ func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, logi
 
 	go asynUpdateOpt(C_DATAITEM, Q, bson.M{CMD_INC: bson.M{"tags": 1}, CMD_SET: bson.M{COL_OPTIME: now}})
 
+	db.Close()
 	return rsp.Json(200, E(OK))
 }
 
@@ -686,6 +704,7 @@ func updateTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, l
 
 	go asynUpdateOpt(C_TAG, Q_tag, bson.M{"$set": bson.M{COL_COMMENT: t.Comment, COL_OPTIME: now}})
 
+	db.Close()
 	return rsp.Json(200, E(OK))
 }
 
@@ -710,6 +729,7 @@ func getTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int
 		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("tag : %s", tagname)))
 	}
 	tag.Optime = buildTime(tag.Optime)
+	db.Close()
 	return rsp.Json(200, E(OK), tag)
 }
 
@@ -741,6 +761,7 @@ func delTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int
 		return rsp.Json(400, ErrDataBase(err))
 	}
 
+	db.Close()
 	return rsp.Json(200, E(OK))
 }
 
@@ -819,6 +840,7 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	res.dataItem = item
 	res.Tags = tags
 
+	db.Close()
 	return rsp.Json(200, E(OK), res)
 }
 
@@ -865,7 +887,7 @@ func getDWithPermissionHandler(r *http.Request, rsp *Rsp, param martini.Params, 
 	if item.Itemaccesstype == ACCESS_PRIVATE && !hasItemPermission {
 		return rsp.Json(400, E(ErrorCodePermissionDenied), false)
 	}
-
+	db.Close()
 	return rsp.Json(200, E(OK), item)
 }
 
@@ -900,7 +922,7 @@ func updateSelectHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB
 	updater := bson.M{"$set": u}
 
 	go q_c.producer(exec{C_DATAITEM, selector, updater})
-
+	db.Close()
 	return rsp.Json(200, E(OK))
 }
 
@@ -924,6 +946,7 @@ func deleteSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, d
 
 	go q_c.producer(exec{C_DATAITEM, selector, updater})
 
+	db.Close()
 	return rsp.Json(200, E(OK))
 }
 
@@ -954,7 +977,7 @@ func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(Q).Limit(PAGE_SIZE_SELECT).Sort("-label.sys.order").All(&res); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
-
+	db.Close()
 	return rsp.Json(200, E(OK), res)
 }
 
@@ -970,6 +993,7 @@ func getUsrPmtRepsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *D
 	if err := db.DB(DB_NAME).C(C_REPOSITORY_PERMISSION).Find(Q).All(&l); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
+	db.Close()
 	return rsp.Json(200, E(OK), l)
 }
 
@@ -992,5 +1016,6 @@ func setUsrPmtRepsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *D
 	if err := db.DB(DB_NAME).C(C_REPOSITORY_PERMISSION).Insert(Exec); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
+	db.Close()
 	return rsp.Json(200, E(OK))
 }

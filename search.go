@@ -151,5 +151,6 @@ func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 
 	result.Total = length
 
+	db.Close()
 	return rsp.Json(200, E(OK), result)
 }
