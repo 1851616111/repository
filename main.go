@@ -37,6 +37,7 @@ func init() {
 func main() {
 
 	go q_c.serve(&db)
+	go staticLoop(&db)
 	m := martini.Classic()
 	m.Handlers(martini.Recovery())
 	m.Use(func(w http.ResponseWriter, c martini.Context) {
@@ -51,8 +52,6 @@ func main() {
 
 	m.Group("/repositories", func(r martini.Router) {
 		r.Get("", getRsHandler)
-
-		r.Get("/statis", getStatisHandler)
 
 		r.Get("/:repname", getRHandler)
 		r.Get("/:repname/:itemname", getDHandler)

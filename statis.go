@@ -1,12 +1,11 @@
 package main
 
 import (
-	"github.com/go-martini/martini"
 	"gopkg.in/mgo.v2/bson"
-	"net/http"
+	"time"
 )
 
-func getDStatisHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
+func (db *DB) getDStatis() {
 	items, err := db.getDataitems(0, ALL_DATAITEMS, nil)
 	get(err)
 
@@ -22,10 +21,9 @@ func getDStatisHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) 
 		}
 	}
 	Log.Info("statis datitem over")
-	return rsp.Json(200, E(OK))
 }
 
-func getRStatisHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
+func (db *DB) getRStatis() {
 	reps, err := db.getRepositories(nil)
 	get(err)
 
@@ -41,11 +39,13 @@ func getRStatisHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) 
 		}
 	}
 	Log.Error("statis repository over")
-	return rsp.Json(200, E(OK))
 }
 
-func getStatisHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
-	getDStatisHandler(r, rsp, param, db)
-	getRStatisHandler(r, rsp, param, db)
-	return rsp.Json(200, E(OK))
+func staticLoop(db *DB) {
+	defer db.Close()
+	for {
+		time.Sleep(time.Hour)
+		db.getDStatis()
+		db.getRStatis()
+	}
 }
