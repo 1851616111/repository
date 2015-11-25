@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/go-martini/martini"
 	"log"
 	"math/rand"
@@ -11,7 +13,7 @@ import (
 	"time"
 )
 
-type testParam struct {
+type param struct {
 	requestBody string
 	rsp         *Rsp
 	param       martini.Params
@@ -19,21 +21,35 @@ type testParam struct {
 	login_name  string
 }
 
-func init() {
-	//	rd := rand.New(rand.NewSource(time.Now.Nanosecond()))
+type Body struct {
+	Result
+}
 
+type expect struct {
+	code int
+	body Body
+}
+type Context struct {
+	description string
+	param       param
+	expect      expect
+}
+
+var (
+	ramdom int
+)
+
+func init() {
+	rd := rand.New(rand.NewSource(int64(time.Now().Second())))
+	ramdom = rd.Int()
 }
 
 func Test_createRHandler(t *testing.T) {
 
-	contexts := []struct {
-		description string
-		param       testParam
-		expected    Result
-	}{
-		{
+	contexts := []Context{
+		Context{
 			description: "----------> create repository",
-			param: testParam{
+			param: param{
 				requestBody: `{
 									"repaccesstype": "public",
 									"comment": "中国移动北京终端详情",
@@ -53,19 +69,26 @@ func Test_createRHandler(t *testing.T) {
 									}
 								}`,
 				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": "app0001"},
+				param:      martini.Params{"repname": fmt.Sprintf("app0001_%d", ramdom)},
 				db:         &db,
 				login_name: "panxy3@asiainfo.com",
 			},
-
-			expected: Result{Code: 200, Msg: "OK"},
+			expect: expect{
+				code: 200,
+				body: Body{Result{
+					Code: 0,
+					Msg:  "OK",
+				}},
+			},
 		},
 	}
 
 	for _, v := range contexts {
+		t.Log(v.description)
 		p := v.param
 		r, err := http.NewRequest("POST", "/repositories/rep0001", strings.NewReader(p.requestBody))
 		get(err)
+
 		code, msg := createRHandler(r, p.rsp, p.param, p.db, p.login_name)
 		//		res := Result{Code: code, Msg: msg}
 		//		v.expected.expect(t, res)
@@ -75,18 +98,30 @@ func Test_createRHandler(t *testing.T) {
 	}
 }
 
-func (res *Result) expect(t testing.T, target *Result) bool {
-	if res.Code != target.Code {
-		t.Errorf("expected resutl.code:%d != return resutl.code:%d", res.Code, target.Code)
+func (expect *expect) expect(t testing.T, resutlCode int, resutlData string) bool {
+	if expect.code != resutlCode {
+		t.Errorf("expected http.code:%d != return http.code:%d", expect.code, expect.code)
 		return false
 	}
-	if res.Msg != target.Msg {
-		t.Errorf("expected resutl.msg :%s != return resutl.msg:%s", res.Msg, target.Msg)
+
+	res := new(Result)
+	err := json.Unmarshal([]byte(resutlData), res)
+	t.Log(err)
+
+	if expect.body.Code != res.Code {
+		t.Errorf("expected http.Code(%d) != return http.Code(%d)", expect.code, expect.code)
 		return false
 	}
-	if res.Data != target.Data {
-		t.Errorf("expected resutl.data:%+v != return resutl.data:%+v", res.Data, target.Data)
+
+	if expect.body.Msg != res.Msg {
+		t.Errorf("expected http.Msg(%d) != return http.Msg(%d)", expect.body.Msg, res.Msg)
 		return false
 	}
+
+	if expect.body.Data != res.Data {
+		t.Errorf("expected http.Data(%d) != return http.Data(%d)", expect.body.Data, res.Data)
+		return false
+	}
+
 	return true
 }

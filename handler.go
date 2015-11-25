@@ -237,7 +237,7 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 
 	}
 	if p := strings.TrimSpace(r.FormValue("size")); p != "" {
-		if page_size, _ = strconv.Atoi(p); page_size <= 0 {
+		if page_size, _ = strconv.Atoi(p); page_size < -1 {
 			return rsp.Json(400, ErrInvalidParameter("size"))
 		}
 	}
