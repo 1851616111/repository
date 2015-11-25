@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"gopkg.in/mgo.v2/bson"
-	"log"
 	"net/http"
 	"sort"
 	"strconv"
@@ -65,32 +64,28 @@ func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 				l := []search{}
 				db.DB(DB_NAME).C(C_DATAITEM).Find(Query).Sort("-optime").Select(bson.M{COL_REPNAME: "1", COL_ITEM_NAME: "1", "optime": "1"}).All(&l)
 				for _, v := range l {
-					log.Println("time------------->", v.Optime)
 					if sc, ok := res[fmt.Sprintf("%s/%s", v.Repository_name, v.Dataitem_name)]; ok {
 						sc.(*score).matchCount++
 					} else {
-						sc := score{optime: fmt.Sprintf("%d", v.Optime.Unix()), matchCount: 1}
+						sc := score{optime: fmt.Sprintf("%s", v.Optime), matchCount: 1}
 						res[fmt.Sprintf("%s/%s", v.Repository_name, v.Dataitem_name)] = &sc
 					}
 				}
 			}
 		}
+
 		res_reverse, res_reverse_2, res_reverse_3 := map[string]interface{}{}, map[string]interface{}{}, map[string]interface{}{}
-		log.Println(res)
+
 		for k, v := range res {
 			sc := v.(*score)
 			switch sc.matchCount {
 			case 1:
-				log.Println("---->", 1)
 				res_reverse[v.(*score).optime] = k
 			case 2:
-				log.Println("---->", 2)
 				res_reverse_2[v.(*score).optime] = k
 			case 3:
-				log.Println("---->", 3)
 				res_reverse_3[v.(*score).optime] = k
 			}
-
 		}
 
 		var keys, keys_2, keys_3 []string
@@ -104,16 +99,10 @@ func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 			keys_3 = append(keys_3, k)
 		}
 
-		log.Println("keys", keys)
-		log.Println("keys2", keys_2)
-		log.Println("keys3", keys_3)
 		sort.Strings(keys)
 		sort.Strings(keys_2)
 		sort.Strings(keys_3)
-
-		log.Println("newkeys", keys)
-		log.Println("newkeys2", keys_2)
-		log.Println("newkeys3", keys_3)
+		// todo sort by time desc, now esc
 
 		for _, k := range keys_3 {
 			str := strings.Split(res_reverse_3[k].(string), "/")

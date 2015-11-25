@@ -44,7 +44,7 @@ type names struct {
 type search struct {
 	Repository_name string
 	Dataitem_name   string
-	Optime          time.Time
+	Optime          string
 }
 type dataItem struct {
 	Repository_name string      `json:"-"`
