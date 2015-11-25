@@ -12,7 +12,9 @@ import (
 	"testing"
 	"time"
 )
-
+func errDatabaseOperate() string {
+	return fmt.Sprintf("database operate : E11000 duplicate key error index: datahub.repository.$repository_name_1 dup key: { : \"app0001_%s\" }", ramdom)
+}
 type param struct {
 	requestBody string
 	rsp         *Rsp
@@ -48,7 +50,7 @@ func Test_createRHandler(t *testing.T) {
 
 	contexts := []Context{
 		Context{
-			description: "----------> create repository",
+			description: "----------> create repository 1 ",
 			param: param{
 				requestBody: `{
 									"repaccesstype": "public",
@@ -78,6 +80,40 @@ func Test_createRHandler(t *testing.T) {
 				body: Body{Result{
 					Code: 0,
 					Msg:  "OK",
+				}},
+			},
+		},
+		Context{
+			description: "----------> create repository 2 ",
+			param: param{
+				requestBody: `{
+									"repaccesstype": "public",
+									"comment": "中国移动北京终端详情",
+									"label": {
+										"sys": {
+											"loc": "北京"
+											},
+										"opt": {
+											"age": 22
+											},
+										"owner": {
+											"name": "michael"
+											},
+										"other": {
+											"friend": 22
+										}
+									}
+								}`,
+				rsp:        &Rsp{w: httptest.NewRecorder()},
+				param:      martini.Params{"repname": fmt.Sprintf("app0001_%d", ramdom)},
+				db:         &db,
+				login_name: "panxy3@asiainfo.com",
+			},
+			expect: expect{
+				code: 400,
+				body: Body{Result{
+					Code: 1008,
+					Msg:  errDatabaseOperate(),
 				}},
 			},
 		},

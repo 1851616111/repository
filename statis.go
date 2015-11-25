@@ -15,7 +15,7 @@ func getDStatisHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) 
 		Q := bson.M{COL_REPNAME: v.Repository_name, COL_ITEM_NAME: v.Dataitem_name}
 		n, err := db.DB(DB_NAME).C(C_TAG).Find(Q).Count()
 		get(err)
-		if n < v.Tags {
+		if n != v.Tags {
 			Log.Infof("correct %s/%s tags = %d", v.Repository_name, v.Dataitem_name, n)
 			exec := bson.M{CMD_SET: bson.M{COL_ITEM_TAGS: n}}
 			go asynUpdateOpt(C_DATAITEM, Q, exec)
@@ -34,7 +34,7 @@ func getRStatisHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) 
 		Q := bson.M{COL_REPNAME: v.Repository_name}
 		n, err := db.DB(DB_NAME).C(C_DATAITEM).Find(Q).Count()
 		get(err)
-		if n < v.Items {
+		if n != v.Items {
 			Log.Infof("correct %s items = %d", v.Repository_name, n)
 			exec := bson.M{CMD_SET: bson.M{COL_REP_ITEMS: n}}
 			go asynUpdateOpt(C_REPOSITORY, Q, exec)
