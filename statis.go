@@ -42,7 +42,6 @@ func (db *DB) getRStatis() {
 }
 
 func staticLoop(db *DB) {
-	defer db.Close()
 	for {
 		time.Sleep(time.Hour)
 		db.getDStatis()

@@ -25,7 +25,7 @@ type score struct {
 
 //curl http://127.0.0.1:8089/search?text="123 123 14"
 func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
-
+	defer db.Close()
 	page_index, page_size := PAGE_INDEX, PAGE_SIZE_SEARCH
 	if p := strings.TrimSpace(r.FormValue("page")); p != "" {
 		if page_index, _ = strconv.Atoi(p); page_index <= 0 {
@@ -151,6 +151,5 @@ func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 
 	result.Total = length
 
-	db.Close()
 	return rsp.Json(200, E(OK), result)
 }

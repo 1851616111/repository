@@ -15,6 +15,7 @@ const (
 )
 
 func upsertRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p Rep_Permission) (int, string) {
+	defer db.Close()
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
@@ -49,6 +50,7 @@ func upsertRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB
 }
 
 func getRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p Rep_Permission) (int, string) {
+	defer db.Close()
 	Q := bson.M{COL_REPNAME: p.Repository_name}
 	l, err := db.getPermits(C_REPOSITORY_PERMISSION, Q)
 	if err != nil {
@@ -58,6 +60,7 @@ func getRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 }
 
 func getItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p Item_Permission) (int, string) {
+	defer db.Close()
 	Q := bson.M{COL_PERMIT_REPNAME: p.Repository_name, COL_PERMIT_ITEMNAME: p.Dataitem_name}
 	l, err := db.getPermits(C_DATAITEM_PERMISSION, Q)
 	if err != nil {
@@ -67,6 +70,7 @@ func getItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, 
 }
 
 func delRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p Rep_Permission) (int, string) {
+	defer db.Close()
 	username := strings.TrimSpace(r.FormValue("username"))
 	if username == "" {
 		return rsp.Json(400, ErrNoParameter(username))
@@ -80,6 +84,7 @@ func delRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 }
 
 func setItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p Item_Permission) (int, string) {
+	defer db.Close()
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
@@ -105,11 +110,11 @@ func setItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, 
 	if _, err := db.DB(DB_NAME).C(C_DATAITEM_PERMISSION).Upsert(Q, i_p); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
-	db.Close()
 	return rsp.Json(200, E(OK))
 }
 
 func delItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p Item_Permission) (int, string) {
+	defer db.Close()
 	username := strings.TrimSpace(r.FormValue("username"))
 	if username == "" {
 		return rsp.Json(400, ErrNoParameter(username))
@@ -119,6 +124,5 @@ func delItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, 
 	if err := db.delPermit(C_DATAITEM_PERMISSION, exec); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
-	db.Close()
 	return rsp.Json(200, E(OK))
 }
