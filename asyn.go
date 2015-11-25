@@ -29,7 +29,6 @@ func (q *Queue) producer(e exec) {
 func (q *Queue) serve(db *DB) {
 	for {
 		exec := <-q.q
-		db.Clone()
 		copy := DB{*db.Copy()}
 		go copy.handle(exec)
 	}

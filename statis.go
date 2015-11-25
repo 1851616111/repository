@@ -42,9 +42,13 @@ func (db *DB) getRStatis() {
 }
 
 func staticLoop(db *DB) {
+
 	for {
+		copy := DB{*db.Copy()}
+		defer copy.Close()
 		time.Sleep(time.Hour)
-		db.getDStatis()
-		db.getRStatis()
+		copy.getDStatis()
+		copy.getRStatis()
+
 	}
 }
