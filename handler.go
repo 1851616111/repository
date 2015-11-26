@@ -465,7 +465,6 @@ func delDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 	Q := bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname}
 
 	item, err := db.getDataitem(Q)
-
 	if err == mgo.ErrNotFound {
 		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s %s:=%s", COL_REPNAME, repname, COL_ITEM_NAME, itemname)))
 	}
@@ -477,10 +476,14 @@ func delDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 	if err := db.delDataitem(Q); err != nil {
 		return rsp.Json(200, ErrDataBase(err))
 	}
-	go db.delFile(PREFIX_META, repname, itemname)
-	go db.delFile(PREFIX_SAMPLE, repname, itemname)
+
+	go func(db *DB) {
+		db.delFile(PREFIX_META, repname, itemname)
+		db.delFile(PREFIX_SAMPLE, repname, itemname)
+	}(db.copy())
 
 	go asynUpdateOpt(C_REPOSITORY, bson.M{COL_REPNAME: repname}, bson.M{CMD_INC: bson.M{"items": -1}, CMD_SET: bson.M{COL_OPTIME: time.Now().String()}})
+
 	return rsp.Json(200, E(OK))
 }
 

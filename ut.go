@@ -90,8 +90,8 @@ func (p *Rsp) Json(code int, e *Error, data ...interface{}) (int, string) {
 	if len(data) > 0 {
 		result.Data = data[0]
 	}
-	result.Code = e.code
-	result.Msg = e.message
+	result.Code = e.Code
+	result.Msg = e.Message
 
 	b, err := json.Marshal(result)
 	chk(err)
@@ -106,7 +106,7 @@ func JsonResult(w http.ResponseWriter, statusCode int, e *Error, data interface{
 	}
 
 	//result := Result {code: e.code, msg: e.message, data: data}
-	result := Result{Code: e.code, Msg: e.message}
+	result := Result{Code: e.Code, Msg: e.Message}
 
 	jsondata, err := json.Marshal(&result)
 	if err != nil {
@@ -120,7 +120,7 @@ var Json_ErrorBuildingJson []byte
 
 func getJsonBuildingErrorJson() []byte {
 	if Json_ErrorBuildingJson == nil {
-		Json_ErrorBuildingJson = []byte(fmt.Sprintf(`{"code": %d, "msg": %s}`, ErrorJsonBuilding.code, ErrorJsonBuilding.message))
+		Json_ErrorBuildingJson = []byte(fmt.Sprintf(`{"code": %d, "msg": %s}`, ErrorJsonBuilding.Code, ErrorJsonBuilding.Message))
 	}
 
 	return Json_ErrorBuildingJson

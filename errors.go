@@ -6,8 +6,8 @@ import (
 )
 
 type Error struct {
-	code    uint
-	message string
+	Code    uint   `json:"code"`
+	Message string `json:"message"`
 }
 
 var (
@@ -31,9 +31,9 @@ const (
 	ErrorCodeQueryDBNotFound
 	ErrorCodeOptFile
 
-	NumErrors
-
 	ErrorCodeNoParameter = 1400
+
+	NumErrors = 1401
 )
 
 func init() {
@@ -75,46 +75,46 @@ func GetError2(code uint, message string) *Error {
 	if e == nil {
 		return newError(code, message)
 	} else {
-		return newError(code, fmt.Sprintf("%s (%s)", e.message, message))
+		return newError(code, fmt.Sprintf("%s (%s)", e.Message, message))
 	}
 }
 
 func newError(code uint, message string) *Error {
-	return &Error{code: code, message: message}
+	return &Error{Code: code, Message: message}
 }
 
 func newUnknownError(message string) *Error {
 	return &Error{
-		code:    ErrorCodeUnkown,
-		message: message,
+		Code:    ErrorCodeUnkown,
+		Message: message,
 	}
 }
 
 func ErrInvalidParameter(paramName string) *Error {
 	return &Error{
-		code:    ErrorCodeInvalidParameters,
-		message: fmt.Sprintf("%s: %s", E(ErrorCodeInvalidParameters).message, paramName),
+		Code:    ErrorCodeInvalidParameters,
+		Message: fmt.Sprintf("%s: %s", E(ErrorCodeInvalidParameters).Message, paramName),
 	}
 }
 
 func ErrParseJson(e error) *Error {
 	return &Error{
-		code:    ErrorCodeJsonBuilding,
-		message: fmt.Sprintf("%s: %s", E(ErrorCodeJsonBuilding).message, e.Error()),
+		Code:    ErrorCodeJsonBuilding,
+		Message: fmt.Sprintf("%s: %s", E(ErrorCodeJsonBuilding).Message, e.Error()),
 	}
 }
 
 func ErrNoParameter(paramName string) *Error {
 	return &Error{
-		code:    ErrorCodeNoParameter,
-		message: fmt.Sprintf("%s: %s", E(ErrorCodeNoParameter).message, paramName),
+		Code:    ErrorCodeNoParameter,
+		Message: fmt.Sprintf("%s: %s", E(ErrorCodeNoParameter).Message, paramName),
 	}
 }
 
 func ErrQueryNotFound(paramName string) *Error {
 	return &Error{
-		code:    ErrorCodeQueryDBNotFound,
-		message: fmt.Sprintf(E(ErrorCodeQueryDBNotFound).message, paramName),
+		Code:    ErrorCodeQueryDBNotFound,
+		Message: fmt.Sprintf(E(ErrorCodeQueryDBNotFound).Message, paramName),
 	}
 }
 
@@ -123,16 +123,16 @@ func ErrDataBase(e error) *Error {
 		return E(OK)
 	} else {
 		return &Error{
-			code:    ErrorCodeDataBase,
-			message: fmt.Sprintf("%s : %s", E(ErrorCodeDataBase).message, e.Error()),
+			Code:    ErrorCodeDataBase,
+			Message: fmt.Sprintf("%s : %s", E(ErrorCodeDataBase).Message, e.Error()),
 		}
 	}
 }
 
 func ErrFile(e error) *Error {
 	return &Error{
-		code:    ErrorCodeOptFile,
-		message: fmt.Sprintf("%s : %s", E(ErrorCodeOptFile).message, e.Error()),
+		Code:    ErrorCodeOptFile,
+		Message: fmt.Sprintf("%s : %s", E(ErrorCodeOptFile).Message, e.Error()),
 	}
 }
 

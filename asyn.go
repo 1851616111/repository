@@ -29,7 +29,7 @@ func (q *Queue) producer(e exec) {
 func (q *Queue) serve(db *DB) {
 	for {
 		exec := <-q.q
-		copy := DB{*db.Copy()}
+		copy := db.copy()
 		go copy.handle(exec)
 	}
 }
@@ -37,7 +37,7 @@ func (q *Queue) serve(db *DB) {
 func (db *DB) handle(e exec) {
 	err := db.DB(DB_NAME).C(e.collectionName).Update(e.selector, e.update)
 	if err != nil {
-		Log.Errorf("queue handle execute update err ", err)
+		Log.Error("queue handle execute update err ", err)
 	}
 	db.Close()
 }
