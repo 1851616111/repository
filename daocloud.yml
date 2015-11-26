@@ -10,4 +10,4 @@ before_script:
 script:
   - export GOPATH=/gopath
   - go get -t datahub_repository
-  - go test datahub_repository
+  - go tes datahub_repository
