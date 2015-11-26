@@ -28,6 +28,8 @@ func init() {
 
 type MM map[interface{}]M
 type M map[interface{}]interface{}
+type Ms map[string]interface{}
+
 type Q struct {
 	Columns    []string
 	Conditions M

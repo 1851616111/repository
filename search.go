@@ -74,7 +74,7 @@ func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 			}
 		}
 
-		res_reverse, res_reverse_2, res_reverse_3 := map[string]interface{}{}, map[string]interface{}{}, map[string]interface{}{}
+		res_reverse, res_reverse_2, res_reverse_3 := make(Ms), make(Ms), make(Ms)
 
 		for k, v := range res {
 			sc := v.(*score)
@@ -88,36 +88,9 @@ func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 			}
 		}
 
-		var keys, keys_2, keys_3 []string
-		for k := range res_reverse {
-			keys = append(keys, k)
-		}
-		for k := range res_reverse_2 {
-			keys_2 = append(keys_2, k)
-		}
-		for k := range res_reverse_3 {
-			keys_3 = append(keys_3, k)
-		}
-
-		sort.Strings(keys)
-		sort.Strings(keys_2)
-		sort.Strings(keys_3)
-		// todo sort by time desc, now esc
-
-		for _, k := range keys_3 {
-			str := strings.Split(res_reverse_3[k].(string), "/")
-			l = append(l, names{str[0], str[1]})
-		}
-
-		for _, k := range keys_2 {
-			str := strings.Split(res_reverse_2[k].(string), "/")
-			l = append(l, names{str[0], str[1]})
-		}
-
-		for _, k := range keys {
-			str := strings.Split(res_reverse[k].(string), "/")
-			l = append(l, names{str[0], str[1]})
-		}
+		res_reverse_3.sortMapToArray(&l)
+		res_reverse_2.sortMapToArray(&l)
+		res_reverse.sortMapToArray(&l)
 
 	} else {
 		Q := bson.M{COL_REPNAME: bson.M{CMD_IN: pub}}
@@ -153,3 +126,23 @@ func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 
 	return rsp.Json(200, E(OK), result)
 }
+
+func (m Ms) sortMapToArray(l *[]names) {
+	keys := StringSlice{}
+	for k := range m {
+		keys = append(keys, k)
+	}
+
+	sort.Strings(keys)
+
+	for _, k := range keys {
+		str := strings.Split(m[k].(string), "/")
+		*l = append(*l, names{str[0], str[1]})
+	}
+}
+
+type StringSlice []string
+
+func (p StringSlice) Len() int           { return len(p) }
+func (p StringSlice) Less(i, j int) bool { return p[i] >= p[j] }
+func (p StringSlice) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
