@@ -111,6 +111,9 @@ type DB struct {
 	mgo.Session
 }
 
+func (db *DB) copy() *DB {
+	return &DB{*db.Copy()}
+}
 func connect(db_connection string) *mgo.Session {
 	session, err := mgo.Dial(db_connection)
 	get(err)

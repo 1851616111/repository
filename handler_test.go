@@ -79,7 +79,7 @@ func Test_createRHandler(t *testing.T) {
 								}`,
 				rsp:        &Rsp{w: httptest.NewRecorder()},
 				param:      martini.Params{"repname": fmt.Sprintf("app0001_%d", ramdom)},
-				db:         &db,
+				db:         db.copy(),
 				login_name: USERNAME,
 			},
 			expect: expect{
@@ -113,7 +113,7 @@ func Test_createRHandler(t *testing.T) {
 								}`,
 				rsp:        &Rsp{w: httptest.NewRecorder()},
 				param:      martini.Params{"repname": fmt.Sprintf("app0001_%d", ramdom)},
-				db:         &db,
+				db:         db.copy(),
 				login_name: USERNAME,
 			},
 			expect: expect{
@@ -132,7 +132,7 @@ func Test_createRHandler(t *testing.T) {
 								}`,
 				rsp:        &Rsp{w: httptest.NewRecorder()},
 				param:      martini.Params{"repname": fmt.Sprintf("app0001_%d", ramdom+1)},
-				db:         &db,
+				db:         db.copy(),
 				login_name: USERNAME,
 			},
 			expect: expect{
@@ -151,7 +151,7 @@ func Test_createRHandler(t *testing.T) {
 								}`,
 				rsp:        &Rsp{w: httptest.NewRecorder()},
 				param:      martini.Params{"repname": fmt.Sprintf("app0001_%d", ramdom+2)},
-				db:         &db,
+				db:         db.copy(),
 				login_name: USERNAME,
 			},
 			expect: expect{
@@ -183,7 +183,7 @@ func Test_createRHandler(t *testing.T) {
 								}`,
 				rsp:        &Rsp{w: httptest.NewRecorder()},
 				param:      martini.Params{"repname": fmt.Sprintf("app0001_%d", ramdom+3)},
-				db:         &db,
+				db:         db.copy(),
 				login_name: USERNAME,
 			},
 			expect: expect{
@@ -209,7 +209,7 @@ func Test_createRHandler(t *testing.T) {
 								}`,
 				rsp:        &Rsp{w: httptest.NewRecorder()},
 				param:      martini.Params{"repname": fmt.Sprintf("app0001_%d", ramdom+4)},
-				db:         &db,
+				db:         db.copy(),
 				login_name: USERNAME,
 			},
 			expect: expect{
@@ -228,7 +228,7 @@ func Test_createRHandler(t *testing.T) {
 								}`,
 				rsp:        &Rsp{w: httptest.NewRecorder()},
 				param:      martini.Params{"repname": fmt.Sprintf("app0001_%d", ramdom+5)},
-				db:         &db,
+				db:         db.copy(),
 				login_name: USERNAME,
 			},
 			expect: expect{
@@ -262,14 +262,14 @@ func Test_createRHandler(t *testing.T) {
 func Test_updateRHandler(t *testing.T) {
 	contexts := []Context{
 		Context{
-			description: "Test_getRHandler ----------> update repository 1 ",
+			description: "Test_updateRHandler ----------> update repository 1 ",
 			param: param{
 				requestBody: `{
-									"repaccesstype": "private",
+									"repaccesstype": "private"
 								}`,
 				rsp:        &Rsp{w: httptest.NewRecorder()},
 				param:      martini.Params{"repname": fmt.Sprintf("app0001_%d", ramdom)},
-				db:         &db,
+				db:         db.copy(),
 				login_name: USERNAME,
 				repName:    fmt.Sprintf("app0001_%d", ramdom),
 			},
@@ -282,54 +282,14 @@ func Test_updateRHandler(t *testing.T) {
 			},
 		},
 		Context{
-			description: "Test_getRHandler ----------> update repository 1 ",
+			description: "Test_updateRHandler ----------> update repository 2 ",
 			param: param{
 				requestBody: `{
-									"comment": "中国移动北京终端详情",
+									"comment": "中国移动北京终端详情2"
 								}`,
 				rsp:        &Rsp{w: httptest.NewRecorder()},
 				param:      martini.Params{"repname": fmt.Sprintf("app0001_%d", ramdom)},
-				db:         &db,
-				login_name: USERNAME,
-				repName:    fmt.Sprintf("app0001_%d", ramdom),
-			},
-			expect: expect{
-				code: 200,
-				body: Body{Result{
-					Code: 0,
-					Msg:  "OK",
-				}},
-			},
-		},
-
-		//		{
-		//			"repaccesstype": "public",
-		//			"comment": "中国移动北京终端详情",
-		//			"label": {
-		//				"sys": {
-		//					"loc": "北京"
-		//				},
-		//				"opt": {
-		//					"age": 22
-		//				},
-		//				"owner": {
-		//					"name": "michael"
-		//				},
-		//				"other": {
-		//					"friend": 22
-		//				}
-		//			}
-		//		}
-
-		Context{
-			description: "Test_getRHandler ----------> update repository 2 ",
-			param: param{
-				requestBody: `{
-									"repaccesstype": "private",
-								}`,
-				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": fmt.Sprintf("app0001_%d", ramdom)},
-				db:         &db,
+				db:         db.copy(),
 				login_name: USERNAME,
 				repName:    fmt.Sprintf("app0001_%d", ramdom),
 			},
@@ -342,20 +302,41 @@ func Test_updateRHandler(t *testing.T) {
 			},
 		},
 		Context{
-			description: "Test_getRHandler ----------> get repository 2 ",
+			description: "Test_updateRHandler ----------> update repository 3 ",
 			param: param{
-				requestBody: ``,
-				rsp:         &Rsp{w: httptest.NewRecorder()},
-				param:       martini.Params{"repname": "repnameNotExist"},
-				db:          &db,
-				login_name:  USERNAME,
-				repName:     "repnameNotExist",
+				requestBody: `{
+									"comment": "中国移动北京终端详情3"
+								}`,
+				rsp:        &Rsp{w: httptest.NewRecorder()},
+				param:      martini.Params{"repname": "repnameNotExist"},
+				db:         db.copy(),
+				login_name: USERNAME,
+				repName:    "repnameNotExist",
 			},
 			expect: expect{
 				code: 400,
 				body: Body{Result{
 					Code: 1009,
 					Msg:  fmt.Sprintf(E(ErrorCodeQueryDBNotFound).message, fmt.Sprintf(" %s=%s", COL_REPNAME, "repnameNotExist")),
+				}},
+			},
+		},
+		Context{
+			description: "Test_updateRHandler ----------> update repository 4 ",
+			param: param{
+				requestBody: `{
+								}`,
+				rsp:        &Rsp{w: httptest.NewRecorder()},
+				param:      martini.Params{"repname": fmt.Sprintf("app0001_%d", ramdom)},
+				db:         db.copy(),
+				login_name: USERNAME,
+				repName:    fmt.Sprintf("app0001_%d", ramdom),
+			},
+			expect: expect{
+				code: 200,
+				body: Body{Result{
+					Code: 0,
+					Msg:  "OK",
 				}},
 			},
 		},
@@ -369,7 +350,7 @@ func Test_updateRHandler(t *testing.T) {
 
 		r.Header.Set("User", USERNAME)
 
-		code, msg := getRHandler(r, p.rsp, p.param, p.db)
+		code, msg := updateRHandler(r, p.rsp, p.param, p.db, p.login_name)
 
 		if !expect.expect(t, code, msg) {
 			t.Logf("%s fail.", v.description)
@@ -391,7 +372,7 @@ func Test_getRHandler(t *testing.T) {
 				requestBody: ``,
 				rsp:         &Rsp{w: httptest.NewRecorder()},
 				param:       martini.Params{"repname": fmt.Sprintf("app0001_%d", ramdom)},
-				db:          &db,
+				db:          db.copy(),
 				login_name:  USERNAME,
 				repName:     fmt.Sprintf("app0001_%d", ramdom),
 			},
@@ -409,7 +390,7 @@ func Test_getRHandler(t *testing.T) {
 				requestBody: ``,
 				rsp:         &Rsp{w: httptest.NewRecorder()},
 				param:       martini.Params{"repname": "repnameNotExist"},
-				db:          &db,
+				db:          db.copy(),
 				login_name:  USERNAME,
 				repName:     "repnameNotExist",
 			},
@@ -452,7 +433,7 @@ func Test_delRHandler(t *testing.T) {
 			param: param{
 				rsp:        &Rsp{w: httptest.NewRecorder()},
 				param:      martini.Params{"repname": fmt.Sprintf("app0001_%d", ramdom)},
-				db:         &db,
+				db:         db.copy(),
 				login_name: USERNAME,
 				repName:    fmt.Sprintf("app0001_%d", ramdom),
 			},
@@ -469,7 +450,7 @@ func Test_delRHandler(t *testing.T) {
 			param: param{
 				rsp:        &Rsp{w: httptest.NewRecorder()},
 				param:      martini.Params{"repname": "repnameNotExist"},
-				db:         &db,
+				db:         db.copy(),
 				login_name: USERNAME,
 				repName:    "repnameNotExist",
 			},

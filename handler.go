@@ -180,7 +180,7 @@ func delRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 }
 
 //curl http://127.0.0.1:8080/repositories/NBA -d "{\"repaccesstype\":\"public\",\"comment\":\"中国移动北京终端详情\", \"label\":{\"sys\":{\"supply_style\":\"flow\",\"refresh\":\"3天\"}}}" -H user:admin -X PUT
-func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, loginName string, db *DB) (int, string) {
+func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string) (int, string) {
 	defer db.Close()
 	repname := param["repname"]
 	if repname == "" {
@@ -345,6 +345,10 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 
 	if d.Itemaccesstype != ACCESS_PRIVATE && d.Itemaccesstype != ACCESS_PUBLIC {
 		d.Itemaccesstype = ACCESS_PUBLIC
+	}
+
+	if d.Label == "" {
+		return rsp.Json(400, ErrInvalidParameter("label"))
 	}
 
 	if err := ifInLabel(d.Label, LABEL_NED_CHECK); err != nil {

@@ -53,7 +53,7 @@ curl -X PUT http://54.223.58.0:8888/repositories/chai/zong  -H "Authorization: T
 curl -X GET http://54.223.58.0:8888/repositories/chai/zong
 
 curl -X POST http://127.0.0.1:8088/repositories/test007 -d '{"repaccesstype": "private","comment": "中国移动北京终端详情","label": ""}' -H user:panxy3@asiainfo.com
-curl -X POST http://127.0.0.1:8088/repositories/test007/test007 -d '{"repaccesstype": "private","comment": "中国移动北京终端详情","label": {"sys": {"supply_style": "batch"},"opt": {},"owner": {},"other": {}}}' -H user:panxy3@asiainfo.com
+curl -X POST http://127.0.0.1:8088/repositories/test007/test0087 -d '{"repaccesstype": "private","comment": "中国移动北京终端详情","label": {"sys": {"supply_style": "batch"},"opt": {},"owner": {},"other": {}}}' -H user:panxy3@asiainfo.com
 
 curl -X POST http://54.223.58.0:8888/repositories/test007 -d '{"repaccesstype": "private","comment": "中国移动北京终端详情","label": ""}' -H "Authorization: Token 2b0964abd566324935ed25be65be2ad2" -x proxy.asiainfo.com:8080
 curl -X POST http://54.223.58.0:8888/repositories/test007/test0007 -d '{"repaccesstype": "private","comment": "中国移动北京终端详情","label": {"sys": {"supply_style": "batch"},"opt": {},"owner": {},"other": {}}}' -H "Authorization: Token 2b0964abd566324935ed25be65be2ad2" -x proxy.asiainfo.com:8080
