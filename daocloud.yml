@@ -1,0 +1,13 @@
+image: daocloud/ci-golang:1.2
+services:
+  - mongodb
+env:
+  - MONGO_PORT_27017_TCP_ADDR=$MONGODB_PORT_27017_TCP_ADDR
+  - MONGO_PORT_27017_TCP_PORT=$MONGODB_PORT_27017_TCP_PORT
+before_script:
+  - mkdir -p /gopath/src/datahub_repository
+  - git clone https://github.com/asiainfoLDP/datahub_repository "/gopath/src/datahub_repository"
+script:
+  - export GOPATH=/gopath
+  - go get -t datahub_repository
+  - go test datahub_repository
