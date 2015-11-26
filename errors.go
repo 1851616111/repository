@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 )
 
@@ -23,7 +24,7 @@ const (
 
 	ErrorCodeUrlNotSupported
 	ErrorCodeDbNotInitlized
-	ErrorCodeAuthFailed
+	ErrorCodeUnauthorized
 	ErrorCodePermissionDenied
 	ErrorCodeInvalidParameters
 	ErrorCodeDataBase
@@ -42,7 +43,7 @@ func init() {
 
 	initError(ErrorCodeUrlNotSupported, "unsupported url")
 	initError(ErrorCodeDbNotInitlized, "db is not inited")
-	initError(ErrorCodeAuthFailed, "auth failed")
+	initError(ErrorCodeUnauthorized, "unauthorized")
 	initError(ErrorCodePermissionDenied, "permission denied")
 	initError(ErrorCodeInvalidParameters, "invalid parameters")
 	initError(ErrorCodeNoParameter, "no parameter")
@@ -133,4 +134,9 @@ func ErrFile(e error) *Error {
 		code:    ErrorCodeOptFile,
 		message: fmt.Sprintf("%s : %s", E(ErrorCodeOptFile).message, e.Error()),
 	}
+}
+
+func (e *Error) ErrToString() string {
+	b, _ := json.Marshal(e)
+	return string(b)
 }

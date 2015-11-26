@@ -841,7 +841,7 @@ func getDWithPermissionHandler(r *http.Request, rsp *Rsp, param martini.Params, 
 
 	user := r.Header.Get("User")
 	if user == "" {
-		return rsp.Json(400, E(ErrorCodeAuthFailed))
+		return rsp.Json(400, E(ErrorCodeUnauthorized))
 	}
 
 	var err error
