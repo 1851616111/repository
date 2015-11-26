@@ -6,7 +6,7 @@ env:
   - MONGO_PORT_27017_TCP_PORT=$MONGODB_PORT_27017_TCP_PORT
 before_script:
   - mkdir -p /gopath/src/datahub_repository
-  - git clone -b releasev0.4 https://github.com/cherry4477/datahub_repository "/gopath/src/datahub_repository"
+  - git clone https://github.com/asiainfoLDP/datahub_repository "/gopath/src/datahub_repository"
 script:
   - export GOPATH=/gopath
   - go get -t datahub_repository
