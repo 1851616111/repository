@@ -21,6 +21,7 @@ var (
 	ramdom    int
 	repnames  []string
 	itemnames []string
+	tagnames  []string
 )
 
 func init() {
@@ -30,6 +31,7 @@ func init() {
 	for i := 1; i <= 7; i++ {
 		repnames = append(repnames, initRepositoryName(i))
 		itemnames = append(itemnames, initDataitemName(i))
+		tagnames = append(tagnames, initTagName(i))
 	}
 	go q_c.serve(&db)
 }
@@ -100,7 +102,7 @@ func Test_createRHandler(t *testing.T) {
 				code: 400,
 				body: Body{Result{
 					Code: 1008,
-					Msg:  errRepDatabaseOperate(repnames[0]),
+					Msg:  duplicatedRep(repnames[0]),
 				}},
 			},
 		},
@@ -295,7 +297,7 @@ func Test_createDHandler(t *testing.T) {
 				code: 400,
 				body: Body{Result{
 					Code: 1008,
-					Msg:  errItemDatabaseOperate(repnames[0], itemnames[0]),
+					Msg:  duplicatedItem(repnames[0], itemnames[0]),
 				}},
 			},
 		},
@@ -462,6 +464,102 @@ func Test_createDHandler(t *testing.T) {
 		r, err := http.NewRequest("POST", "/repositories/rep/item", strings.NewReader(p.requestBody))
 		get(err)
 		code, msg := createDHandler(r, p.rsp, p.param, p.db, p.login_name)
+
+		if !expect.expect(t, code, msg) {
+			t.Logf("%s fail.", v.description)
+			t.Log(code)
+			t.Log(msg)
+		} else {
+			t.Logf("%s success.", v.description)
+		}
+		t.Log("")
+	}
+}
+
+func Test_createTagHandler(t *testing.T) {
+	contexts := []Context{
+		Context{
+			description: fmt.Sprintf("1.创建Tag(全部参数) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[0]),
+			param: param{
+				requestBody: `{
+								"comment":"2001MB"
+							}`,
+				rsp:        &Rsp{w: httptest.NewRecorder()},
+				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[0]},
+				db:         db.copy(),
+				login_name: USERNAME,
+			},
+			expect: expect{
+				code: 200,
+				body: Body{Result{
+					Code: 0,
+					Msg:  "OK",
+				}},
+			},
+		},
+		Context{
+			description: fmt.Sprintf("2.创建Tag(重复创建) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[0]),
+			param: param{
+				requestBody: `{
+								"comment":"20001MB"
+							}`,
+				rsp:        &Rsp{w: httptest.NewRecorder()},
+				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[0]},
+				db:         db.copy(),
+				login_name: USERNAME,
+			},
+			expect: expect{
+				code: 400,
+				body: Body{Result{
+					Code: 1008,
+					Msg:  duplicatedTag(repnames[0], itemnames[0], tagnames[0]),
+				}},
+			},
+		},
+		Context{
+			description: fmt.Sprintf("3.创建Tag(所属dataitem不存在) ----------> %s/%s/%s", repnames[0], itemnames[2], tagnames[1]),
+			param: param{
+				requestBody: `{
+								"comment":"20001MB"
+							}`,
+				rsp:        &Rsp{w: httptest.NewRecorder()},
+				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[2], "tag": tagnames[1]},
+				db:         db.copy(),
+				login_name: USERNAME,
+			},
+			expect: expect{
+				code: 400,
+				body: Body{Result{
+					Code: 1009,
+					Msg:  fmt.Sprintf(E(ErrorCodeQueryDBNotFound).Message, fmt.Sprintf("itemname : %s", itemnames[2])),
+				}},
+			},
+		},
+		Context{
+			description: fmt.Sprintf("4.创建Tag(请求body未传参数) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[1]),
+			param: param{
+				requestBody: ``,
+				rsp:         &Rsp{w: httptest.NewRecorder()},
+				param:       martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[1]},
+				db:          db.copy(),
+				login_name:  USERNAME,
+			},
+			expect: expect{
+				code: 400,
+				body: Body{Result{
+					Code: 1400,
+					Msg:  fmt.Sprintf("%s: %s", E(ErrorCodeNoParameter).Message, ""),
+				}},
+			},
+		},
+	}
+
+	for _, v := range contexts {
+		p := v.param
+		expect := v.expect
+		r, err := http.NewRequest("POST", "/repositories/rep/item/tag", strings.NewReader(p.requestBody))
+		get(err)
+		code, msg := createTagHandler(r, p.rsp, p.param, p.db, p.login_name)
 
 		if !expect.expect(t, code, msg) {
 			t.Logf("%s fail.", v.description)
@@ -736,6 +834,102 @@ func Test_updateDHandler(t *testing.T) {
 	}
 }
 
+func Test_updateTagHandler(t *testing.T) {
+	contexts := []Context{
+		Context{
+			description: fmt.Sprintf("1.更新Tag(全部参数) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[0]),
+			param: param{
+				requestBody: `{
+								"comment":"update2001MB"
+							}`,
+				rsp:        &Rsp{w: httptest.NewRecorder()},
+				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[0]},
+				db:         db.copy(),
+				login_name: USERNAME,
+			},
+			expect: expect{
+				code: 200,
+				body: Body{Result{
+					Code: 0,
+					Msg:  "OK",
+				}},
+			},
+		},
+		Context{
+			description: fmt.Sprintf("2.更新Tag(所属dataitem不存在) ----------> %s/%s/%s", repnames[0], itemnames[1], tagnames[0]),
+			param: param{
+				requestBody: `{
+								"comment":"20001MB"
+							}`,
+				rsp:        &Rsp{w: httptest.NewRecorder()},
+				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[1], "tag": tagnames[0]},
+				db:         db.copy(),
+				login_name: USERNAME,
+			},
+			expect: expect{
+				code: 400,
+				body: Body{Result{
+					Code: 1009,
+					Msg:  fmt.Sprintf(E(ErrorCodeQueryDBNotFound).Message, fmt.Sprintf("itemname : %s", itemnames[1])),
+				}},
+			},
+		},
+		Context{
+			description: fmt.Sprintf("3.更新Tag(更新的tag不存在) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[2]),
+			param: param{
+				requestBody: `{
+								"comment":"20001MB"
+							}`,
+				rsp:        &Rsp{w: httptest.NewRecorder()},
+				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[2]},
+				db:         db.copy(),
+				login_name: USERNAME,
+			},
+			expect: expect{
+				code: 400,
+				body: Body{Result{
+					Code: 1009,
+					Msg:  fmt.Sprintf(E(ErrorCodeQueryDBNotFound).Message, fmt.Sprintf("tagname : %s", tagnames[2])),
+				}},
+			},
+		},
+		Context{
+			description: fmt.Sprintf("4.更新Tag(请求body未传参数) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[0]),
+			param: param{
+				requestBody: ``,
+				rsp:         &Rsp{w: httptest.NewRecorder()},
+				param:       martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[0]},
+				db:          db.copy(),
+				login_name:  USERNAME,
+			},
+			expect: expect{
+				code: 400,
+				body: Body{Result{
+					Code: 1400,
+					Msg:  fmt.Sprintf("%s: %s", E(ErrorCodeNoParameter).Message, ""),
+				}},
+			},
+		},
+	}
+
+	for _, v := range contexts {
+		p := v.param
+		expect := v.expect
+		r, err := http.NewRequest("PUT", "/repositories/rep/item/tag", strings.NewReader(p.requestBody))
+		get(err)
+		code, msg := updateTagHandler(r, p.rsp, p.param, p.db, p.login_name)
+
+		if !expect.expect(t, code, msg) {
+			t.Logf("%s fail.", v.description)
+			t.Log(code)
+			t.Log(msg)
+		} else {
+			t.Logf("%s success.", v.description)
+		}
+		t.Log("")
+	}
+}
+
 func Test_getRHandler(t *testing.T) {
 	contexts := []Context{
 		Context{
@@ -867,6 +1061,82 @@ func Test_getDHandler(t *testing.T) {
 		}
 		t.Log("")
 	}
+}
+
+func Test_delTagHandler(t *testing.T) {
+	contexts := []Context{
+		Context{
+			description: fmt.Sprintf("1.删除Tag(已存在) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[0]),
+			param: param{
+				requestBody: ``,
+				rsp:         &Rsp{w: httptest.NewRecorder()},
+				param:       martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[0]},
+				db:          db.copy(),
+				login_name:  USERNAME,
+			},
+			expect: expect{
+				code: 200,
+				body: Body{Result{
+					Code: 0,
+					Msg:  "OK",
+				}},
+			},
+		},
+		Context{
+			description: fmt.Sprintf("2.删除Tag(所属dataitem不存在) ----------> %s/%s/%s", repnames[0], itemnames[1], tagnames[0]),
+			param: param{
+				requestBody: ``,
+				rsp:         &Rsp{w: httptest.NewRecorder()},
+				param:       martini.Params{"repname": repnames[0], "itemname": itemnames[1], "tag": tagnames[0]},
+				db:          db.copy(),
+				login_name:  USERNAME,
+			},
+			expect: expect{
+				code: 400,
+				body: Body{Result{
+					Code: 1009,
+					Msg:  fmt.Sprintf(E(ErrorCodeQueryDBNotFound).Message, fmt.Sprintf("itemname : %s", itemnames[1])),
+				}},
+			},
+		},
+		Context{
+			description: fmt.Sprintf("3.删除Tag(dataitem存在,tag不存在) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[1]),
+			param: param{
+				requestBody: ``,
+				rsp:         &Rsp{w: httptest.NewRecorder()},
+				param:       martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[1]},
+				db:          db.copy(),
+				login_name:  USERNAME,
+			},
+			expect: expect{
+				code: 200,
+				body: Body{Result{
+					Code: 0,
+					Msg:  "OK",
+				}},
+			},
+		},
+	}
+
+	for _, v := range contexts {
+		p := v.param
+		expect := v.expect
+		r, err := http.NewRequest("DELETE", "/repositories/rep/item/tag", strings.NewReader(p.requestBody))
+		get(err)
+		r.Header.Set("User", USERNAME)
+		code, msg := delTagHandler(r, p.rsp, p.param, p.db, p.login_name)
+
+		if !expect.expect(t, code, msg) {
+			t.Logf("%s fail.", v.description)
+			t.Log(code)
+			t.Log(msg)
+		} else {
+			t.Logf("%s success.", v.description)
+		}
+		t.Log("")
+	}
+
+	time.Sleep(time.Second)
 }
 
 func Test_delDHandler(t *testing.T) {
@@ -1125,11 +1395,16 @@ func (expect *expect) expect(t *testing.T, resutlCode int, resutlData string) bo
 	return true
 }
 
-func errRepDatabaseOperate(repositoryName string) string {
+func duplicatedRep(repositoryName string) string {
 	return fmt.Sprintf("database operate : insertDocument :: caused by :: 11000 E11000 duplicate key error index: datahub.repository.$repository_name_1  dup key: { : \"%s\" }", repositoryName)
 }
-func errItemDatabaseOperate(repositoryName, itemName string) string {
+
+func duplicatedItem(repositoryName, itemName string) string {
 	return fmt.Sprintf("database operate : insertDocument :: caused by :: 11000 E11000 duplicate key error index: datahub.dataitem.$repository_name_1_dataitem_name_1  dup key: { : \"%s\", : \"%s\" }", repositoryName, itemName)
+}
+
+func duplicatedTag(repositoryName, itemName, tagName string) string {
+	return fmt.Sprintf("database operate : insertDocument :: caused by :: 11000 E11000 duplicate key error index: datahub.tag.$repository_name_1_dataitem_name_1_tag_1  dup key: { : \"%s\", : \"%s\", : \"%s\" }", repositoryName, itemName, tagName)
 }
 
 type param struct {
@@ -1161,4 +1436,8 @@ func initRepositoryName(casenum int) string {
 
 func initDataitemName(casenum int) string {
 	return fmt.Sprintf("test_dataitem_%d_case_%d", ramdom, casenum)
+}
+
+func initTagName(casenum int) string {
+	return fmt.Sprintf("test_tag_%d_case_%d", ramdom, casenum)
 }

@@ -59,7 +59,7 @@ func main() {
 
 		r.Post("/:repname", auth, createRHandler)
 		r.Post("/:repname/:itemname", auth, createDHandler)
-		r.Post("/:repname/:itemname/:tag", auth, setTagHandler)
+		r.Post("/:repname/:itemname/:tag", auth, createTagHandler)
 
 		r.Put("/:repname", auth, updateRHandler)
 		r.Put("/:repname/label", upsertRLabelHandler)

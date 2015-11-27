@@ -254,8 +254,12 @@ func buildTime(absoluteTime string) string {
 //}
 
 func ifInLabel(i interface{}, column string) *Error {
-	if m := i.(map[string]interface{})["sys"]; m != nil {
-		if value := m.(map[string]interface{})[column]; value != nil {
+	m, ok := i.(map[string]interface{})
+	if !ok {
+		return ErrNoParameter("label")
+	}
+	if mm := m["sys"]; mm != nil {
+		if value := mm.(map[string]interface{})[column]; value != nil {
 			if reflect.TypeOf(value).Kind() != reflect.String {
 				return ErrNoParameter(fmt.Sprintf("label.sys.%s", column))
 			} else if !contains(SUPPLY_STYLE_ALL, value.(string)) {

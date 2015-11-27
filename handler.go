@@ -587,7 +587,7 @@ func getSelectLabelsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 }
 
 //curl http://127.0.0.1:8080/repositories/NBA/bear23/0001 -d "{\"comment\":\"this is a tag\"}" -H user:admin
-func setTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string) (int, string) {
+func createTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string) (int, string) {
 	defer db.Close()
 	repname := param["repname"]
 	if repname == "" {
@@ -720,7 +720,7 @@ func getTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int
 }
 
 //curl http://127.0.0.1:8080/repositories/NBA/bear23/0001 -H user:admin -X DELETE
-func delTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
+func delTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string) (int, string) {
 	defer db.Close()
 	repname := param["repname"]
 	if repname == "" {
@@ -735,18 +735,24 @@ func delTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int
 		return rsp.Json(400, ErrNoParameter("tag"))
 	}
 
+	var item dataItem
+	var err error
 	Q := bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname}
-	if _, err := db.getDataitem(Q); err == mgo.ErrNotFound {
+	if item, err = db.getDataitem(Q); err == mgo.ErrNotFound {
 		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("itemname : %s", itemname)))
 	}
 
-	go asynUpdateOpt(C_DATAITEM, Q, bson.M{CMD_INC: bson.M{"tags": -1}, CMD_SET: bson.M{COL_OPTIME: time.Now().String()}})
+	if item.Create_user != loginName {
+		return rsp.Json(400, E(ErrorCodePermissionDenied))
+	}
 
 	Q[COL_TAG_NAME] = tagname
-	err := db.delTag(Q)
-	if err != nil {
+	err = db.delTag(Q)
+	if err != nil && err != mgo.ErrNotFound {
 		return rsp.Json(400, ErrDataBase(err))
 	}
+
+	go asynUpdateOpt(C_DATAITEM, bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname}, bson.M{CMD_INC: bson.M{"tags": -1}, CMD_SET: bson.M{COL_OPTIME: time.Now().String()}})
 
 	return rsp.Json(200, E(OK))
 }
