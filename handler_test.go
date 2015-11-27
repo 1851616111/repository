@@ -1124,11 +1124,12 @@ func (expect *expect) expect(t *testing.T, resutlCode int, resutlData string) bo
 
 	return true
 }
+
 func errRepDatabaseOperate(repositoryName string) string {
-	return fmt.Sprintf("database operate : E11000 duplicate key error index: datahub.repository.$repository_name_1 dup key: { : \"%s\" }", repositoryName)
+	return fmt.Sprintf("database operate : insertDocument :: caused by :: 11000 E11000 duplicate key error index: datahub.repository.$repository_name_1 dup key: { : \"%s\" }", repositoryName)
 }
 func errItemDatabaseOperate(repositoryName, itemName string) string {
-	return fmt.Sprintf("database operate : E11000 duplicate key error index: datahub.dataitem.$repository_name_1_dataitem_name_1 dup key: { : \"%s\", : \"%s\" }", repositoryName, itemName)
+	return fmt.Sprintf("database operate : insertDocument :: caused by :: 11000 E11000 duplicate key error index: datahub.dataitem.$repository_name_1_dataitem_name_1 dup key: { : \"%s\", : \"%s\" }", repositoryName, itemName)
 }
 
 type param struct {
