@@ -945,6 +945,20 @@ func deleteSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, d
 
 func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	defer db.Close()
+
+	page_index, page_size := PAGE_INDEX, PAGE_SIZE_SEARCH
+	if p := strings.TrimSpace(r.FormValue("page")); p != "" {
+		if page_index, _ = strconv.Atoi(p); page_index <= 0 {
+			return rsp.Json(400, ErrInvalidParameter("page"))
+		}
+
+	}
+	if p := strings.TrimSpace(r.FormValue("size")); p != "" {
+		if page_size, _ = strconv.Atoi(p); page_size <= 0 {
+			return rsp.Json(400, ErrInvalidParameter("size"))
+		}
+	}
+
 	username := r.Header.Get("User")
 	var m bson.M
 	if select_labels := strings.TrimSpace(r.FormValue("select_labels")); select_labels != "" {
@@ -968,7 +982,7 @@ func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	}
 
 	res := []names{}
-	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(Q).Limit(PAGE_SIZE_SELECT).Sort("-label.sys.order").All(&res); err != nil {
+	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(Q).Sort("-label.sys.order").Skip((page_index - 1) * page_size).Limit(page_size).All(&res); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
 
