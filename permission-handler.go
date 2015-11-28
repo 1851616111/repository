@@ -14,7 +14,7 @@ const (
 	PERMISSION_READ  = 0
 )
 
-func upsertRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p Rep_Permission) (int, string) {
+func setRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p Rep_Permission) (int, string) {
 	defer db.Close()
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()

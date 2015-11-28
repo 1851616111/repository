@@ -920,7 +920,7 @@ func updateSelectHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB
 	return rsp.Json(200, E(OK))
 }
 
-func deleteSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
+func delSelectHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	defer db.Close()
 	repname := strings.TrimSpace(param["repname"])
 	itemname := strings.TrimSpace(param["itemname"])

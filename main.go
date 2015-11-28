@@ -79,7 +79,7 @@ func main() {
 		r.Get("", getSelectsHandler)
 		r.Put("/:repname/:itemname", authAdmin, updateSelectHandler)
 		r.Post("/:repname/:itemname", authAdmin, updateSelectHandler)
-		r.Delete("/:repname/:itemname", authAdmin, deleteSelectLabelHandler)
+		r.Delete("/:repname/:itemname", authAdmin, delSelectHandler)
 	})
 
 	m.Group("/select_labels", func(r martini.Router) {
@@ -98,7 +98,7 @@ func main() {
 		r.Get("/:repname", chkRepPermission, getRepPmsHandler)
 		r.Get("/:repname/:itemname", chkItemPermission, getItemPmsHandler)
 
-		r.Put("/:repname", chkRepPermission, upsertRepPmsHandler)
+		r.Put("/:repname", chkRepPermission, setRepPmsHandler)
 		r.Put("/:repname/:itemname", chkItemPermission, setItemPmsHandler)
 
 		r.Delete("/:repname", chkRepPermission, delRepPmsHandler)

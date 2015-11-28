@@ -8,20 +8,24 @@ import (
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 	"time"
 )
 
 const (
-	USERNAME = "panxy3@asiainfo.com"
+	USERNAME      = "panxy3@asiainfo.com"
+	ADMINUSERNAME = USERNAME
 )
 
 var (
-	ramdom    int
-	repnames  []string
-	itemnames []string
-	tagnames  []string
+	ramdom       int
+	repnames     []string
+	itemnames    []string
+	tagnames     []string
+	selectlabel1 string
+	selectlabel2 string
 )
 
 func init() {
@@ -33,6 +37,10 @@ func init() {
 		itemnames = append(itemnames, initDataitemName(i))
 		tagnames = append(tagnames, initTagName(i))
 	}
+
+	selectlabel1 = fmt.Sprintf("精选栏目_%d", ramdom)
+	selectlabel2 = fmt.Sprintf("精选栏目_new_%d", ramdom)
+
 	go q_c.serve(&db)
 }
 
@@ -572,18 +580,19 @@ func Test_createTagHandler(t *testing.T) {
 	}
 }
 
-func Test_upsertRLabelHandler(t *testing.T) {
+func Test_setSelectLabelHandler(t *testing.T) {
 	contexts := []Context{
 		Context{
-			description: fmt.Sprintf("1.新增/更新dataitem的label的某条属性 ----------> %s ", repnames[0]),
+			description: fmt.Sprintf("1.创建精选栏目"),
 			param: param{
 				requestBody: `{
-								owner.age=15
-							}`,
+							"order": 1,
+							"icon":"path1"
+						}`,
 				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[0]},
+				param:      martini.Params{"labelname": selectlabel1},
 				db:         db.copy(),
-				login_name: USERNAME,
+				login_name: ADMINUSERNAME,
 			},
 			expect: expect{
 				code: 200,
@@ -597,249 +606,9 @@ func Test_upsertRLabelHandler(t *testing.T) {
 	for _, v := range contexts {
 		p := v.param
 		expect := v.expect
-		r, err := http.NewRequest("POST", "/repositories/rep/item/tag", strings.NewReader(p.requestBody))
+		r, err := http.NewRequest("POST", "/select_labels/:labelname", strings.NewReader(p.requestBody))
 		get(err)
-		code, msg := createTagHandler(r, p.rsp, p.param, p.db, p.login_name)
-
-		if !expect.expect(t, code, msg) {
-			t.Logf("%s fail.", v.description)
-			t.Log(code)
-			t.Log(msg)
-		} else {
-			t.Logf("%s success.", v.description)
-		}
-		t.Log("")
-	}
-}
-
-func Test_upsertDLabelHandler(t *testing.T) {
-	contexts := []Context{
-		Context{
-			description: fmt.Sprintf("1.创建Tag(全部参数) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[0]),
-			param: param{
-				requestBody: `{
-								"comment":"2001MB"
-							}`,
-				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[0]},
-				db:         db.copy(),
-				login_name: USERNAME,
-			},
-			expect: expect{
-				code: 200,
-				body: Body{Result{
-					Code: 0,
-					Msg:  "OK",
-				}},
-			},
-		},
-	}
-	for _, v := range contexts {
-		p := v.param
-		expect := v.expect
-		r, err := http.NewRequest("POST", "/repositories/rep/item/tag", strings.NewReader(p.requestBody))
-		get(err)
-		code, msg := createTagHandler(r, p.rsp, p.param, p.db, p.login_name)
-
-		if !expect.expect(t, code, msg) {
-			t.Logf("%s fail.", v.description)
-			t.Log(code)
-			t.Log(msg)
-		} else {
-			t.Logf("%s success.", v.description)
-		}
-		t.Log("")
-	}
-}
-
-func Test_delRLabelHandler(t *testing.T) {
-	contexts := []Context{
-		Context{
-			description: fmt.Sprintf("1.创建Tag(全部参数) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[0]),
-			param: param{
-				requestBody: `{
-								"comment":"2001MB"
-							}`,
-				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[0]},
-				db:         db.copy(),
-				login_name: USERNAME,
-			},
-			expect: expect{
-				code: 200,
-				body: Body{Result{
-					Code: 0,
-					Msg:  "OK",
-				}},
-			},
-		},
-	}
-	for _, v := range contexts {
-		p := v.param
-		expect := v.expect
-		r, err := http.NewRequest("POST", "/repositories/rep/item/tag", strings.NewReader(p.requestBody))
-		get(err)
-		code, msg := createTagHandler(r, p.rsp, p.param, p.db, p.login_name)
-
-		if !expect.expect(t, code, msg) {
-			t.Logf("%s fail.", v.description)
-			t.Log(code)
-			t.Log(msg)
-		} else {
-			t.Logf("%s success.", v.description)
-		}
-		t.Log("")
-	}
-}
-
-func Test_delDLabelHandler(t *testing.T) {
-	contexts := []Context{
-		Context{
-			description: fmt.Sprintf("1.创建Tag(全部参数) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[0]),
-			param: param{
-				requestBody: `{
-								"comment":"2001MB"
-							}`,
-				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[0]},
-				db:         db.copy(),
-				login_name: USERNAME,
-			},
-			expect: expect{
-				code: 200,
-				body: Body{Result{
-					Code: 0,
-					Msg:  "OK",
-				}},
-			},
-		},
-	}
-	for _, v := range contexts {
-		p := v.param
-		expect := v.expect
-		r, err := http.NewRequest("POST", "/repositories/rep/item/tag", strings.NewReader(p.requestBody))
-		get(err)
-		code, msg := createTagHandler(r, p.rsp, p.param, p.db, p.login_name)
-
-		if !expect.expect(t, code, msg) {
-			t.Logf("%s fail.", v.description)
-			t.Log(code)
-			t.Log(msg)
-		} else {
-			t.Logf("%s success.", v.description)
-		}
-		t.Log("")
-	}
-}
-
-func Test_getSelectsHandler(t *testing.T) {
-	contexts := []Context{
-		Context{
-			description: fmt.Sprintf("1.创建Tag(全部参数) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[0]),
-			param: param{
-				requestBody: `{
-								"comment":"2001MB"
-							}`,
-				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[0]},
-				db:         db.copy(),
-				login_name: USERNAME,
-			},
-			expect: expect{
-				code: 200,
-				body: Body{Result{
-					Code: 0,
-					Msg:  "OK",
-				}},
-			},
-		},
-	}
-	for _, v := range contexts {
-		p := v.param
-		expect := v.expect
-		r, err := http.NewRequest("POST", "/repositories/rep/item/tag", strings.NewReader(p.requestBody))
-		get(err)
-		code, msg := createTagHandler(r, p.rsp, p.param, p.db, p.login_name)
-
-		if !expect.expect(t, code, msg) {
-			t.Logf("%s fail.", v.description)
-			t.Log(code)
-			t.Log(msg)
-		} else {
-			t.Logf("%s success.", v.description)
-		}
-		t.Log("")
-	}
-}
-
-func Test_updateSelectHandler(t *testing.T) {
-	contexts := []Context{
-		Context{
-			description: fmt.Sprintf("1.创建Tag(全部参数) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[0]),
-			param: param{
-				requestBody: `{
-								"comment":"2001MB"
-							}`,
-				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[0]},
-				db:         db.copy(),
-				login_name: USERNAME,
-			},
-			expect: expect{
-				code: 200,
-				body: Body{Result{
-					Code: 0,
-					Msg:  "OK",
-				}},
-			},
-		},
-	}
-	for _, v := range contexts {
-		p := v.param
-		expect := v.expect
-		r, err := http.NewRequest("POST", "/repositories/rep/item/tag", strings.NewReader(p.requestBody))
-		get(err)
-		code, msg := createTagHandler(r, p.rsp, p.param, p.db, p.login_name)
-
-		if !expect.expect(t, code, msg) {
-			t.Logf("%s fail.", v.description)
-			t.Log(code)
-			t.Log(msg)
-		} else {
-			t.Logf("%s success.", v.description)
-		}
-		t.Log("")
-	}
-}
-
-func Test_deleteSelectLabelHandler(t *testing.T) {
-	contexts := []Context{
-		Context{
-			description: fmt.Sprintf("1.创建Tag(全部参数) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[0]),
-			param: param{
-				requestBody: `{
-								"comment":"2001MB"
-							}`,
-				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[0]},
-				db:         db.copy(),
-				login_name: USERNAME,
-			},
-			expect: expect{
-				code: 200,
-				body: Body{Result{
-					Code: 0,
-					Msg:  "OK",
-				}},
-			},
-		},
-	}
-	for _, v := range contexts {
-		p := v.param
-		expect := v.expect
-		r, err := http.NewRequest("POST", "/repositories/rep/item/tag", strings.NewReader(p.requestBody))
-		get(err)
-		code, msg := createTagHandler(r, p.rsp, p.param, p.db, p.login_name)
+		code, msg := setSelectLabelHandler(r, p.rsp, p.param, p.db)
 
 		if !expect.expect(t, code, msg) {
 			t.Logf("%s fail.", v.description)
@@ -855,13 +624,10 @@ func Test_deleteSelectLabelHandler(t *testing.T) {
 func Test_getSelectLabelsHandler(t *testing.T) {
 	contexts := []Context{
 		Context{
-			description: fmt.Sprintf("1.创建Tag(全部参数) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[0]),
+			description: fmt.Sprintf("1.查询精选栏目"),
 			param: param{
-				requestBody: `{
-								"comment":"2001MB"
-							}`,
 				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[0]},
+				param:      martini.Params{"labelname": selectlabel1},
 				db:         db.copy(),
 				login_name: USERNAME,
 			},
@@ -877,9 +643,9 @@ func Test_getSelectLabelsHandler(t *testing.T) {
 	for _, v := range contexts {
 		p := v.param
 		expect := v.expect
-		r, err := http.NewRequest("POST", "/repositories/rep/item/tag", strings.NewReader(p.requestBody))
+		r, err := http.NewRequest("GET", "/select_labels", strings.NewReader(p.requestBody))
 		get(err)
-		code, msg := createTagHandler(r, p.rsp, p.param, p.db, p.login_name)
+		code, msg := getSelectLabelsHandler(r, p.rsp, p.db)
 
 		if !expect.expect(t, code, msg) {
 			t.Logf("%s fail.", v.description)
@@ -895,13 +661,15 @@ func Test_getSelectLabelsHandler(t *testing.T) {
 func Test_updateSelectLabelHandler(t *testing.T) {
 	contexts := []Context{
 		Context{
-			description: fmt.Sprintf("1.创建Tag(全部参数) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[0]),
+			description: fmt.Sprintf("1.【管理员】更新现有精选栏目的名称"),
 			param: param{
-				requestBody: `{
-								"comment":"2001MB"
-							}`,
+				requestBody: fmt.Sprintf(`{
+							"order": 2,
+							"icon":"path2",
+							"newlabelname":"%s"
+						}`, selectlabel2),
 				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[0]},
+				param:      martini.Params{"labelname": selectlabel1},
 				db:         db.copy(),
 				login_name: USERNAME,
 			},
@@ -917,9 +685,9 @@ func Test_updateSelectLabelHandler(t *testing.T) {
 	for _, v := range contexts {
 		p := v.param
 		expect := v.expect
-		r, err := http.NewRequest("POST", "/repositories/rep/item/tag", strings.NewReader(p.requestBody))
+		r, err := http.NewRequest("PUT", "/select_labels/labelname", strings.NewReader(p.requestBody))
 		get(err)
-		code, msg := createTagHandler(r, p.rsp, p.param, p.db, p.login_name)
+		code, msg := updateSelectLabelHandler(r, p.rsp, p.param, p.db)
 
 		if !expect.expect(t, code, msg) {
 			t.Logf("%s fail.", v.description)
@@ -932,16 +700,52 @@ func Test_updateSelectLabelHandler(t *testing.T) {
 	}
 }
 
-func Test_setSelectLabelHandler(t *testing.T) {
+func Test_updateSelectHandler(t *testing.T) {
 	contexts := []Context{
 		Context{
-			description: fmt.Sprintf("1.创建Tag(全部参数) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[0]),
+			description: fmt.Sprintf("1.【管理员】创建精选内容 ----------> %s/%s", repnames[0], itemnames[0]),
 			param: param{
-				requestBody: `{
-								"comment":"2001MB"
-							}`,
+
+				requestForm: url.Values{"select_labels": []string{selectlabel2}, "order": []string{"100"}},
+				rsp:         &Rsp{w: httptest.NewRecorder()},
+				param:       martini.Params{"repname": repnames[0], "itemname": itemnames[0]},
+				db:          db.copy(),
+				login_name:  USERNAME,
+			},
+			expect: expect{
+				code: 200,
+				body: Body{Result{
+					Code: 0,
+					Msg:  "OK",
+				}},
+			},
+		},
+	}
+	for _, v := range contexts {
+		p := v.param
+		expect := v.expect
+		r, err := http.NewRequest("POST", "/selects/repname/itemname", strings.NewReader(p.requestBody))
+		get(err)
+		r.PostForm = p.requestForm
+		code, msg := updateSelectHandler(r, p.rsp, p.param, p.db)
+
+		if !expect.expect(t, code, msg) {
+			t.Logf("%s fail.", v.description)
+			t.Log(code)
+			t.Log(msg)
+		} else {
+			t.Logf("%s success.", v.description)
+		}
+		t.Log("")
+	}
+}
+
+func Test_getSelectsHandler(t *testing.T) {
+	contexts := []Context{
+		Context{
+			description: fmt.Sprintf("1.【任意】返回精选内容，按照order排序"),
+			param: param{
 				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[0]},
 				db:         db.copy(),
 				login_name: USERNAME,
 			},
@@ -957,9 +761,46 @@ func Test_setSelectLabelHandler(t *testing.T) {
 	for _, v := range contexts {
 		p := v.param
 		expect := v.expect
-		r, err := http.NewRequest("POST", "/repositories/rep/item/tag", strings.NewReader(p.requestBody))
+		r, err := http.NewRequest("GET", "/selects?select_labels=selectlabel1", strings.NewReader(p.requestBody))
 		get(err)
-		code, msg := createTagHandler(r, p.rsp, p.param, p.db, p.login_name)
+		code, msg := getSelectsHandler(r, p.rsp, p.db)
+
+		if !expect.expect(t, code, msg) {
+			t.Logf("%s fail.", v.description)
+			t.Log(code)
+			t.Log(msg)
+		} else {
+			t.Logf("%s success.", v.description)
+		}
+		t.Log("")
+	}
+}
+
+func Test_delSelectHandler(t *testing.T) {
+	contexts := []Context{
+		Context{
+			description: fmt.Sprintf("1.【管理员】删除精选内容"),
+			param: param{
+				rsp:        &Rsp{w: httptest.NewRecorder()},
+				db:         db.copy(),
+				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0]},
+				login_name: ADMINUSERNAME,
+			},
+			expect: expect{
+				code: 200,
+				body: Body{Result{
+					Code: 0,
+					Msg:  "OK",
+				}},
+			},
+		},
+	}
+	for _, v := range contexts {
+		p := v.param
+		expect := v.expect
+		r, err := http.NewRequest("DELETE", "/selects/rep1/dataitem1", strings.NewReader(p.requestBody))
+		get(err)
+		code, msg := getSelectsHandler(r, p.rsp, p.db)
 
 		if !expect.expect(t, code, msg) {
 			t.Logf("%s fail.", v.description)
@@ -975,15 +816,11 @@ func Test_setSelectLabelHandler(t *testing.T) {
 func Test_delSelectLabelHandler(t *testing.T) {
 	contexts := []Context{
 		Context{
-			description: fmt.Sprintf("1.创建Tag(全部参数) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[0]),
+			description: fmt.Sprintf("1.【管理员】删除精选栏目"),
 			param: param{
-				requestBody: `{
-								"comment":"2001MB"
-							}`,
-				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[0]},
-				db:         db.copy(),
-				login_name: USERNAME,
+				rsp:   &Rsp{w: httptest.NewRecorder()},
+				param: martini.Params{"labelname": selectlabel2},
+				db:    db.copy(),
 			},
 			expect: expect{
 				code: 200,
@@ -997,9 +834,9 @@ func Test_delSelectLabelHandler(t *testing.T) {
 	for _, v := range contexts {
 		p := v.param
 		expect := v.expect
-		r, err := http.NewRequest("POST", "/repositories/rep/item/tag", strings.NewReader(p.requestBody))
+		r, err := http.NewRequest("DELETE", "/select_labels/:labelname", strings.NewReader(p.requestBody))
 		get(err)
-		code, msg := createTagHandler(r, p.rsp, p.param, p.db, p.login_name)
+		code, msg := delSelectLabelHandler(r, p.rsp, p.param, p.db)
 
 		if !expect.expect(t, code, msg) {
 			t.Logf("%s fail.", v.description)
@@ -1012,18 +849,16 @@ func Test_delSelectLabelHandler(t *testing.T) {
 	}
 }
 
-func Test_getRepPmsHandler(t *testing.T) {
+func Test_upsertRLabelHandler(t *testing.T) {
 	contexts := []Context{
 		Context{
-			description: fmt.Sprintf("1.创建Tag(全部参数) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[0]),
+			description: fmt.Sprintf("1.新增/更新repository的label的某条属性 ----------> %s ", repnames[0]),
 			param: param{
-				requestBody: `{
-								"comment":"2001MB"
-							}`,
-				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[0]},
-				db:         db.copy(),
-				login_name: USERNAME,
+				requestForm: url.Values{"owner.age": []string{"15"}},
+				rsp:         &Rsp{w: httptest.NewRecorder()},
+				param:       martini.Params{"repname": repnames[0]},
+				db:          db.copy(),
+				login_name:  USERNAME,
 			},
 			expect: expect{
 				code: 200,
@@ -1037,9 +872,10 @@ func Test_getRepPmsHandler(t *testing.T) {
 	for _, v := range contexts {
 		p := v.param
 		expect := v.expect
-		r, err := http.NewRequest("POST", "/repositories/rep/item/tag", strings.NewReader(p.requestBody))
+		r, err := http.NewRequest("PUT", "", strings.NewReader(p.requestBody))
 		get(err)
-		code, msg := createTagHandler(r, p.rsp, p.param, p.db, p.login_name)
+		r.Header.Set("User", p.login_name)
+		code, msg := upsertRLabelHandler(r, p.rsp, p.param, p.db)
 
 		if !expect.expect(t, code, msg) {
 			t.Logf("%s fail.", v.description)
@@ -1052,18 +888,16 @@ func Test_getRepPmsHandler(t *testing.T) {
 	}
 }
 
-func Test_getItemPmsHandler(t *testing.T) {
+func Test_upsertDLabelHandler(t *testing.T) {
 	contexts := []Context{
 		Context{
-			description: fmt.Sprintf("1.创建Tag(全部参数) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[0]),
+			description: fmt.Sprintf("1.新增/更新dataitem的label的某条属性  ----------> %s/%s/", repnames[0], itemnames[0]),
 			param: param{
-				requestBody: `{
-								"comment":"2001MB"
-							}`,
-				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[0]},
-				db:         db.copy(),
-				login_name: USERNAME,
+				requestForm: url.Values{"owner.age": []string{"16"}},
+				rsp:         &Rsp{w: httptest.NewRecorder()},
+				param:       martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[0]},
+				db:          db.copy(),
+				login_name:  USERNAME,
 			},
 			expect: expect{
 				code: 200,
@@ -1077,9 +911,10 @@ func Test_getItemPmsHandler(t *testing.T) {
 	for _, v := range contexts {
 		p := v.param
 		expect := v.expect
-		r, err := http.NewRequest("POST", "/repositories/rep/item/tag", strings.NewReader(p.requestBody))
+		r, err := http.NewRequest("PUT", "", strings.NewReader(p.requestBody))
 		get(err)
-		code, msg := createTagHandler(r, p.rsp, p.param, p.db, p.login_name)
+		r.Header.Set("User", p.login_name)
+		code, msg := upsertDLabelHandler(r, p.rsp, p.param, p.db)
 
 		if !expect.expect(t, code, msg) {
 			t.Logf("%s fail.", v.description)
@@ -1092,18 +927,16 @@ func Test_getItemPmsHandler(t *testing.T) {
 	}
 }
 
-func Test_upsertRepPmsHandler(t *testing.T) {
+func Test_delRLabelHandler(t *testing.T) {
 	contexts := []Context{
 		Context{
-			description: fmt.Sprintf("1.创建Tag(全部参数) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[0]),
+			description: fmt.Sprintf("1.删除repository的label的某条属性 ----------> %s ", repnames[0]),
 			param: param{
-				requestBody: `{
-								"comment":"2001MB"
-							}`,
-				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[0]},
-				db:         db.copy(),
-				login_name: USERNAME,
+				requestForm: url.Values{"owner.age": []string{"15"}},
+				rsp:         &Rsp{w: httptest.NewRecorder()},
+				param:       martini.Params{"repname": repnames[0]},
+				db:          db.copy(),
+				login_name:  USERNAME,
 			},
 			expect: expect{
 				code: 200,
@@ -1117,9 +950,88 @@ func Test_upsertRepPmsHandler(t *testing.T) {
 	for _, v := range contexts {
 		p := v.param
 		expect := v.expect
-		r, err := http.NewRequest("POST", "/repositories/rep/item/tag", strings.NewReader(p.requestBody))
+		r, err := http.NewRequest("DELETE", "", strings.NewReader(p.requestBody))
 		get(err)
-		code, msg := createTagHandler(r, p.rsp, p.param, p.db, p.login_name)
+		r.Header.Set("User", p.login_name)
+		code, msg := delRLabelHandler(r, p.rsp, p.param, p.db)
+
+		if !expect.expect(t, code, msg) {
+			t.Logf("%s fail.", v.description)
+			t.Log(code)
+			t.Log(msg)
+		} else {
+			t.Logf("%s success.", v.description)
+		}
+		t.Log("")
+	}
+}
+
+func Test_delDLabelHandler(t *testing.T) {
+	contexts := []Context{
+		Context{
+			description: fmt.Sprintf("1.删除dataitem的label的某条属性  ----------> %s/%s", repnames[0], itemnames[0]),
+			param: param{
+				requestForm: url.Values{"owner.age": []string{"16"}},
+				rsp:         &Rsp{w: httptest.NewRecorder()},
+				param:       martini.Params{"repname": repnames[0], "itemname": itemnames[0]},
+				db:          db.copy(),
+				login_name:  USERNAME,
+			},
+			expect: expect{
+				code: 200,
+				body: Body{Result{
+					Code: 0,
+					Msg:  "OK",
+				}},
+			},
+		},
+	}
+	for _, v := range contexts {
+		p := v.param
+		expect := v.expect
+		r, err := http.NewRequest("DELETE", "", strings.NewReader(p.requestBody))
+		get(err)
+		r.Header.Set("User", p.login_name)
+		code, msg := delDLabelHandler(r, p.rsp, p.param, p.db)
+
+		if !expect.expect(t, code, msg) {
+			t.Logf("%s fail.", v.description)
+			t.Log(code)
+			t.Log(msg)
+		} else {
+			t.Logf("%s success.", v.description)
+		}
+		t.Log("")
+	}
+}
+
+func Test_setRepPmsHandler(t *testing.T) {
+	contexts := []Context{
+		Context{
+			description: fmt.Sprintf("1.【rep拥有者】将某用户（非自己）加入或更新rep白名单中 ----------> %s", repnames[0]),
+			param: param{
+				requestBody: `{"username":"chai@asiainfo.com","opt_permission":1}`,
+				rsp:         &Rsp{w: httptest.NewRecorder()},
+				param:       martini.Params{"repname": repnames[0]},
+				db:          db.copy(),
+				login_name:  USERNAME,
+			},
+			expect: expect{
+				code: 200,
+				body: Body{Result{
+					Code: 0,
+					Msg:  "OK",
+				}},
+			},
+		},
+	}
+	for _, v := range contexts {
+		p := v.param
+		expect := v.expect
+		r, err := http.NewRequest("POST", "/permission/rep", strings.NewReader(p.requestBody))
+		get(err)
+		Rep_Permission := Rep_Permission{Repository_name: repnames[0]}
+		code, msg := setRepPmsHandler(r, p.rsp, p.param, p.db, Rep_Permission)
 
 		if !expect.expect(t, code, msg) {
 			t.Logf("%s fail.", v.description)
@@ -1135,13 +1047,49 @@ func Test_upsertRepPmsHandler(t *testing.T) {
 func Test_setItemPmsHandler(t *testing.T) {
 	contexts := []Context{
 		Context{
-			description: fmt.Sprintf("1.创建Tag(全部参数) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[0]),
+			description: fmt.Sprintf("1.【item拥有者】将某用户（非自己）加入或更新item白名单中 ----------> %s", repnames[0]),
 			param: param{
-				requestBody: `{
-								"comment":"2001MB"
-							}`,
+				requestBody: `{"username":"chai@asiainfo.com"}`,
+				rsp:         &Rsp{w: httptest.NewRecorder()},
+				param:       martini.Params{"repname": repnames[0], "itemname": itemnames[0]},
+				db:          db.copy(),
+				login_name:  USERNAME,
+			},
+			expect: expect{
+				code: 200,
+				body: Body{Result{
+					Code: 0,
+					Msg:  "OK",
+				}},
+			},
+		},
+	}
+	for _, v := range contexts {
+		p := v.param
+		expect := v.expect
+		r, err := http.NewRequest("POST", "/permission/rep/item", strings.NewReader(p.requestBody))
+		get(err)
+		item_permission := Item_Permission{Repository_name: repnames[0], Dataitem_name: itemnames[0]}
+		code, msg := setItemPmsHandler(r, p.rsp, p.param, p.db, item_permission)
+
+		if !expect.expect(t, code, msg) {
+			t.Logf("%s fail.", v.description)
+			t.Log(code)
+			t.Log(msg)
+		} else {
+			t.Logf("%s success.", v.description)
+		}
+		t.Log("")
+	}
+}
+
+func Test_getRepPmsHandler(t *testing.T) {
+	contexts := []Context{
+		Context{
+			description: fmt.Sprintf("1.【rep拥有者】查询自己rep白名单的username列表，及相应的读写权限 ----------> %s", repnames[0]),
+			param: param{
 				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[0]},
+				param:      martini.Params{"repname": repnames[0]},
 				db:         db.copy(),
 				login_name: USERNAME,
 			},
@@ -1157,9 +1105,48 @@ func Test_setItemPmsHandler(t *testing.T) {
 	for _, v := range contexts {
 		p := v.param
 		expect := v.expect
-		r, err := http.NewRequest("POST", "/repositories/rep/item/tag", strings.NewReader(p.requestBody))
+		r, err := http.NewRequest("GET", "/permission/rep", strings.NewReader(p.requestBody))
 		get(err)
-		code, msg := createTagHandler(r, p.rsp, p.param, p.db, p.login_name)
+		Rep_Permission := Rep_Permission{Repository_name: repnames[0]}
+		code, msg := getRepPmsHandler(r, p.rsp, p.param, p.db, Rep_Permission)
+
+		if !expect.expect(t, code, msg) {
+			t.Logf("%s fail.", v.description)
+			t.Log(code)
+			t.Log(msg)
+		} else {
+			t.Logf("%s success.", v.description)
+		}
+		t.Log("")
+	}
+}
+
+func Test_getItemPmsHandler(t *testing.T) {
+	contexts := []Context{
+		Context{
+			description: fmt.Sprintf("1.【item拥有者】将某用户（非自己）加入或更新item白名单中 ----------> %s", repnames[0], itemnames[0]),
+			param: param{
+				rsp:        &Rsp{w: httptest.NewRecorder()},
+				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0]},
+				db:         db.copy(),
+				login_name: USERNAME,
+			},
+			expect: expect{
+				code: 200,
+				body: Body{Result{
+					Code: 0,
+					Msg:  "OK",
+				}},
+			},
+		},
+	}
+	for _, v := range contexts {
+		p := v.param
+		expect := v.expect
+		r, err := http.NewRequest("GET", "/permission/rep/item", strings.NewReader(p.requestBody))
+		get(err)
+		item_permission := Item_Permission{Repository_name: repnames[0], Dataitem_name: itemnames[0]}
+		code, msg := getItemPmsHandler(r, p.rsp, p.param, p.db, item_permission)
 
 		if !expect.expect(t, code, msg) {
 			t.Logf("%s fail.", v.description)
@@ -1175,13 +1162,10 @@ func Test_setItemPmsHandler(t *testing.T) {
 func Test_delRepPmsHandler(t *testing.T) {
 	contexts := []Context{
 		Context{
-			description: fmt.Sprintf("1.创建Tag(全部参数) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[0]),
+			description: fmt.Sprintf("1.【rep拥有者】将某用户（非自己）从rep白名单中删除 ----------> %s", repnames[0]),
 			param: param{
-				requestBody: `{
-								"comment":"2001MB"
-							}`,
 				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[0]},
+				param:      martini.Params{"repname": repnames[0]},
 				db:         db.copy(),
 				login_name: USERNAME,
 			},
@@ -1197,9 +1181,10 @@ func Test_delRepPmsHandler(t *testing.T) {
 	for _, v := range contexts {
 		p := v.param
 		expect := v.expect
-		r, err := http.NewRequest("POST", "/repositories/rep/item/tag", strings.NewReader(p.requestBody))
+		r, err := http.NewRequest("DELETE", fmt.Sprintf("/permission/%s?username=chai@asiainfo.com", repnames[0]), strings.NewReader(p.requestBody))
 		get(err)
-		code, msg := createTagHandler(r, p.rsp, p.param, p.db, p.login_name)
+		Rep_Permission := Rep_Permission{Repository_name: repnames[0]}
+		code, msg := delRepPmsHandler(r, p.rsp, p.param, p.db, Rep_Permission)
 
 		if !expect.expect(t, code, msg) {
 			t.Logf("%s fail.", v.description)
@@ -1215,13 +1200,10 @@ func Test_delRepPmsHandler(t *testing.T) {
 func Test_delItemPmsHandler(t *testing.T) {
 	contexts := []Context{
 		Context{
-			description: fmt.Sprintf("1.创建Tag(全部参数) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[0]),
+			description: fmt.Sprintf("1.【item拥有者】将某用户（非自己）从item白名单中移除 ----------> %s", repnames[0], itemnames[0]),
 			param: param{
-				requestBody: `{
-								"comment":"2001MB"
-							}`,
 				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[0]},
+				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0]},
 				db:         db.copy(),
 				login_name: USERNAME,
 			},
@@ -1237,9 +1219,11 @@ func Test_delItemPmsHandler(t *testing.T) {
 	for _, v := range contexts {
 		p := v.param
 		expect := v.expect
-		r, err := http.NewRequest("POST", "/repositories/rep/item/tag", strings.NewReader(p.requestBody))
+		r, err := http.NewRequest("DELETE", fmt.Sprintf("/permission/%s/%s?username=chai@asiainfo.com", repnames[0], itemnames[0]), strings.NewReader(p.requestBody))
 		get(err)
-		code, msg := createTagHandler(r, p.rsp, p.param, p.db, p.login_name)
+
+		item_permission := Item_Permission{Repository_name: repnames[0], Dataitem_name: itemnames[0]}
+		code, msg := delItemPmsHandler(r, p.rsp, p.param, p.db, item_permission)
 
 		if !expect.expect(t, code, msg) {
 			t.Logf("%s fail.", v.description)
@@ -2088,6 +2072,7 @@ func duplicatedTag(repositoryName, itemName, tagName string) string {
 }
 
 type param struct {
+	requestForm url.Values
 	requestBody string
 	rsp         *Rsp
 	param       martini.Params
