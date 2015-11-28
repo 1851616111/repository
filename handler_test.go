@@ -572,6 +572,62 @@ func Test_createTagHandler(t *testing.T) {
 	}
 }
 
+func Test_upsertRLabelHandler(t *testing.T) {
+
+}
+
+func Test_upsertDLabelHandler(t *testing.T) {
+
+}
+
+func Test_delRLabelHandler(t *testing.T) {
+
+}
+
+func Test_delDLabelHandler(t *testing.T) {
+
+}
+
+func Test_getSelectsHandler(t *testing.T) {
+
+}
+
+func Test_updateSelectHandler(t *testing.T) {
+
+}
+
+func Test_deleteSelectLabelHandler(t *testing.T) {
+
+}
+
+func Test_getSelectLabelsHandler(t *testing.T) {
+
+}
+
+func Test_updateSelectLabelHandler(t *testing.T) {
+
+}
+
+func Test_setSelectLabelHandler(t *testing.T) {
+
+}
+
+func Test_delSelectLabelHandler(t *testing.T) {
+
+}
+
+func Test_getRepPmsHandler(t *testing.T) {
+
+}
+
+func Test_getItemPmsHandler(t *testing.T) {
+
+}
+
+func Test_upsertRepPmsHandler(t *testing.T) {
+
+}
+
 func Test_updateRHandler(t *testing.T) {
 	contexts := []Context{
 		Context{

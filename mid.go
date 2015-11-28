@@ -170,7 +170,7 @@ func buildTagsTime(tags []tag) {
 func (db *DB) getPrivateReps(userName string) []string {
 	l := []string{}
 	if userName != "" {
-		p_reps, _ := db.getPermits(COL_PERMIT_REPNAME, bson.M{COL_PERMIT_USER: userName})
+		p_reps, _ := db.getPermits(C_REPOSITORY_PERMISSION, bson.M{COL_PERMIT_USER: userName})
 		if l_p_reps, ok := p_reps.([]Rep_Permission); ok {
 			if len(l_p_reps) > 0 {
 				for _, v := range p_reps.([]Rep_Permission) {
