@@ -93,7 +93,7 @@ curl -X DELETE  http://127.0.0.1:8088/repositories/app0001/label?other.name -H u
 curl -X DELETE  http://10.1.235.98:8088/repositories/liu/xu/label?other.name=1 -H user:panxy3@asiainfo.com
 
 
-58e83462759adf3881079bd9b4dc68c8
+58e83462759adf3881079bd9b4dc68c81
 
 
 -----------------------------------------------------------------------------------------------------
