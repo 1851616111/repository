@@ -18,7 +18,9 @@ const (
 	TimeFormat = "2006-01-02 15:04:05"
 )
 
-var LOCAL_LOCATION *time.Location
+var (
+	LOCAL_LOCATION *time.Location
+)
 
 func init() {
 	loc, err := time.LoadLocation("Local")
@@ -177,25 +179,39 @@ func (p *repository) ParseRequeset(r *http.Request) error {
 }
 
 func buildTime(absoluteTime string) string {
-	abst := absoluteTime[:len(absoluteTime)-10]
+	abst := absoluteTime[:19]
 	now := time.Now()
-	sevenDayAgo := now.AddDate(0, 0, -7)
 	target_time, err := time.ParseInLocation(TimeFormat, abst, LOCAL_LOCATION)
 	get(err)
-	if target_time.After(sevenDayAgo) {
-		sec := now.Unix() - target_time.Unix()
-		oneDayAgo := now.AddDate(0, 0, -1)
-		if target_time.After(oneDayAgo) {
-			hour := sec / 3600
-			if hour == 0 {
-				return fmt.Sprintf("%s|%d分钟以前", abst, (sec%3600)/60)
-			}
-			return fmt.Sprintf("%s|%d小时以前", abst, hour)
-		} else {
-			return fmt.Sprintf("%s|%d天以前", abst, sec/(3600*24))
-		}
+	sec := now.Unix() - target_time.Unix()
+
+	hour := sec / 3600
+	if hour == 0 {
+		return fmt.Sprintf("%s|%d分钟前", abst, (sec / 60))
 	}
-	return abst
+
+	day := hour / 24
+	if day == 0 {
+		return fmt.Sprintf("%s|%d小时前", abst, hour)
+	}
+	if day == 7 {
+		return fmt.Sprintf("%d|1周前", abst)
+	}
+	if day == 14 {
+		return fmt.Sprintf("%s|半个月前", abst)
+	}
+
+	month := day / 30
+	if month == 0 {
+		return fmt.Sprintf("%s|%d天前", abst, day)
+	}
+
+	year := month / 12
+	if year == 0 {
+		return fmt.Sprintf("%s|%d个月前", abst, month)
+	}
+
+	return fmt.Sprintf("%s|%d年前", abst, year)
 }
 
 //func Parse(p *dataItem, cb ...func()) {

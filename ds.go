@@ -62,6 +62,13 @@ type dataItem struct {
 	st              time.Time
 }
 
+type flow struct {
+
+}
+
+type batch  struct {
+
+}
 func (rep *repository) chkLabel() {
 	if m, ok := rep.Label.(map[string]interface{}); ok {
 		for _, v := range COL_LABEL_CHILDREN {

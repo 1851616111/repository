@@ -321,6 +321,10 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("repname : %s", repname)))
 	}
 
+	if n, _ := db.DB(DB_NAME).C(C_DATAITEM).Find(bson.M{COL_REPNAME: repname}).Count(); n >= 30 {
+		return rsp.Json(400, E(ErrorCodeItemOutOfLimit))
+	}
+
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {

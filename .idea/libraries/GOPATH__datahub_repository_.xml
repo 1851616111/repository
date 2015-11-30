@@ -22,9 +22,11 @@
       <root url="file://$PROJECT_DIR$/../../../git.mrocker.com/cuixg/apns/.git" />
       <root url="file://$PROJECT_DIR$/../../../git.mrocker.com/cuixg/mtool/.git" />
       <root url="file://$PROJECT_DIR$/../../docker/docker/pkg/tarsum/testdata" />
-      <root url="file://$PROJECT_DIR$/.git" />
       <root url="file://$PROJECT_DIR$/../../go-martini/martini/.git" />
+      <root url="file://$PROJECT_DIR$/.git" />
       <root url="file://$PROJECT_DIR$/../../docker/docker/hack/make/.build-rpm" />
+      <root url="file://$PROJECT_DIR$/../DDS/.idea" />
+      <root url="file://$PROJECT_DIR$/../DDS/.git" />
       <root url="file://$PROJECT_DIR$/../datahub_subscriptions/.idea" />
       <root url="file://$PROJECT_DIR$/../../../gopkg.in/mgo.v2/.idea" />
       <root url="file://$PROJECT_DIR$/../../../git.mrocker.com/zlp/mpush_portal_angular/.git" />

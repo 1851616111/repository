@@ -30,6 +30,7 @@ const (
 	ErrorCodeDataBase
 	ErrorCodeQueryDBNotFound
 	ErrorCodeOptFile
+	ErrorCodeItemOutOfLimit
 
 	ErrorCodeNoParameter = 1400
 
@@ -50,6 +51,7 @@ func init() {
 	initError(ErrorCodeDataBase, "database operate")
 	initError(ErrorCodeQueryDBNotFound, "query %s no found")
 	initError(ErrorCodeOptFile, "file operation")
+	initError(ErrorCodeItemOutOfLimit, "dataitem out of limit 30")
 
 	ErrorNone = E(OK)
 	ErrorUnkown = E(ErrorCodeUnkown)
