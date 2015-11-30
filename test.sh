@@ -1,6 +1,8 @@
 curl http://10.1.235.98:8888/repositories/app -H "Authorization: Basic cGFueHkzQGFzaWFpbmZvLmNvbTo4ZGRjZmYzYTgwZjQxODljYTFjOWQ0ZDkwMmMzYzkwOQ=="
 curl http://54.223.58.0:8888/repositories/app -H "Authorization: Basic cGFueHkzQGFzaWFpbmZvLmNvbTo4ZGRjZmYzYTgwZjQxODljYTFjOWQ0ZDkwMmMzYzkwOQ==" -x proxy.asiainfo.com:8080
 
+curl http://54.223.58.0:8888/repositories/app -H "Authorization: Basic ZGF0YWh1YkBhc2lhaW5mby5jb206OGRkY2ZmM2E4MGY0MTg5Y2ExYzlkNGQ5MDJjM2M5MDk=" -x proxy.asiainfo.com:8080
+
 curl http://10.1.235.98:8888/permission/chai -H user:chaizs@asiainfo.com
 
 permission
@@ -19,8 +21,8 @@ permission
 -------------------------------------------------------------------------------------------------------
 curl http://54.223.58.0:8888/permission/test007 -H "Authorization: Token 200df2e248c3918e7f58b58eea0c41fa" -x proxy.asiainfo.com:8080
 curl http://54.223.58.0:8888/permission/test007/test0007 -H "Authorization: Token 92a62fc5424dc063b780c51521992d90" -x proxy.asiainfo.com:8080
-curl -X PUT  http://54.223.58.0:8888/permission/test007 -H "Authorization: Token 92a62fc5424dc063b780c51521992d90" -d '{"username":"chai@asiainfo.com","opt_permission":1 }' -x proxy.asiainfo.com:8080
-curl -X PUT  http://54.223.58.0:8888/permission/test007/test0007 -H "Authorization: Token 92a62fc5424dc063b780c51521992d90" -d '{"username":"chai@asiainfo.com","opt_permission":1 }'   -x proxy.asiainfo.com:8080
+curl -X PUT  http://54.223.58.0:8888/permission/test007 -H "Authorization: Token f99dbfafa6f32fff4cd2770ff2e9d724" -d '{"username":"chai@asiainfo.com","opt_permission":1 }' -x proxy.asiainfo.com:8080
+curl -X PUT  http://54.223.58.0:8888/permission/test007/test0007 -H "Authorization: Token f99dbfafa6f32fff4cd2770ff2e9d724" -d '{"username":"chai@asiainfo.com","opt_permission":1 }'   -x proxy.asiainfo.com:8080
 
 curl http://10.1.235.98:8888/permission/chai/zong -H "Authorization: Token 5c69d07b6143bc4c443564203b3704fd"
 curl http://10.1.235.98:8888/permission/chai/zong -H "Authorization: Token 5c69d07b6143bc4c443564203b3704fd" -X PUT -d '{"username":"panxy01@asiainfo.com"}'
@@ -29,7 +31,7 @@ curl http://10.1.235.98:8888/permission/chai/zong?username=panxy01@asiainfo.com 
 
 curl http://127.0.0.1:8088/permission/test006 -X PUT -d '{"username":"chai@asiainfo.com"}' -H user:panxy3@asiainfo.com
 curl http://127.0.0.1:8088/permission/test007 -H user:panxy3@asiainfo.com
-curl http://127.0.0.1:8088/permission/test007/test007 -X PUT -d '{"username":"chai@asiainfo.com"}' -H user:panxy3@asiainfo.com
+curl http://127.0.0.1:8088/permission/test007/test007 -X Post -d '{"username":"chai@asiainfo.com"}' -H user:panxy3@asiainfo.com
 curl http://127.0.0.1:8088/permission/test007/test007 -H user:panxy3@asiainfo.com
 
 -------------------------------------------------------------------------------------------------------
@@ -86,12 +88,14 @@ curl -X PUT  http://127.0.0.1:8088/repositories/app/label -d "other.name=panxy3"
 curl -X DELETE  http://127.0.0.1:8088/repositories/liu/xu/label?other.name=1 -H user:panxy3@asiainfo.com
 
 curl http://10.1.235.98:8089/repositories/app0001/label -d "other.name=panxy3" -X PUT -H user:panxy3@asiainfo.com
-curl http://10.1.235.98:8888/repositories/liu/xu/label -d "other.name=1" -X PUT -H "Authorization:Token ff2592ae306c68eafd89edd4b1a8e022"
+curl http://10.1.235.98:8888/repositories/liu/xu/label -d "other.name=1" -X PUT -H "Authorization:Token ccff9beb3f058d58f5a5fb0c7a5276e1"
 
 curl -X DELETE  http://10.1.235.98:8088/repositories/app0001/label?other.name -H user:panxy3@asiainfo.com
 curl -X DELETE  http://127.0.0.1:8088/repositories/app0001/label?other.name -H user:panxy3@asiainfo.com
 curl -X DELETE  http://10.1.235.98:8088/repositories/liu/xu/label?other.name=1 -H user:panxy3@asiainfo.com
 
+
+ curl http://54.223.58.0:8888/select_labels/test2 -d '{"order": 1,"icon":"path1"}' -H "Authorization:Token ccff9beb3f058d58f5a5fb0c7a5276e1" -x proxy.asiainfo.com:8080
 
 58e83462759adf3881079bd9b4dc68c8
 
