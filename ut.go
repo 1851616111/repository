@@ -18,7 +18,11 @@ const (
 	TimeFormat = "2006-01-02 15:04:05"
 )
 
-var LOCAL_LOCATION *time.Location
+var (
+	LOCAL_LOCATION *time.Location
+
+//	Time_Relitive_List = [] time.Time{"10年前","5年前","3年前","1年前","9个月前","6个月前","3个月前", "1个月前","半个月前","1周前","1天前"}
+)
 
 func init() {
 	loc, err := time.LoadLocation("Local")
@@ -177,25 +181,45 @@ func (p *repository) ParseRequeset(r *http.Request) error {
 }
 
 func buildTime(absoluteTime string) string {
-	abst := absoluteTime[:len(absoluteTime)-10]
-	now := time.Now()
-	sevenDayAgo := now.AddDate(0, 0, -7)
-	target_time, err := time.ParseInLocation(TimeFormat, abst, LOCAL_LOCATION)
-	get(err)
-	if target_time.After(sevenDayAgo) {
-		sec := now.Unix() - target_time.Unix()
-		oneDayAgo := now.AddDate(0, 0, -1)
-		if target_time.After(oneDayAgo) {
-			hour := sec / 3600
-			if hour == 0 {
-				return fmt.Sprintf("%s|%d分钟以前", abst, (sec%3600)/60)
-			}
-			return fmt.Sprintf("%s|%d小时以前", abst, hour)
-		} else {
-			return fmt.Sprintf("%s|%d天以前", abst, sec/(3600*24))
-		}
-	}
-	return abst
+	//	abst := absoluteTime[:len(absoluteTime)-10]
+	//	now := time.Now()
+	//
+	//
+	//	tenYAgo := now.AddDate(-10, 0, 0)
+	//	fiveYAgo := now.AddDate(-5, 0, 0)
+	//	threeYAgo := now.AddDate(-3, 0, 0)
+	//	oneYAgo := now.AddDate(-1, 0, 0)
+	//	nineMAgo := now.AddDate(0, -9, 0)
+	//	halfYAgo := now.AddDate(0, -6, 0)
+	//	threeMAge := now.AddDate(0, -3, 0)
+	//	oneMAgo := now.AddDate(0, -1, 0)
+	//	halfMAgo := now.AddDate(0, 0, -15)
+	//	oneWAgo := now.AddDate(0, 0, -7)
+	//	oneDAgo := now.AddDate(0, 0, -1)
+	//
+	//	l := []time.Time{tenYAgo, fiveYAgo, threeYAgo, oneYAgo, nineMAgo, halfYAgo, threeMAge, oneMAgo, halfMAgo, oneWAgo,oneDAgo}
+	//
+	//
+	//	target_time, err := time.ParseInLocation(TimeFormat, abst, LOCAL_LOCATION)
+	//	get(err)
+	//
+	//	if target_time.After(MAgo) {
+	//		if target_time.After(sevenDayAgo) {
+	//			sec := now.Unix() - target_time.Unix()
+	//			oneDayAgo := now.AddDate(0, 0, -1)
+	//			if target_time.After(oneDayAgo) {
+	//				hour := sec / 3600
+	//				if hour == 0 {
+	//					return fmt.Sprintf("%s|%d分钟以前", abst, (sec%3600)/60)
+	//				}
+	//				return fmt.Sprintf("%s|%d小时以前", abst, hour)
+	//			} else {
+	//				return fmt.Sprintf("%s|%d天以前", abst, sec/(3600*24))
+	//			}
+	//		}
+	//	}
+
+	return "123"
 }
 
 //func Parse(p *dataItem, cb ...func()) {
