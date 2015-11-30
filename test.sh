@@ -17,10 +17,10 @@ curl http://10.1.235.98:8888/permission/chai/zong?username=panxy01@asiainfo.com 
 
 permission
 -------------------------------------------------------------------------------------------------------
-curl http://54.223.58.0:8888/permission/test007 -H "Authorization: Token 2b0964abd566324935ed25be65be2ad2" -x proxy.asiainfo.com:8080
-curl http://54.223.58.0:8888/permission/test007/test0007 -H "Authorization: Token 2b0964abd566324935ed25be65be2ad2" -x proxy.asiainfo.com:8080
-curl -X PUT  http://54.223.58.0:8888/permission/test007 -H "Authorization: Token 2b0964abd566324935ed25be65be2ad2" -d '{"username":"chai@asiainfo.com","opt_permission":1 }' -x proxy.asiainfo.com:8080
-curl -X PUT  http://54.223.58.0:8888/permission/test007/test0007 -H "Authorization: Token 2b0964abd566324935ed25be65be2ad2" -d '{"username":"chai@asiainfo.com","opt_permission":1 }'   -x proxy.asiainfo.com:8080
+curl http://54.223.58.0:8888/permission/test007 -H "Authorization: Token 200df2e248c3918e7f58b58eea0c41fa" -x proxy.asiainfo.com:8080
+curl http://54.223.58.0:8888/permission/test007/test0007 -H "Authorization: Token 92a62fc5424dc063b780c51521992d90" -x proxy.asiainfo.com:8080
+curl -X PUT  http://54.223.58.0:8888/permission/test007 -H "Authorization: Token 92a62fc5424dc063b780c51521992d90" -d '{"username":"chai@asiainfo.com","opt_permission":1 }' -x proxy.asiainfo.com:8080
+curl -X PUT  http://54.223.58.0:8888/permission/test007/test0007 -H "Authorization: Token 92a62fc5424dc063b780c51521992d90" -d '{"username":"chai@asiainfo.com","opt_permission":1 }'   -x proxy.asiainfo.com:8080
 
 curl http://10.1.235.98:8888/permission/chai/zong -H "Authorization: Token 5c69d07b6143bc4c443564203b3704fd"
 curl http://10.1.235.98:8888/permission/chai/zong -H "Authorization: Token 5c69d07b6143bc4c443564203b3704fd" -X PUT -d '{"username":"panxy01@asiainfo.com"}'
@@ -58,7 +58,7 @@ curl -X POST http://127.0.0.1:8088/repositories/test006/test006 -d '{"repaccesst
 curl -X POST http://127.0.0.1:8088/repositories/test007 -d '{"repaccesstype": "private","comment": "中国移动北京终端详情","label": ""}' -H user:panxy3@asiainfo.com
 curl -X POST http://127.0.0.1:8088/repositories/test007/test007 -d '{"repaccesstype": "private","comment": "中国移动北京终端详情","label": {"sys": {"supply_style": "batch"},"opt": {},"owner": {},"other": {}}}' -H user:panxy3@asiainfo.com
 
-curl -X POST http://54.223.58.0:8888/repositories/test007 -d '{"repaccesstype": "private","comment": "中国移动北京终端详情","label": ""}' -H "Authorization: Token 2b0964abd566324935ed25be65be2ad2" -x proxy.asiainfo.com:8080
+curl -X POST http://54.223.58.0:8888/repositories/test007 -d '{"repaccesstype": "private","comment": "中国移动北京终端详情","label": ""}' -H "Authorization: Token d30c92051762c5b6ce9ccae47e0be4f7" -x proxy.asiainfo.com:8080
 curl -X POST http://54.223.58.0:8888/repositories/test007/test0007 -d '{"repaccesstype": "private","comment": "中国移动北京终端详情","label": {"sys": {"supply_style": "batch"},"opt": {},"owner": {},"other": {}}}' -H "Authorization: Token 2b0964abd566324935ed25be65be2ad2" -x proxy.asiainfo.com:8080
 
 

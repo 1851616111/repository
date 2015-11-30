@@ -63,14 +63,12 @@ func getUserType(r *http.Request, db *DB) int {
 
 func authAdmin(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
 
-	if getUserType(r, db) == USER_TP_ADMIN {
-		login_Name := r.Header.Get("User")
-		c.Map(login_Name)
-		return
-	} else {
+	if getUserType(r, db) != USER_TP_ADMIN {
 		http.Error(w, Unauthroized, 401)
 		return
 	}
+	login_Name := r.Header.Get("User")
+	c.Map(login_Name)
 }
 
 func chkRepPermission(w http.ResponseWriter, r *http.Request, param martini.Params, c martini.Context, db *DB) {
