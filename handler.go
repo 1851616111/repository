@@ -366,10 +366,18 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	}
 
 	if d.Label == "" {
-		return rsp.Json(400, ErrInvalidParameter("label"))
+		return rsp.Json(400, ErrNoParameter("label"))
 	}
 
 	if err := ifInLabel(d.Label, LABEL_NED_CHECK); err != nil {
+		return rsp.Json(400, err)
+	}
+
+	if d.Price == "" {
+		return rsp.Json(400, ErrNoParameter("price"))
+	}
+
+	if err := chkPrice(d.Price, getSupplyStyleTp(d.Label)); err != nil {
 		return rsp.Json(400, err)
 	}
 

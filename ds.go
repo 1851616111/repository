@@ -53,7 +53,7 @@ type dataItem struct {
 	Dataitem_name   string      `json:"-"`
 	Create_user     string      `json:"create_user,omitempty"`
 	Itemaccesstype  string      `json:"itemaccesstype,omitempty"`
-	Price           interface{} `bson:"-", json:"price,omitempty"`
+	Price           interface{} `json:"price,omitempty"`
 	Optime          string      `json:"optime,omitempty"`
 	Meta            string      `bson:"-", json:"meta"`
 	Sample          string      `bson:"-", json:"sample"`
@@ -134,7 +134,7 @@ func initDb(session *mgo.Session) {
 	get(err)
 	err = db.C(C_REPOSITORY_PERMISSION).EnsureIndex(mgo.Index{Key: []string{COL_REPNAME, COL_PERMIT_USER}, Unique: true})
 	get(err)
-	err = db.C(C_DATAITEM_PERMISSION).EnsureIndex(mgo.Index{Key: []string{COL_REPNAME, COL_PERMIT_USER}, Unique: true})
+	err = db.C(C_DATAITEM_PERMISSION).EnsureIndex(mgo.Index{Key: []string{COL_REPNAME, COL_ITEM_NAME, COL_PERMIT_USER}, Unique: true})
 	get(err)
 	err = db.C(C_TAG).EnsureIndex(mgo.Index{Key: []string{COL_REPNAME, COL_ITEM_NAME, COL_TAG_NAME}, Unique: true})
 	get(err)

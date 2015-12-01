@@ -21,23 +21,20 @@ const (
 )
 
 var (
-	LOCAL_LOCATION *time.Location
-	Price          = make(map[string]reflect.Type)
+	LOCAL_LOCATION   *time.Location
+	BATCH_TIME_UNITS = []interface{}{"m", "h", "d"}
 )
 
 func init() {
 	loc, err := time.LoadLocation("Local")
 	chk(err)
 	LOCAL_LOCATION = loc
-	api, flow, batch := api{}, flow{}, batch{}
-	Price["api"] = reflect.TypeOf(api)
-	Price["flow"] = reflect.TypeOf(flow)
-	Price["batch"] = reflect.TypeOf(batch)
 }
 
 type MM map[interface{}]M
 type M map[interface{}]interface{}
 type Ms map[string]interface{}
+type Arr []interface{}
 
 type Q struct {
 	Columns    []string
@@ -276,50 +273,113 @@ func buildTime(absoluteTime string) string {
 //	}
 //}
 type flow struct {
-	expire uint
-	time   uint
-	unit   string
-	money  float64
+	Expire int64   `json:"expire"`
+	Time   int64   `json:"time"`
+	Unit   string  `json:"unit"`
+	Money  float64 `json:"money"`
+}
+
+func (p *flow) cheParam() bool {
+	if p.Expire <= 0 || p.Time <= 0 || p.Money <= 0 || !Contains(BATCH_TIME_UNITS, p.Unit) {
+		return false
+	}
+	return true
+}
+
+func Contains(arr Arr, i interface{}) bool {
+	for _, v := range arr {
+		if v == i {
+			return true
+		}
+	}
+	return false
 }
 
 type batch struct {
-	expire uint
-	times  uint
-	money  float64
+	Expire int64   `json:"expire"`
+	Times  int64   `json:"times"`
+	Money  float64 `json:"money"`
+}
+
+func (p *batch) cheParam() bool {
+	if p.Expire <= 0 || p.Times <= 0 || p.Money <= 0 {
+		return false
+	}
+	return true
 }
 
 type api struct {
-	expire uint
-	times  uint
-	money  float64
+	Expire int64   `json:"expire"`
+	Times  int64   `json:"times"`
+	Money  float64 `json:"money"`
+}
+
+func (p *api) cheParam() bool {
+	if p.Expire <= 0 || p.Times <= 0 || p.Money <= 0 {
+		return false
+	}
+	return true
 }
 
 func getSupplyStyleTp(label interface{}) string {
 	return label.(map[string]interface{})["sys"].(map[string]interface{})["supply_style"].(string)
 }
 func chkPrice(price interface{}, supplyStyle string) *Error {
-	p := price.([]map[string]interface{})
-	tp := Price[supplyStyle]
 
-	for index, m := range p {
-		for i := 0; i < tp.NumField(); i++ {
-			if m[tp.Field(i).Name].(int) < 0 {
-				return ErrInvalidParameter(fmt.Sprintf("price.[%d].%s", index, tp.Field(i).Name))
+	b, err := json.Marshal(price)
+	get(err)
+
+	flows, apis, batches := []flow{}, []api{}, []batch{}
+	switch supplyStyle {
+	case SUPPLY_STYLE_FLOW:
+		json.Unmarshal(b, &flows)
+		for i, v := range flows {
+			if !v.cheParam() {
+				return ErrInvalidParameter(fmt.Sprintf("price[%d]", i))
 			}
-			switch tp.Field(i).Type.Kind() {
-			case reflect.Uint:
-				log.Println()
-				if reflect.TypeOf(m[tp.Field(i).Name]).Kind() != reflect.Int {
-					return ErrInvalidParameter(fmt.Sprintf("price.[%d].%s", index, tp.Field(i).Name))
-				}
-
-			case reflect.Float64:
-				if reflect.TypeOf(m[tp.Field(i).Name]).Kind() != reflect.Float64 {
-					return ErrInvalidParameter(fmt.Sprintf("price.[%d].%s", index, tp.Field(i).Name))
-				}
+		}
+	case SUPPLY_STYLE_API:
+		json.Unmarshal(b, &apis)
+		for i, v := range apis {
+			if !v.cheParam() {
+				return ErrInvalidParameter(fmt.Sprintf("price[%d]", i))
+			}
+		}
+	case SUPPLY_STYLE_BATCH:
+		json.Unmarshal(b, &batches)
+		for i, v := range batches {
+			if !v.cheParam() {
+				return ErrInvalidParameter(fmt.Sprintf("price[%d]", i))
 			}
 		}
 	}
+
+	//	for index, m := range p {
+	//		log.Println("index", index)
+	//		for i := 0; i < tp.NumField(); i++ {
+	//
+	//
+	//			log.Println(m[tp.Field(i).Name])
+	//			if m[tp.Field(i).Name].(int) < 0 {
+	//			log.Println("01")
+	//				return ErrInvalidParameter(fmt.Sprintf("price.[%d].%s", index, tp.Field(i).Name))
+	//			}
+	//			switch tp.Field(i).Type.Kind() {
+	//			case reflect.Uint:
+	//				if reflect.TypeOf(m[tp.Field(i).Name]).Kind() != reflect.Int {
+	//					log.Println("02")
+	//					return ErrInvalidParameter(fmt.Sprintf("price.[%d].%s", index, tp.Field(i).Name))
+	//				}
+	//
+	//			case reflect.Float64:
+	//				log.Println(reflect.TypeOf(m[tp.Field(i).Name]).Kind())
+	//				if reflect.TypeOf(m[tp.Field(i).Name]).Kind() != reflect.Float64 {
+	//					log.Println("03")
+	//					return ErrInvalidParameter(fmt.Sprintf("price.[%d].%s", index, tp.Field(i).Name))
+	//				}
+	//			}
+	//		}
+	//	}
 	return nil
 }
 

@@ -21,16 +21,19 @@ func Test_ifInLabel(t *testing.T) {
 }
 
 func Test_chkPrice(t *testing.T) {
-	var label, price interface{}
-	m := map[string]interface{}{}
-	m["supply_style"] = "api"
-	label = map[string]interface{}{"sys": map[string]interface{}{"supply_style": "api"}}
 
-	price = []map[string]interface{}{
+	price := []map[string]interface{}{
 		map[string]interface{}{"times": 1000, "money": 5, "expire": DATAITEM_PRICE_EXPIRE},
-		map[string]interface{}{"times": -10000, "money": -45, "expire": DATAITEM_PRICE_EXPIRE},
-		map[string]interface{}{"times": 100000, "money": 400.00, "expire": DATAITEM_PRICE_EXPIRE},
+		map[string]interface{}{"times": 10000, "money": 45, "expire": DATAITEM_PRICE_EXPIRE},
+		map[string]interface{}{"times": 100000.00, "money": 400.00, "expire": DATAITEM_PRICE_EXPIRE},
 	}
-	log.Println(label)
-	chkPrice(price, "api")
+	log.Println(chkPrice(price, "api"))
+
+	price2 := []map[string]interface{}{
+		map[string]interface{}{"time": 1000, "unit": "h", "money": 5, "expire": DATAITEM_PRICE_EXPIRE},
+		map[string]interface{}{"time": 10000, "unit": "h", "money": 45, "expire": DATAITEM_PRICE_EXPIRE},
+		map[string]interface{}{"time": 100000.00, "unit": "d", "money": 400.00, "expire": DATAITEM_PRICE_EXPIRE},
+	}
+	log.Println(chkPrice(price2, "flow"))
+
 }
