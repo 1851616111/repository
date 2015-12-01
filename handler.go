@@ -58,7 +58,7 @@ var (
 	NED_CHECK_LABELS = []string{LABEL_NED_CHECK}
 )
 
-func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, login_name string) (int, string) {
+func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, login_name string, l Limit) (int, string) {
 	defer db.Close()
 	repname := strings.TrimSpace(param["repname"])
 	if repname == "" {
@@ -82,6 +82,20 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	if rep.Repaccesstype != ACCESS_PUBLIC && rep.Repaccesstype != ACCESS_PRIVATE {
 		rep.Repaccesstype = ACCESS_PUBLIC
 	}
+
+	has := db.countNum(C_REPOSITORY, bson.M{COL_CREATE_USER: login_name, COL_REP_ACC: rep.Repaccesstype})
+	max := 0
+	switch rep.Repaccesstype {
+	case ACCESS_PUBLIC:
+		max = l.Rep_Public
+	case ACCESS_PRIVATE:
+		max = l.Rep_Private
+	}
+
+	if has >= max {
+		return rsp.Json(400, ErrRepOutOfLimit(max))
+	}
+
 	rep.Optime = now.String()
 	rep.Ct = now
 	rep.Create_user = login_name
@@ -990,7 +1004,16 @@ func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 		return rsp.Json(400, ErrDataBase(err))
 	}
 
-	return rsp.Json(200, E(OK), res)
+	total, _ := db.DB(DB_NAME).C(C_DATAITEM).Find(Q).Count()
+	result := struct {
+		Namelist `json:"select"`
+		Total    int `json:"total"`
+	}{
+		res,
+		total,
+	}
+
+	return rsp.Json(200, E(OK), result)
 }
 
 //curl http://127.0.0.1:8080/permit/michael -H michael:pan

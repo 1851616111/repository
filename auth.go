@@ -13,6 +13,8 @@ const (
 	AUTHORIZATION = "Authorization"
 
 	USER_SERVICE_RET_USERTYPE = "userType"
+	VIP_SERVICE_RET_RET_PUB   = "repoPub"
+	VIP_SERVICE_RET_RET_PRI   = "repoPri"
 )
 
 var (
@@ -31,6 +33,11 @@ func init() {
 	PermissionDenied = string(b)
 }
 
+type Limit struct {
+	Rep_Private int `json:"repoPri"`
+	Rep_Public  int `json:"repoPub"`
+}
+
 func auth(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
 	login_Name := r.Header.Get("User")
 	if login_Name == "" {
@@ -44,7 +51,7 @@ func auth(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
 func getUserType(r *http.Request, db *DB) int {
 	login_Name := r.Header.Get("User")
 	token := r.Header.Get(AUTHORIZATION)
-	if login_Name == "" || login_Name == "" {
+	if login_Name == "" || token == "" {
 		return USER_TP_UNKNOW
 	}
 	b, err := httpGet(fmt.Sprintf("http://%s:%s/users/%s", API_SERVER, API_PORT, login_Name), AUTHORIZATION, token)
@@ -59,6 +66,39 @@ func getUserType(r *http.Request, db *DB) int {
 		}
 	}
 	return USER_TP_UNKNOW
+}
+
+func chkUserLimit(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
+	login_Name := r.Header.Get("User")
+	//	token := r.Header.Get(AUTHORIZATION)
+	token := "Token 1ad5d08d974ae394a511af1c0a0a7d79"
+	if login_Name == "" || token == "" {
+		http.Error(w, Unauthroized, 401)
+		return
+	}
+	//	b, err := httpGet(fmt.Sprintf("http://%s:%s/vip/%s", API_SERVER, API_PORT, login_Name), AUTHORIZATION, token)
+	//	get(err)
+	//	log.Println("------------->", string(b))
+	//	result := new(Result)
+	//	err = json.Unmarshal(b, result)
+	//	get(err)
+
+	//	log.Println("------------->", result)
+	//	if result.Data != nil {
+	//		u := result.Data.(map[string]interface{})
+	//		l := new(limit)
+	//		if pub, exist := u[VIP_SERVICE_RET_RET_PUB]; exist {
+	//			l.Rep_Public = pub.(int)
+	//		}
+	//		if pri, exist := u[VIP_SERVICE_RET_RET_PRI]; exist {
+	//			l.Rep_Private = pri.(int)
+	//		}
+	//		c.Map(l)
+	//	}
+
+	l := Limit{Rep_Public: 10, Rep_Private: 1}
+
+	c.Map(l)
 }
 
 func authAdmin(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
@@ -112,4 +152,8 @@ func chkItemPermission(w http.ResponseWriter, r *http.Request, param martini.Par
 		return
 	}
 	c.Map(Item_Permission{Repository_name: repName, Dataitem_name: itemname})
+}
+
+func checkUsrLimitMiddle(w http.ResponseWriter, r *http.Request, db *DB) {
+
 }

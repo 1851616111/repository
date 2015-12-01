@@ -14,7 +14,7 @@ function getToken() {
 
 function getAdminToken() {
     tokenURL=${Host}/permission/mob
-    admintoken=`curl  $tokenURL -H "Authorization: Basic ZGF0YWh1YkBhc2lhaW5mby5jb206NDZjNWZjODQ5MWI5NjMyNDAxYTIwN2M3YWIwNGViMGE=" -x proxy.asiainfo.com:8080`
+        admintoken=`curl  $tokenURL -H "Authorization: Basic ZGF0YWh1YkBhc2lhaW5mby5jb206NDZjNWZjODQ5MWI5NjMyNDAxYTIwN2M3YWIwNGViMGE=" -x proxy.asiainfo.com:8080`
     AdminToken=`echo $admintoken | cut -d \" -f 4`
     if [ ${#AdminToken} -ne 32 ];then
         echo "no admintoken avaliable"

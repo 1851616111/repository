@@ -37,6 +37,8 @@ type repository struct {
 	Ct      time.Time   `json:"-"`
 	st      time.Time
 }
+
+type Namelist []names
 type names struct {
 	Repository_name string `json:"repname"`
 	Dataitem_name   string `json:"itemname,omitempty"`
@@ -62,13 +64,6 @@ type dataItem struct {
 	st              time.Time
 }
 
-type flow struct {
-
-}
-
-type batch  struct {
-
-}
 func (rep *repository) chkLabel() {
 	if m, ok := rep.Label.(map[string]interface{}); ok {
 		for _, v := range COL_LABEL_CHILDREN {

@@ -31,6 +31,7 @@ const (
 	ErrorCodeQueryDBNotFound
 	ErrorCodeOptFile
 	ErrorCodeItemOutOfLimit
+	ErrorCodeRepOutOfLimit
 
 	ErrorCodeNoParameter = 1400
 
@@ -52,6 +53,7 @@ func init() {
 	initError(ErrorCodeQueryDBNotFound, "query %s no found")
 	initError(ErrorCodeOptFile, "file operation")
 	initError(ErrorCodeItemOutOfLimit, "dataitem out of limit 30")
+	initError(ErrorCodeRepOutOfLimit, "repository out of limit")
 
 	ErrorNone = E(OK)
 	ErrorUnkown = E(ErrorCodeUnkown)
@@ -141,4 +143,11 @@ func ErrFile(e error) *Error {
 func (e *Error) ErrToString() string {
 	b, _ := json.Marshal(e)
 	return string(b)
+}
+
+func ErrRepOutOfLimit(num int) *Error {
+	return &Error{
+		Code:    ErrorCodeRepOutOfLimit,
+		Message: fmt.Sprintf("%s : %d", E(ErrorCodeRepOutOfLimit).Message, num),
+	}
 }

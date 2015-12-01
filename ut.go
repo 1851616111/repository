@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"reflect"
@@ -15,17 +16,23 @@ import (
 )
 
 const (
-	TimeFormat = "2006-01-02 15:04:05"
+	TimeFormat            = "2006-01-02 15:04:05"
+	DATAITEM_PRICE_EXPIRE = 30
 )
 
 var (
 	LOCAL_LOCATION *time.Location
+	Price          = make(map[string]reflect.Type)
 )
 
 func init() {
 	loc, err := time.LoadLocation("Local")
 	chk(err)
 	LOCAL_LOCATION = loc
+	api, flow, batch := api{}, flow{}, batch{}
+	Price["api"] = reflect.TypeOf(api)
+	Price["flow"] = reflect.TypeOf(flow)
+	Price["batch"] = reflect.TypeOf(batch)
 }
 
 type MM map[interface{}]M
@@ -268,6 +275,53 @@ func buildTime(absoluteTime string) string {
 //			}
 //	}
 //}
+type flow struct {
+	expire uint
+	time   uint
+	unit   string
+	money  float64
+}
+
+type batch struct {
+	expire uint
+	times  uint
+	money  float64
+}
+
+type api struct {
+	expire uint
+	times  uint
+	money  float64
+}
+
+func getSupplyStyleTp(label interface{}) string {
+	return label.(map[string]interface{})["sys"].(map[string]interface{})["supply_style"].(string)
+}
+func chkPrice(price interface{}, supplyStyle string) *Error {
+	p := price.([]map[string]interface{})
+	tp := Price[supplyStyle]
+
+	for index, m := range p {
+		for i := 0; i < tp.NumField(); i++ {
+			if m[tp.Field(i).Name].(int) < 0 {
+				return ErrInvalidParameter(fmt.Sprintf("price.[%d].%s", index, tp.Field(i).Name))
+			}
+			switch tp.Field(i).Type.Kind() {
+			case reflect.Uint:
+				log.Println()
+				if reflect.TypeOf(m[tp.Field(i).Name]).Kind() != reflect.Int {
+					return ErrInvalidParameter(fmt.Sprintf("price.[%d].%s", index, tp.Field(i).Name))
+				}
+
+			case reflect.Float64:
+				if reflect.TypeOf(m[tp.Field(i).Name]).Kind() != reflect.Float64 {
+					return ErrInvalidParameter(fmt.Sprintf("price.[%d].%s", index, tp.Field(i).Name))
+				}
+			}
+		}
+	}
+	return nil
+}
 
 func ifInLabel(i interface{}, column string) *Error {
 	m, ok := i.(map[string]interface{})
@@ -314,6 +368,7 @@ func httpGet(getUrl string, credential ...string) ([]byte, error) {
 	}
 
 	if err != nil {
+		log.Println("-------------->", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
