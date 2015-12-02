@@ -20,20 +20,11 @@ const (
 )
 
 var (
-	API_SERVER           = Env("API_SERVER", false)
-	API_PORT             = Env("API_PORT", false)
-	USER_TP_ADMIN    int = 2
-	USER_TP_UNKNOW       = -1
-	Unauthroized     string
-	PermissionDenied string
+	API_SERVER         = Env("API_SERVER", false)
+	API_PORT           = Env("API_PORT", false)
+	USER_TP_ADMIN  int = 2
+	USER_TP_UNKNOW     = -1
 )
-
-func init() {
-	b, _ := json.Marshal(E(ErrorCodeUnauthorized))
-	Unauthroized = string(b)
-	b, _ = json.Marshal(E(ErrorCodePermissionDenied))
-	PermissionDenied = string(b)
-}
 
 type Limit struct {
 	Rep_Private int `json:"repoPri"`
@@ -43,7 +34,7 @@ type Limit struct {
 func auth(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
 	login_Name := r.Header.Get("User")
 	if login_Name == "" {
-		http.Error(w, Unauthroized, 401)
+		http.Error(w, E(ErrorCodeUnauthorized).ErrToString(), 401)
 	}
 	c.Map(login_Name)
 	return
@@ -75,7 +66,7 @@ func chkUserLimit(w http.ResponseWriter, r *http.Request, c martini.Context, db 
 	//	token := r.Header.Get(AUTHORIZATION)
 	token := "Token 1ad5d08d974ae394a511af1c0a0a7d79"
 	if login_Name == "" || token == "" {
-		http.Error(w, Unauthroized, 401)
+		http.Error(w, E(ErrorCodeUnauthorized).ErrToString(), 401)
 		return
 	}
 	b, err := httpGet(fmt.Sprintf("http://%s:%s/vip/%s", API_SERVER, API_PORT, login_Name), AUTHORIZATION, token)
@@ -101,13 +92,13 @@ func chkUserLimit(w http.ResponseWriter, r *http.Request, c martini.Context, db 
 		c.Map(l)
 		return
 	}
-	http.Error(w, Unauthroized, 401)
+	http.Error(w, E(ErrorCodeUnauthorized).ErrToString(), 401)
 }
 
 func authAdmin(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
 
 	if getUserType(r, db) != USER_TP_ADMIN {
-		http.Error(w, Unauthroized, 401)
+		http.Error(w, E(ErrorCodeUnauthorized).ErrToString(), 401)
 		return
 	}
 	login_Name := r.Header.Get("User")
@@ -117,7 +108,7 @@ func authAdmin(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB
 func chkRepPermission(w http.ResponseWriter, r *http.Request, param martini.Params, c martini.Context, db *DB) {
 	user := r.Header.Get("User")
 	if user == "" {
-		http.Error(w, Unauthroized, 401)
+		http.Error(w, E(ErrorCodeUnauthorized).ErrToString(), 401)
 		return
 	}
 	repName := strings.TrimSpace(param["repname"])
@@ -127,7 +118,7 @@ func chkRepPermission(w http.ResponseWriter, r *http.Request, param martini.Para
 	}
 
 	if rep, _ := db.getRepository(bson.M{COL_REPNAME: repName}); rep.Create_user != user {
-		http.Error(w, PermissionDenied, 401)
+		http.Error(w, E(ErrorCodePermissionDenied).ErrToString(), 401)
 		return
 	}
 	c.Map(Rep_Permission{Repository_name: repName})
@@ -136,7 +127,7 @@ func chkRepPermission(w http.ResponseWriter, r *http.Request, param martini.Para
 func chkItemPermission(w http.ResponseWriter, r *http.Request, param martini.Params, c martini.Context, db *DB) {
 	user := r.Header.Get("User")
 	if user == "" {
-		http.Error(w, Unauthroized, 401)
+		http.Error(w, E(ErrorCodeUnauthorized).ErrToString(), 401)
 		return
 	}
 	repName := strings.TrimSpace(param["repname"])
@@ -151,12 +142,9 @@ func chkItemPermission(w http.ResponseWriter, r *http.Request, param martini.Par
 	}
 
 	if item, _ := db.getDataitem(bson.M{COL_REPNAME: repName, COL_ITEM_NAME: itemname}); item.Create_user != user {
-		http.Error(w, PermissionDenied, 401)
+		http.Error(w, E(ErrorCodePermissionDenied).ErrToString(), 401)
 		return
 	}
 	c.Map(Item_Permission{Repository_name: repName, Dataitem_name: itemname})
 }
 
-func checkUsrLimitMiddle(w http.ResponseWriter, r *http.Request, db *DB) {
-
-}
