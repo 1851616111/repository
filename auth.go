@@ -15,6 +15,8 @@ const (
 	USER_SERVICE_RET_USERTYPE = "userType"
 	VIP_SERVICE_RET_RET_PUB   = "repoPub"
 	VIP_SERVICE_RET_RET_PRI   = "repoPri"
+	VIP_SERVICE_ADMIN_PUB     = -1
+	VIP_SERVICE_ADMIN_PRI     = -1
 )
 
 var (
@@ -76,29 +78,30 @@ func chkUserLimit(w http.ResponseWriter, r *http.Request, c martini.Context, db 
 		http.Error(w, Unauthroized, 401)
 		return
 	}
-	//	b, err := httpGet(fmt.Sprintf("http://%s:%s/vip/%s", API_SERVER, API_PORT, login_Name), AUTHORIZATION, token)
-	//	get(err)
-	//	log.Println("------------->", string(b))
-	//	result := new(Result)
-	//	err = json.Unmarshal(b, result)
-	//	get(err)
-
-	//	log.Println("------------->", result)
-	//	if result.Data != nil {
-	//		u := result.Data.(map[string]interface{})
-	//		l := new(limit)
-	//		if pub, exist := u[VIP_SERVICE_RET_RET_PUB]; exist {
-	//			l.Rep_Public = pub.(int)
-	//		}
-	//		if pri, exist := u[VIP_SERVICE_RET_RET_PRI]; exist {
-	//			l.Rep_Private = pri.(int)
-	//		}
-	//		c.Map(l)
-	//	}
-
-	l := Limit{Rep_Public: 100, Rep_Private: 1}
-
-	c.Map(l)
+	b, err := httpGet(fmt.Sprintf("http://%s:%s/vip/%s", API_SERVER, API_PORT, login_Name), AUTHORIZATION, token)
+	get(err)
+	result := new(Result)
+	err = json.Unmarshal(b, result)
+	get(err)
+	if result.Data != nil {
+		u := result.Data.(map[string]interface{})
+		l := Limit{}
+		if pub, exist := u[VIP_SERVICE_RET_RET_PUB]; exist {
+			l.Rep_Public = int(pub.(float64))
+		}
+		if pri, exist := u[VIP_SERVICE_RET_RET_PRI]; exist {
+			l.Rep_Private = int(pri.(float64))
+		}
+		if l.Rep_Public == VIP_SERVICE_ADMIN_PUB {
+			l.Rep_Public = 100000
+		}
+		if l.Rep_Private == VIP_SERVICE_ADMIN_PUB {
+			l.Rep_Private = 100000
+		}
+		c.Map(l)
+		return
+	}
+	http.Error(w, Unauthroized, 401)
 }
 
 func authAdmin(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
