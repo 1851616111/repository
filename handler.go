@@ -23,6 +23,7 @@ const (
 	COL_ITEM_ACC        = "itemaccesstype"
 	COL_ITEM_TAGS       = "tags"
 	COL_COMMENT         = "comment"
+	COL_PRICE           = "price"
 	COL_CREATE_USER     = "create_user"
 	COL_LABEL           = "label"
 	COL_OPTIME          = "optime"
@@ -443,6 +444,13 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 			return rsp.Json(400, ErrInvalidParameter("itemaccesstype"))
 		}
 		u[COL_ITEM_ACC] = d.Itemaccesstype
+	}
+
+	if d.Price != "" {
+		if err := chkPrice(d.Price, getSupplyStyleTp(d.Label)); err != nil {
+			return rsp.Json(400, err)
+		}
+		u[COL_PRICE] = d.Price
 	}
 
 	if d.Dataitem_name != "" {

@@ -96,7 +96,7 @@ func chkUserLimit(w http.ResponseWriter, r *http.Request, c martini.Context, db 
 	//		c.Map(l)
 	//	}
 
-	l := Limit{Rep_Public: 10, Rep_Private: 1}
+	l := Limit{Rep_Public: 100, Rep_Private: 1}
 
 	c.Map(l)
 }
