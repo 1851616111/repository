@@ -585,7 +585,7 @@ func updateSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, d
 		u[COL_SELECT_ORDER] = s.Order
 	}
 	if s.Icon != "" {
-		u[COL_SELECT_ORDER] = s.Icon
+		u[COL_SELECT_ICON] = s.Icon
 	}
 
 	if len(u) == 0 {

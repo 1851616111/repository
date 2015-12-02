@@ -43,21 +43,6 @@ func (q *Queue) serve(db *DB) {
 	}
 }
 
-//
-//func (db *DB) handle(e exec) {
-//	var bulk = db.DB(DB_NAME).C(e.collectionName).Bulk()
-//	bulk.Unordered()
-//	bulk.Update(e.selector, e.update)
-//	res, err := bulk.Run()
-//
-//	//	err := db.DB(DB_NAME).C(e.collectionName).Update(e.selector, e.update)
-//	if err != nil {
-//		Log.Errorf("queue asyn opt err %s. select :: %+v execute :: %+v", err.Error(), e.selector, e.update)
-//	}
-//	Log.Errorf("update result is %v", res)
-//	db.Close()
-//}
-
 func (db *DB) bulkHandle(es *[]exec) {
 	defer db.Close()
 	m := make(M)

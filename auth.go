@@ -147,4 +147,3 @@ func chkItemPermission(w http.ResponseWriter, r *http.Request, param martini.Par
 	}
 	c.Map(Item_Permission{Repository_name: repName, Dataitem_name: itemname})
 }
-
