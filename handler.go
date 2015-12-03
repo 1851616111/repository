@@ -456,7 +456,7 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		u[COL_ITEM_ACC] = d.Itemaccesstype
 	}
 
-	if d.Price != "" {
+	if d.Price != nil {
 		if err := chkPrice(d.Price, getSupplyStyleTp(d.Label)); err != nil {
 			return rsp.Json(400, err)
 		}

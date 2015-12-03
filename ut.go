@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"reflect"
@@ -428,7 +427,6 @@ func httpGet(getUrl string, credential ...string) ([]byte, error) {
 	}
 
 	if err != nil {
-		log.Println("-------------->", err)
 		return nil, err
 	}
 	defer resp.Body.Close()
@@ -448,4 +446,30 @@ func Env(name string, required bool, showLog ...bool) string {
 		Log.Infof("[env][%s] %s\n", name, s)
 	}
 	return s
+}
+
+func HttpPostJson(postUrl string, body string, credential ...string) ([]byte, error) {
+
+	var resp *http.Response
+	var err error
+	req, err := http.NewRequest("POST", postUrl, strings.NewReader(body))
+	if err != nil {
+		return nil, fmt.Errorf("[http] err %s, %s\n", postUrl, err)
+	}
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	req.Header.Set(credential[0], credential[1])
+	resp, err = http.DefaultClient.Do(req)
+
+	if err != nil {
+		return nil, fmt.Errorf("[http] err %s, %s\n", postUrl, err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("[http] status err %s, %d\n", postUrl, resp.StatusCode)
+	}
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("[http] read err %s, %s\n", postUrl, err)
+	}
+	return b, nil
 }
