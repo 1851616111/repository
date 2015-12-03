@@ -198,7 +198,7 @@ func buildTime(absoluteTime string) string {
 		return fmt.Sprintf("%s|%d小时前", abst, hour)
 	}
 	if day == 7 {
-		return fmt.Sprintf("%d|1周前", abst)
+		return fmt.Sprintf("%s|1周前", abst)
 	}
 	if day == 14 {
 		return fmt.Sprintf("%s|半个月前", abst)
