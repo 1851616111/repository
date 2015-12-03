@@ -211,6 +211,22 @@ func delRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 		msg.MqJson(rep)
 	}(tmp)
 
+	var opt interface{}
+	has := db.countNum(C_REPOSITORY, bson.M{COL_CREATE_USER: r.Header.Get("User"), COL_REP_ACC: rep.Repaccesstype})
+	switch rep.Repaccesstype {
+	case ACCESS_PUBLIC:
+		opt = struct {
+			Public int `json:"public"`
+		}{has}
+	case ACCESS_PRIVATE:
+		opt = struct {
+			Private int `json:"private"`
+		}{has}
+	}
+
+	if _, err := updateUser(r, opt); err != nil {
+		Log.Errorf("create dataitem update User err: %s", err.Error())
+	}
 	return rsp.Json(200, E(OK))
 }
 
