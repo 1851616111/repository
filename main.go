@@ -14,9 +14,9 @@ var (
 
 	DB_MONGO_USER   = Env("DB_MONGO_USER", false)
 	DB_MONGO_PASSWD = Env("DB_MONGO_PASSWD", false)
-	DB_MONGO_URL    = Env("MONGO_PORT_27017_TCP_ADDR", false)
+	DB_MONGO_ADDR   = Env("MONGO_PORT_27017_TCP_ADDR", false)
 	DB_MONGO_PORT   = Env("MONGO_PORT_27017_TCP_PORT", false)
-	MQ_KAFKA_URL    = Env("MQ_KAFKA_URL", false)
+	MQ_KAFKA_ADDR   = Env("MQ_KAFKA_ADDR", false)
 	MQ_KAFKA_PORT   = Env("MQ_KAFKA_PORT", false)
 
 	db  DB
@@ -26,18 +26,18 @@ var (
 )
 
 func init() {
-	if DB_MONGO_URL == "" || DB_MONGO_PORT == "" {
-		DB_MONGO_URL = "10.1.235.98"
+	if DB_MONGO_ADDR == "" || DB_MONGO_PORT == "" {
+		DB_MONGO_ADDR = "10.1.235.98"
 		DB_MONGO_PORT = "27017"
 	}
 
-	DB_URL := fmt.Sprintf(`%s:%s/datahub?maxPoolSize=500`, DB_MONGO_URL, DB_MONGO_PORT)
+	DB_URL := fmt.Sprintf(`%s:%s/datahub?maxPoolSize=500`, DB_MONGO_ADDR, DB_MONGO_PORT)
 
 	se := connect(DB_URL)
 	db = DB{*se}
 	q_c = Queue{queueChannel}
 
-	MQ := fmt.Sprintf("%s:%s", MQ_KAFKA_URL, MQ_KAFKA_PORT)
+	MQ := fmt.Sprintf("%s:%s", MQ_KAFKA_ADDR, MQ_KAFKA_PORT)
 	m_q, err := mq.NewMQ([]string{MQ})
 	if err != nil {
 		Log.Errorf("initMQ error: %s", err.Error())
