@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -448,15 +449,14 @@ func Env(name string, required bool, showLog ...bool) string {
 	return s
 }
 
-func HttpPostJson(postUrl string, body string, credential ...string) ([]byte, error) {
-
+func HttpPostJson(postUrl string, body []byte, credential ...string) ([]byte, error) {
 	var resp *http.Response
 	var err error
-	req, err := http.NewRequest("POST", postUrl, strings.NewReader(body))
+	req, err := http.NewRequest("POST", postUrl, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, fmt.Errorf("[http] err %s, %s\n", postUrl, err)
 	}
-	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set(credential[0], credential[1])
 	resp, err = http.DefaultClient.Do(req)
 

@@ -88,13 +88,20 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		rep.Repaccesstype = ACCESS_PUBLIC
 	}
 
+	var opt interface{}
 	has := db.countNum(C_REPOSITORY, bson.M{COL_CREATE_USER: login_name, COL_REP_ACC: rep.Repaccesstype})
 	max := 0
 	switch rep.Repaccesstype {
 	case ACCESS_PUBLIC:
 		max = l.Rep_Public
+		opt = struct {
+			Public int `json:"public"`
+		}{has}
 	case ACCESS_PRIVATE:
 		max = l.Rep_Private
+		opt = struct {
+			Private int `json:"private"`
+		}{has}
 	}
 
 	if has >= max {
@@ -112,6 +119,9 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		return rsp.Json(400, ErrDataBase(err))
 	}
 
+	if _, err := updateUser(r, opt); err != nil {
+		Log.Errorf("create dataitem update User err: %s", err.Error())
+	}
 	return rsp.Json(200, E(OK))
 }
 

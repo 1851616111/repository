@@ -27,8 +27,8 @@ var (
 )
 
 type Limit struct {
-	Rep_Private int `json:"private"`
-	Rep_Public  int `json:"public"`
+	Rep_Private int
+	Rep_Public  int
 }
 
 func auth(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
@@ -61,24 +61,23 @@ func getUserType(r *http.Request, db *DB) int {
 	return USER_TP_UNKNOW
 }
 
-func updateUser(r *http.Request, l Limit) ([]byte, error) {
+func updateUser(r *http.Request, real interface{}) ([]byte, error) {
 	login_Name := r.Header.Get("User")
 	token := r.Header.Get(AUTHORIZATION)
 	if login_Name == "" || token == "" {
 		Log.Infof("create repository token: %sm login_name: %s", token, login_Name)
 		return nil, nil
 	}
-	b, _ := json.Marshal(l)
+	b, _ := json.Marshal(real)
 
-	return HttpPostJson(fmt.Sprintf("http://%s:%s/quota/%s/repository/use", API_SERVER, API_PORT, login_Name), string(b), AUTHORIZATION, token)
+	return HttpPostJson(fmt.Sprintf("http://%s:%s/quota/%s/repository/use", API_SERVER, API_PORT, login_Name), b, AUTHORIZATION, token)
 }
 
 func chkUserLimit(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
 	login_Name := r.Header.Get("User")
 	token := r.Header.Get(AUTHORIZATION)
-	//	token := "Token 1ad5d08d974ae394a511af1c0a0a7d79"
 	if login_Name == "" || token == "" {
-		Log.Infof("create repository token: %sm login_name: %s", token, login_Name)
+		Log.Infof("create repository token: %s, login_name: %s", token, login_Name)
 		http.Error(w, E(ErrorCodeUnauthorized).ErrToString(), 401)
 		return
 	}
