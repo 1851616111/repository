@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/asiainfoLDP/datahub_messages/mq"
 	"github.com/go-martini/martini"
 	"net/http"
 )
@@ -15,9 +16,12 @@ var (
 	DB_MONGO_PASSWD = Env("DB_MONGO_PASSWD", false)
 	DB_MONGO_URL    = Env("MONGO_PORT_27017_TCP_ADDR", false)
 	DB_MONGO_PORT   = Env("MONGO_PORT_27017_TCP_PORT", false)
+	MQ_KAFKA_URL    = Env("MQ_KAFKA_URL", false)
+	MQ_KAFKA_PORT   = Env("MQ_KAFKA_PORT", false)
 
 	db  DB
 	q_c Queue
+	msg Msg
 	Log = NewLogger("http handler")
 )
 
@@ -32,6 +36,14 @@ func init() {
 	se := connect(DB_URL)
 	db = DB{*se}
 	q_c = Queue{queueChannel}
+
+	MQ := fmt.Sprintf("%s:%s", MQ_KAFKA_URL, MQ_KAFKA_PORT)
+	m_q, err := mq.NewMQ([]string{MQ})
+	if err != nil {
+		Log.Errorf("initMQ error: %s", err.Error())
+		return
+	}
+	msg = Msg{*m_q}
 }
 
 func main() {

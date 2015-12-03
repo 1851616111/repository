@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"github.com/asiainfoLDP/datahub_messages/mq"
 	"gopkg.in/mgo.v2"
 	"time"
 )
@@ -12,6 +14,7 @@ const (
 	C_DATAITEM_PERMISSION   = "permission_item"
 	C_SELECT                = "select"
 	C_TAG                   = "tag"
+	MQ_TOPIC                = "repositories_events_json"
 )
 
 var (
@@ -144,4 +147,51 @@ func initDb(session *mgo.Session) {
 	get(err)
 	err = db.C(C_DATAITEM).EnsureIndexKey(COL_COMMENT)
 	get(err)
+}
+
+type m_tag struct {
+	Type            string      `json:"type"`
+	Repository_name interface{} `json:"repname"`
+	Dataitem_name   interface{} `json:"itemname"`
+	Tag             interface{} `json:"tag"`
+	Time            string      `json:"time"`
+}
+
+type m_item struct {
+	Type            string      `json:"type"`
+	Repository_name interface{} `json:"repname"`
+	Dataitem_name   interface{} `json:"itemname"`
+	Time            string      `json:"time"`
+}
+
+type m_rep struct {
+	Type            string      `json:"type"`
+	Repository_name interface{} `json:"repname"`
+	Time            string      `json:"time"`
+}
+
+type Msg struct {
+	mq.KafukaMQ
+}
+
+func (m *Msg) MqJson(content interface{}) {
+	b, _ := json.Marshal(content)
+	msg.SendAsyncMessage(MQ_TOPIC, []byte(""), b)
+}
+
+type MyMesssageListener struct {
+	name string
+}
+
+func newMyMesssageListener(name string) *MyMesssageListener {
+	return &MyMesssageListener{name: name}
+}
+
+func (listener *MyMesssageListener) OnMessage(key, value []byte, topic string, partition int32, offset int64) {
+	Log.Errorf("%s received: (%d) message: %s", listener.name, offset, string(value))
+}
+
+func (listener *MyMesssageListener) OnError(err error) bool {
+	Log.Errorf("api response listener error: %s", err.Error())
+	return false
 }
