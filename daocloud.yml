@@ -8,6 +8,7 @@ before_script:
   - mkdir -p /gopath/src/datahub_repository
   - git clone -b releasev0.5 https://github.com/asiainfoLDP/datahub_repository "/gopath/src/datahub_repository"
 script:
+  - pip install -r requirements.txt
   - export GOPATH=/gopath
   - go get -t datahub_repository
   - go test -v datahub_repository
