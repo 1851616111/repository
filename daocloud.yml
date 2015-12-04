@@ -8,6 +8,12 @@ before_script:
   - mkdir -p /gopath/src/datahub_repository
   - git clone -b releasev0.5 https://github.com/asiainfoLDP/datahub_repository "/gopath/src/datahub_repository"
 script:
+  - go get -v requirements.txt
   - export GOPATH=/gopath
   - go get -t datahub_repository
   - go test -v datahub_repository
+  - nosetests test.py --with-xunit --xunit-file=$TEST_RESULT
+  - coverage run --branch test.py
+  - coverage xml -o $TEST_COVERAGE test.py
+  - cat $TEST_RESULT
+  - cat $TEST_COVERAGE
