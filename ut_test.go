@@ -37,3 +37,71 @@ func Test_chkPrice(t *testing.T) {
 	log.Println(chkPrice(price2, "flow"))
 
 }
+func Test_getMd5(t *testing.T) {
+	in := []string{"88888888"}
+	expect := []string{"8ddcff3a80f4189ca1c9d4d902c3c909"}
+
+	for i, v := range in {
+		out := getMd5(v)
+		if out != expect[i] {
+			t.Errorf("input %s, output %s, expect %s", in[i], out, expect[i])
+		}
+	}
+}
+
+func Test_base64Encode(t *testing.T) {
+	in := []string{"panxy3@asiainfo.com:8ddcff3a80f4189ca1c9d4d902c3c909"}
+	expect := []string{"cGFueHkzQGFzaWFpbmZvLmNvbTo4ZGRjZmYzYTgwZjQxODljYTFjOWQ0ZDkwMmMzYzkwOQ=="}
+
+	for i, v := range in {
+		out := string(base64Encode([]byte(v)))
+		if out != expect[i] {
+			t.Errorf("Input: %s\n Output %s\n Expect %s\n", in[i], out, expect[i])
+		}
+	}
+}
+
+func Test_getToken(t *testing.T) {
+	in := [][]string{[]string{"panxy3@asiainfo.com", "88888888"}}
+	expect := []string{"a189775949e417acd7d4349de8e33000"}
+
+	for i, v := range in {
+		out := getToken(v[0], v[1])
+		if len(out) != len(expect[i]) {
+			t.Errorf("Input: %s\n Output %s\n Expect %s\n", in[i], out, expect[i])
+		}
+	}
+}
+
+func Test_addPriceUid(t *testing.T) {
+
+	var a interface{}
+	a = []map[string]interface{}{
+		map[string]interface{}{
+			"time":   1,
+			"unit":   "h",
+			"money":  5,
+			"expire": 30,
+		},
+		map[string]interface{}{
+			"time":   1,
+			"unit":   "d",
+			"money":  5,
+			"expire": 30,
+		},
+		map[string]interface{}{
+			"time":   100,
+			"unit":   "m",
+			"money":  400,
+			"expire": 30,
+		},
+	}
+	aa := a.([]map[string]interface{})
+
+	for i, _ := range aa {
+		m := aa[i].(map[string]interface{})
+		m["uuid"] = 123123
+	}
+
+	log.Printf("%+v", a)
+}

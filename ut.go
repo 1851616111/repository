@@ -2,9 +2,13 @@ package main
 
 import (
 	"bytes"
+	"crypto/md5"
+	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -18,6 +22,7 @@ import (
 const (
 	TimeFormat            = "2006-01-02 15:04:05"
 	DATAITEM_PRICE_EXPIRE = 30
+	DATAITEM_PRICE_MAX    = 6
 )
 
 var (
@@ -324,8 +329,8 @@ func (p *api) cheParam() bool {
 func getSupplyStyleTp(label interface{}) string {
 	return label.(map[string]interface{})["sys"].(map[string]interface{})["supply_style"].(string)
 }
-func chkPrice(price interface{}, supplyStyle string) *Error {
 
+func chkPrice(price interface{}, supplyStyle string) *Error {
 	b, err := json.Marshal(price)
 	get(err)
 
@@ -333,6 +338,9 @@ func chkPrice(price interface{}, supplyStyle string) *Error {
 	switch supplyStyle {
 	case SUPPLY_STYLE_FLOW:
 		json.Unmarshal(b, &flows)
+		if len(flows) > DATAITEM_PRICE_MAX {
+			return E(ErrorCodeItemPriceOutOfLimit)
+		}
 		for i, v := range flows {
 			if !v.cheParam() {
 				return ErrInvalidParameter(fmt.Sprintf("price[%d]", i))
@@ -340,6 +348,9 @@ func chkPrice(price interface{}, supplyStyle string) *Error {
 		}
 	case SUPPLY_STYLE_API:
 		json.Unmarshal(b, &apis)
+		if len(flows) > DATAITEM_PRICE_MAX {
+			return E(ErrorCodeItemPriceOutOfLimit)
+		}
 		for i, v := range apis {
 			if !v.cheParam() {
 				return ErrInvalidParameter(fmt.Sprintf("price[%d]", i))
@@ -347,6 +358,9 @@ func chkPrice(price interface{}, supplyStyle string) *Error {
 		}
 	case SUPPLY_STYLE_BATCH:
 		json.Unmarshal(b, &batches)
+		if len(flows) > DATAITEM_PRICE_MAX {
+			return E(ErrorCodeItemPriceOutOfLimit)
+		}
 		for i, v := range batches {
 			if !v.cheParam() {
 				return ErrInvalidParameter(fmt.Sprintf("price[%d]", i))
@@ -354,33 +368,16 @@ func chkPrice(price interface{}, supplyStyle string) *Error {
 		}
 	}
 
-	//	for index, m := range p {
-	//		log.Println("index", index)
-	//		for i := 0; i < tp.NumField(); i++ {
-	//
-	//
-	//			log.Println(m[tp.Field(i).Name])
-	//			if m[tp.Field(i).Name].(int) < 0 {
-	//			log.Println("01")
-	//				return ErrInvalidParameter(fmt.Sprintf("price.[%d].%s", index, tp.Field(i).Name))
-	//			}
-	//			switch tp.Field(i).Type.Kind() {
-	//			case reflect.Uint:
-	//				if reflect.TypeOf(m[tp.Field(i).Name]).Kind() != reflect.Int {
-	//					log.Println("02")
-	//					return ErrInvalidParameter(fmt.Sprintf("price.[%d].%s", index, tp.Field(i).Name))
-	//				}
-	//
-	//			case reflect.Float64:
-	//				log.Println(reflect.TypeOf(m[tp.Field(i).Name]).Kind())
-	//				if reflect.TypeOf(m[tp.Field(i).Name]).Kind() != reflect.Float64 {
-	//					log.Println("03")
-	//					return ErrInvalidParameter(fmt.Sprintf("price.[%d].%s", index, tp.Field(i).Name))
-	//				}
-	//			}
-	//		}
-	//	}
 	return nil
+}
+func addPriceElemUid(price interface{}) {
+	if arr, ok := price.([]interface{}); ok {
+		for i, _ := range arr {
+			if m, ok := arr[i].(map[string]interface{}); ok {
+				m["uuid"] = bson.NewObjectId().Hex()
+			}
+		}
+	}
 }
 
 func ifInLabel(i interface{}, column string) *Error {
@@ -472,4 +469,31 @@ func HttpPostJson(postUrl string, body []byte, credential ...string) ([]byte, er
 		return nil, fmt.Errorf("[http] read err %s, %s\n", postUrl, err)
 	}
 	return b, nil
+}
+
+func getToken(user, passwd string) string {
+	passwdMd5 := getMd5(passwd)
+	token := fmt.Sprintf("Basic %s", string(base64Encode([]byte(fmt.Sprintf("%s:%s", user, passwdMd5)))))
+	URL := fmt.Sprintf("http://%s:%s/repositories/test", API_SERVER, API_PORT)
+	b, err := httpGet(URL, AUTHORIZATION, token)
+	if err != nil {
+		Log.Errorf("get token err: %s", err.Error())
+	}
+
+	var i interface{}
+	if err := json.Unmarshal(b, &i); err != nil {
+		Log.Errorf("unmarshal token err: %s", err.Error())
+	}
+	return i.(map[string]interface{})["token"].(string)
+}
+
+func getMd5(content string) string {
+	md5Ctx := md5.New()
+	md5Ctx.Write([]byte(content))
+	cipherStr := md5Ctx.Sum(nil)
+	return hex.EncodeToString(cipherStr)
+}
+
+func base64Encode(src []byte) []byte {
+	return []byte(base64.StdEncoding.EncodeToString(src))
 }

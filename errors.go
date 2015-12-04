@@ -32,6 +32,7 @@ const (
 	ErrorCodeOptFile
 	ErrorCodeItemOutOfLimit
 	ErrorCodeRepOutOfLimit
+	ErrorCodeItemPriceOutOfLimit
 
 	ErrorCodeNoParameter = 1400
 
@@ -54,6 +55,7 @@ func init() {
 	initError(ErrorCodeOptFile, "file operation")
 	initError(ErrorCodeItemOutOfLimit, "dataitem out of limit 30")
 	initError(ErrorCodeRepOutOfLimit, "repository out of limit")
+	initError(ErrorCodeItemPriceOutOfLimit, "dataitem price out of limit 6")
 
 	ErrorNone = E(OK)
 	ErrorUnkown = E(ErrorCodeUnkown)

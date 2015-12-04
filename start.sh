@@ -1,6 +1,5 @@
 app=datahub_repository
 
-
 #pkill -f server
 export API_SERVER=10.1.235.98
 export API_PORT=8888
@@ -13,4 +12,10 @@ export MONGO_ENV_MYSQL_USER=
 export MONGO_ENV_MYSQL_PASSWORD=
 export MQ_KAFKA_ADDR=10.1.235.98
 export MQ_KAFKA_PORT=9092
-./$app
+
+if [ $1 -z ];then
+    ./$app
+else
+    $1 $2 $3 $4 $5 $6
+fi
+

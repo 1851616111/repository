@@ -65,7 +65,7 @@ func updateUser(r *http.Request, real interface{}) ([]byte, error) {
 	login_Name := r.Header.Get("User")
 	token := r.Header.Get(AUTHORIZATION)
 	if login_Name == "" || token == "" {
-		Log.Infof("create repository token: %sm login_name: %s", token, login_Name)
+		Log.Infof("create repository token: %s login_name: %s", token, login_Name)
 		return nil, nil
 	}
 	b, _ := json.Marshal(real)

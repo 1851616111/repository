@@ -417,6 +417,7 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	if err := chkPrice(d.Price, getSupplyStyleTp(d.Label)); err != nil {
 		return rsp.Json(400, err)
 	}
+	addPriceElemUid(d.Price)
 
 	if d.Meta != "" {
 		if err := db.setFile(PREFIX_META, repname, itemname, []byte(d.Meta)); err != nil {

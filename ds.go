@@ -14,7 +14,8 @@ const (
 	C_DATAITEM_PERMISSION   = "permission_item"
 	C_SELECT                = "select"
 	C_TAG                   = "tag"
-	MQ_TOPIC                = "repositories_events_json"
+	MQ_TOPIC                = "2_subscriptions.json"
+	MQ_KEY                  = "repositories"
 )
 
 var (
@@ -176,7 +177,7 @@ type Msg struct {
 
 func (m *Msg) MqJson(content interface{}) {
 	b, _ := json.Marshal(content)
-	msg.SendAsyncMessage(MQ_TOPIC, []byte(""), b)
+	msg.SendAsyncMessage(MQ_TOPIC, []byte(MQ_KEY), b)
 }
 
 type MyMesssageListener struct {

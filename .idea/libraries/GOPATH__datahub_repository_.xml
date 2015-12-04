@@ -46,9 +46,11 @@
       <root url="file://$PROJECT_DIR$/../datahub_subscriptions/.git" />
       <root url="file://$PROJECT_DIR$/../../../gopkg.in/bufio.v1/.git" />
       <root url="file://$PROJECT_DIR$/../../gorilla/mux/.git" />
+      <root url="file://$PROJECT_DIR$/../tantan/Godeps/_workspace" />
       <root url="file://$PROJECT_DIR$/../../docker/docker/pkg/archive/testdata" />
       <root url="file://$PROJECT_DIR$/../../julienschmidt/httprouter/.git" />
       <root url="file://$PROJECT_DIR$/../../../gopkg.in/mgo.v2/.git" />
+      <root url="file://$PROJECT_DIR$/../../../gopkg.in/bsm/ratelimit.v1/.git" />
       <root url="file://$PROJECT_DIR$/../../go-martini/martini/.idea" />
       <root url="file://$PROJECT_DIR$" />
       <root url="file://$PROJECT_DIR$/.idea" />
