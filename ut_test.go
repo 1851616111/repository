@@ -1,14 +1,12 @@
 package main
 
 import (
-	"log"
 	"testing"
 )
 
 func Test_buildTime(t *testing.T) {
 	param := []string{"2013-01-02 15:04:05", "2014-01-02 15:04:05", "2015-05-26 15:04:05", "2015-10-28 15:04:05", "2015-11-28 15:04:05", "2015-11-30 15:04:05"}
 	for i := 0; i < len(param); i++ {
-
 		t.Log(param[i])
 		t.Log(buildTime(param[i]))
 	}
@@ -16,26 +14,30 @@ func Test_buildTime(t *testing.T) {
 
 func Test_ifInLabel(t *testing.T) {
 	label := map[string]interface{}{"sys": map[string]interface{}{"supply_style": "api"}}
-	e := ifInLabel(label, "supply_style")
-	log.Println(e.ErrToString())
+	if err := ifInLabel(label, "supply_style"); err != nil {
+		t.Errorf("Test_ifInLabel fail: %s", err.ErrToString())
+	}
 }
 
 func Test_chkPrice(t *testing.T) {
-
-	price := []map[string]interface{}{
-		map[string]interface{}{"times": 1000, "money": 5, "expire": DATAITEM_PRICE_EXPIRE},
-		map[string]interface{}{"times": 10000, "money": 45, "expire": DATAITEM_PRICE_EXPIRE},
-		map[string]interface{}{"times": 100000.00, "money": 400.00, "expire": DATAITEM_PRICE_EXPIRE},
+	context := M{
+		"api": []map[string]interface{}{
+			map[string]interface{}{"times": 1000, "money": 5, "expire": DATAITEM_PRICE_EXPIRE},
+			map[string]interface{}{"times": 10000, "money": 45, "expire": DATAITEM_PRICE_EXPIRE},
+			map[string]interface{}{"times": 100000.00, "money": 400.00, "expire": DATAITEM_PRICE_EXPIRE},
+		},
+		"flow": []map[string]interface{}{
+			map[string]interface{}{"time": 1000, "unit": "h", "money": 5, "expire": DATAITEM_PRICE_EXPIRE},
+			map[string]interface{}{"time": 10000, "unit": "h", "money": 45, "expire": DATAITEM_PRICE_EXPIRE},
+			map[string]interface{}{"time": 100000.00, "unit": "d", "money": 400.00, "expire": DATAITEM_PRICE_EXPIRE},
+		},
 	}
-	log.Println(chkPrice(price, "api"))
 
-	price2 := []map[string]interface{}{
-		map[string]interface{}{"time": 1000, "unit": "h", "money": 5, "expire": DATAITEM_PRICE_EXPIRE},
-		map[string]interface{}{"time": 10000, "unit": "h", "money": 45, "expire": DATAITEM_PRICE_EXPIRE},
-		map[string]interface{}{"time": 100000.00, "unit": "d", "money": 400.00, "expire": DATAITEM_PRICE_EXPIRE},
+	for k, v := range context {
+		if err := chkPrice(v, k.(string)); err != nil {
+			t.Errorf("Test_chkPrice fail: %s", err.ErrToString())
+		}
 	}
-	log.Println(chkPrice(price2, "flow"))
-
 }
 func Test_getMd5(t *testing.T) {
 	in := []string{"88888888"}
@@ -71,37 +73,4 @@ func Test_getToken(t *testing.T) {
 			t.Errorf("Input: %s\n Output %s\n Expect %s\n", in[i], out, expect[i])
 		}
 	}
-}
-
-func Test_addPriceUid(t *testing.T) {
-
-	var a interface{}
-	a = []map[string]interface{}{
-		map[string]interface{}{
-			"time":   1,
-			"unit":   "h",
-			"money":  5,
-			"expire": 30,
-		},
-		map[string]interface{}{
-			"time":   1,
-			"unit":   "d",
-			"money":  5,
-			"expire": 30,
-		},
-		map[string]interface{}{
-			"time":   100,
-			"unit":   "m",
-			"money":  400,
-			"expire": 30,
-		},
-	}
-	aa := a.([]map[string]interface{})
-
-	for i, _ := range aa {
-		m := aa[i].(map[string]interface{})
-		m["uuid"] = 123123
-	}
-
-	log.Printf("%+v", a)
 }

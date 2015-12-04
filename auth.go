@@ -110,6 +110,7 @@ func chkUserLimit(w http.ResponseWriter, r *http.Request, c martini.Context, db 
 func authAdmin(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
 
 	if getUserType(r, db) != USER_TP_ADMIN {
+		Log.Infof("auth admin: %s", r.Header.Get("User"))
 		http.Error(w, E(ErrorCodeUnauthorized).ErrToString(), 401)
 		return
 	}

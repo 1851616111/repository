@@ -20,13 +20,13 @@ const (
 )
 
 var (
-	ramdom       int
-	repnames     []string
-	itemnames    []string
-	tagnames     []string
-	selectlabel1 string
-	selectlabel2 string
-	token        string
+	ramdom         int
+	repnames       []string
+	itemnames      []string
+	tagnames       []string
+	selectlabel    string
+	newselectlabel string
+	token          string
 )
 
 func init() {
@@ -40,8 +40,8 @@ func init() {
 		tagnames = append(tagnames, initTagName(i))
 	}
 
-	selectlabel1 = fmt.Sprintf("精选栏目_%d", ramdom)
-	selectlabel2 = fmt.Sprintf("精选栏目_new_%d", ramdom)
+	selectlabel = fmt.Sprintf("精选栏目_%d", ramdom)
+	newselectlabel = fmt.Sprintf("精选栏目_new_%d", ramdom)
 
 	go q_c.serve(&db)
 
@@ -601,14 +601,14 @@ func Test_createTagHandler(t *testing.T) {
 func Test_setSelectLabelHandler(t *testing.T) {
 	contexts := []Context{
 		Context{
-			description: fmt.Sprintf("1.创建精选栏目"),
+			description: fmt.Sprintf("1.创建精选栏目 --------------> %s", selectlabel),
 			param: param{
 				requestBody: `{
 							"order": 1,
 							"icon":"path1"
 						}`,
 				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"labelname": selectlabel1},
+				param:      martini.Params{"labelname": selectlabel},
 				db:         db.copy(),
 				login_name: ADMINUSERNAME,
 			},
@@ -642,10 +642,10 @@ func Test_setSelectLabelHandler(t *testing.T) {
 func Test_getSelectLabelsHandler(t *testing.T) {
 	contexts := []Context{
 		Context{
-			description: fmt.Sprintf("1.查询精选栏目"),
+			description: fmt.Sprintf("1.查询精选栏目 --------------> %s", selectlabel),
 			param: param{
 				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"labelname": selectlabel1},
+				param:      martini.Params{"labelname": selectlabel},
 				db:         db.copy(),
 				login_name: USERNAME,
 			},
@@ -679,15 +679,15 @@ func Test_getSelectLabelsHandler(t *testing.T) {
 func Test_updateSelectLabelHandler(t *testing.T) {
 	contexts := []Context{
 		Context{
-			description: fmt.Sprintf("1.【管理员】更新现有精选栏目的名称"),
+			description: fmt.Sprintf("1.【管理员】更新现有精选栏目的名称  --------------> old: %s, new : %s", selectlabel, newselectlabel),
 			param: param{
 				requestBody: fmt.Sprintf(`{
 							"order": 2,
 							"icon":"path2",
 							"newlabelname":"%s"
-						}`, selectlabel2),
+						}`, newselectlabel),
 				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"labelname": selectlabel1},
+				param:      martini.Params{"labelname": selectlabel},
 				db:         db.copy(),
 				login_name: USERNAME,
 			},
@@ -724,7 +724,7 @@ func Test_updateSelectHandler(t *testing.T) {
 			description: fmt.Sprintf("1.【管理员】创建精选内容 ----------> %s/%s", repnames[0], itemnames[0]),
 			param: param{
 
-				requestForm: url.Values{"select_labels": []string{selectlabel2}, "order": []string{"100"}},
+				requestForm: url.Values{"select_labels": []string{newselectlabel}, "order": []string{"100"}},
 				rsp:         &Rsp{w: httptest.NewRecorder()},
 				param:       martini.Params{"repname": repnames[0], "itemname": itemnames[0]},
 				db:          db.copy(),
@@ -819,42 +819,6 @@ func Test_delSelectHandler(t *testing.T) {
 		r, err := http.NewRequest("DELETE", "/selects/rep1/dataitem1", strings.NewReader(p.requestBody))
 		get(err)
 		code, msg := getSelectsHandler(r, p.rsp, p.db)
-
-		if !expect.expect(t, code, msg) {
-			t.Logf("%s fail.", v.description)
-			t.Log(code)
-			t.Log(msg)
-		} else {
-			t.Logf("%s success.", v.description)
-		}
-		t.Log("")
-	}
-}
-
-func Test_delSelectLabelHandler(t *testing.T) {
-	contexts := []Context{
-		Context{
-			description: fmt.Sprintf("1.【管理员】删除精选栏目"),
-			param: param{
-				rsp:   &Rsp{w: httptest.NewRecorder()},
-				param: martini.Params{"labelname": selectlabel2},
-				db:    db.copy(),
-			},
-			expect: expect{
-				code: 200,
-				body: Body{Result{
-					Code: 0,
-					Msg:  "OK",
-				}},
-			},
-		},
-	}
-	for _, v := range contexts {
-		p := v.param
-		expect := v.expect
-		r, err := http.NewRequest("DELETE", "/select_labels/:labelname", strings.NewReader(p.requestBody))
-		get(err)
-		code, msg := delSelectLabelHandler(r, p.rsp, p.param, p.db)
 
 		if !expect.expect(t, code, msg) {
 			t.Logf("%s fail.", v.description)
@@ -2052,6 +2016,42 @@ func Test_delRHandler(t *testing.T) {
 			t.Logf("%s success.", v.description)
 		}
 
+	}
+}
+
+func Test_delSelectLabelHandler(t *testing.T) {
+	contexts := []Context{
+		Context{
+			description: fmt.Sprintf("1.【管理员】删除精选栏目--------------> %s", selectlabel),
+			param: param{
+				rsp:   &Rsp{w: httptest.NewRecorder()},
+				param: martini.Params{"labelname": newselectlabel},
+				db:    db.copy(),
+			},
+			expect: expect{
+				code: 200,
+				body: Body{Result{
+					Code: 0,
+					Msg:  "OK",
+				}},
+			},
+		},
+	}
+	for _, v := range contexts {
+		p := v.param
+		expect := v.expect
+		r, err := http.NewRequest("DELETE", "/select_labels/:labelname", strings.NewReader(p.requestBody))
+		get(err)
+		code, msg := delSelectLabelHandler(r, p.rsp, p.param, p.db)
+
+		if !expect.expect(t, code, msg) {
+			t.Logf("%s fail.", v.description)
+			t.Log(code)
+			t.Log(msg)
+		} else {
+			t.Logf("%s success.", v.description)
+		}
+		t.Log("")
 	}
 }
 
