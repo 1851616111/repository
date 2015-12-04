@@ -12,3 +12,8 @@ script:
   - export GOPATH=/gopath
   - go get -t datahub_repository
   - go test -v datahub_repository
+  - nosetests test.py --with-xunit --xunit-file=$TEST_RESULT
+  - coverage run --branch test.py
+  - coverage xml -o $TEST_COVERAGE test.py
+  - cat $TEST_RESULT
+  - cat $TEST_COVERAGE
