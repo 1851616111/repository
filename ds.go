@@ -30,16 +30,15 @@ type Label struct {
 }
 
 type repository struct {
-	Repository_name string `json:"-"`
-	Create_user     string `json:"create_user,omitempty"`
-	Repaccesstype   string `json:"repaccesstype,omitempty"`
-	//	Deposit         bool      `json:"deposit"`
-	Comment string      `json:"comment"`
-	Optime  string      `json:"optime,omitempty"`
-	Items   int         `json:"items"`
-	Label   interface{} `json:"label"`
-	Ct      time.Time   `json:"-"`
-	st      time.Time
+	Repository_name string      `json:"-"`
+	Create_user     string      `json:"create_user,omitempty"`
+	Repaccesstype   string      `json:"repaccesstype,omitempty"`
+	Comment         string      `json:"comment"`
+	Optime          string      `json:"optime,omitempty"`
+	Items           int         `json:"items"`
+	Label           interface{} `json:"label"`
+	Ct              time.Time   `json:"-"`
+	st              time.Time
 }
 
 type Namelist []names

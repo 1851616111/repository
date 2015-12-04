@@ -175,7 +175,7 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	if showItems != "" {
 		items := []string{}
 		ds := []dataItem{}
-		Q := bson.M{COL_REPNAME: repname, COL_CREATE_USER: user}
+		Q := bson.M{COL_REPNAME: repname}
 		ds, err = db.getDataitems(page_index, page_size, Q)
 		get(err)
 		for _, v := range ds {

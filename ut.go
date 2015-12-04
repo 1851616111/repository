@@ -152,6 +152,7 @@ func (p *Select) ParseRequeset(r *http.Request) error {
 			case "string":
 				v.FieldByName(f.Name).SetString(name)
 			case "float32":
+				fallthrough
 			case "float64":
 				ff, _ := strconv.ParseFloat(name, 10)
 				v.FieldByName(f.Name).SetFloat(ff)
