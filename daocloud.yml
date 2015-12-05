@@ -1,4 +1,4 @@
-image: daocloud/ci-golang:1.4
+image: daocloud.io/asiainfo_dev/datahub_kafka:master-init
 services:
   - mongodb
 env:
