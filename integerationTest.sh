@@ -52,6 +52,7 @@ function getToken() {
 
     if [ ${#token} -ne 32 ];then
         echo "no token avaliable"
+        exit
     fi
 
     echo "Token $token"
