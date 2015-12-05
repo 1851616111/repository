@@ -10,3 +10,9 @@ before_script:
 script:
   - export GOPATH=/gopath
   - go test -v github.com/asiainfoLDP/datahub_repository
+notify:  
+  email:
+    recipients:
+      - mengjing@asiainfo.com
+    on_success: on
+    on_failure: off
