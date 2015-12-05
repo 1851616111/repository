@@ -889,14 +889,16 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	if rep.Repaccesstype == ACCESS_PRIVATE {
 		Q := bson.M{COL_PERMIT_REPNAME: rep.Repository_name, COL_PERMIT_USER: user}
 		if user != "" {
-			switch rep.Create_user {
-			case user:
-			default:
+			switch rep.Create_user == user {
+			case true:
+				Log.Errorf("get dataitem : this is my repository")
+			case false:
 				if !db.hasPermission(COL_PERMIT_REPNAME, Q) {
 					return rsp.Json(400, E(ErrorCodePermissionDenied))
 				}
 			}
 		} else {
+			Log.Errorf("get dataitem find no user")
 			return rsp.Json(400, E(ErrorCodePermissionDenied))
 		}
 	}
