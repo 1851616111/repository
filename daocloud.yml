@@ -1,7 +1,6 @@
 image: daocloud/ci-golang:1.4
 services:
   - mongodb
-  - MQ_KAFKA
 env:
   - MONGO_PORT_27017_TCP_ADDR=$MONGODB_PORT_27017_TCP_ADDR
   - MONGO_PORT_27017_TCP_PORT=$MONGODB_PORT_27017_TCP_PORT
