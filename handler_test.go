@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	_ "github.com/asiainfoLDP/datahub_subscriptions/log"
 	"github.com/go-martini/martini"
 	"math/rand"
 	"net/http"
