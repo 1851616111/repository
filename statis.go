@@ -49,6 +49,6 @@ func staticLoop(db *DB) {
 		time.Sleep(time.Hour)
 		copy.getDStatis()
 		copy.getRStatis()
-
 	}
+
 }

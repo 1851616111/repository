@@ -43,7 +43,7 @@ func init() {
 		Log.Errorf("initMQ error: %s", err.Error())
 		return
 	}
-	msg = Msg{*m_q}
+	msg = Msg{m_q}
 }
 
 func main() {

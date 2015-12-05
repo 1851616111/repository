@@ -171,27 +171,10 @@ type m_rep struct {
 }
 
 type Msg struct {
-	mq.KafukaMQ
+	mq.MessageQueue
 }
 
 func (m *Msg) MqJson(content interface{}) {
 	b, _ := json.Marshal(content)
 	msg.SendAsyncMessage(MQ_TOPIC, []byte(MQ_KEY), b)
-}
-
-type MyMesssageListener struct {
-	name string
-}
-
-func newMyMesssageListener(name string) *MyMesssageListener {
-	return &MyMesssageListener{name: name}
-}
-
-func (listener *MyMesssageListener) OnMessage(key, value []byte, topic string, partition int32, offset int64) {
-	Log.Errorf("%s received: (%d) message: %s", listener.name, offset, string(value))
-}
-
-func (listener *MyMesssageListener) OnError(err error) bool {
-	Log.Errorf("api response listener error: %s", err.Error())
-	return false
 }

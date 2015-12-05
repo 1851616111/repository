@@ -1,5 +1,6 @@
 #/bin/bash
-Host=http://54.223.58.0:8888
+Host=http://10.1.235.98:8888
+#Host=http://54.223.58.0:8888
 #Host=http://hub.dataos.io/api
 user=panxy3@asiainfo.com
 passwd=88888888
@@ -28,31 +29,33 @@ function getBasic() {
     pw=`echo -n $2 | md5sum`
     tmp=${pw:0:32}
     basic=`echo -n $1:$tmp |base64`
-    if [ ${#basic} -e 0 ];then
+    if [ "${basic}" = "" ];then
         echo "no basic avaliable"
+        exit
     fi
 
     echo $basic
 }
 
 function getToken() {
+
+   basic=$1
+
+   if [ -z "$basic" ];then
+       echo basic null
+   exit
+   fi
+
     tokenURL=${Host}/permission/mob
-    token=`curl  $tokenURL -H "Authorization: Basic $Basic" -x proxy.asiainfo.com:8080 -s`
-    Token=`echo $token | cut -d \" -f 4`
-    if [ ${#Token} -ne 32 ];then
+    token=`curl  $tokenURL -H "Authorization: Basic $basic" -x proxy.asiainfo.com:8080 -s`
+    token=`echo $token | cut -d \" -f 4`
+
+    if [ ${#token} -ne 32 ];then
         echo "no token avaliable"
     fi
-    Token="Token $Token"
-}
 
-function getAdminToken() {
-    tokenURL=${Host}/permission/mob
-        admintoken=`curl  $tokenURL -H "Authorization: Basic ZGF0YWh1YkBhc2lhaW5mby5jb206NDZjNWZjODQ5MWI5NjMyNDAxYTIwN2M3YWIwNGViMGE=" -x proxy.asiainfo.com:8080 -s`
-    AdminToken=`echo $admintoken | cut -d \" -f 4`
-    if [ ${#AdminToken} -ne 32 ];then
-        echo "no admintoken avaliable"
-    fi
-    AdminToken="Token $AdminToken"
+    echo "Token $token"
+
 }
 
 function chkResult() {
@@ -62,22 +65,19 @@ function chkResult() {
     fi
 }
 
-$(getBasic) $user $passwd
-$(getBasic) $admin $admin_passwd
-echo "----------> $Basic"
-getToken
+Basic=$(getBasic $user $passwd)
+AdminBasic=$(getBasic $admin $admin_passwd)
+
+Token=$(getToken $Basic)
 echo "Token : $Token"
 
-getAdminToken
+AdminToken=$(getToken $AdminBasic)
 echo "AdminToken : $AdminToken"
-
 
 Rep=Repository_$RANDOM
 Item=Dataitem_$RANDOM
 Tag=Tag_$RANDOM
 Label=Label_$RANDOM
-
-
 
 echo "<----------------------------- 		环境准备,清理数据 	 	    ------------------------------------->"
 echo "<----------------------------- 		Start 			    	    ------------------------------------->"
