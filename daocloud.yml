@@ -15,4 +15,4 @@ notify:
     recipients:
       - mengjing@asiainfo.com
     on_success: on
-    on_failure: off
+    on_failure: on
