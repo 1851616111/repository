@@ -8,4 +8,5 @@ before_script:
   - export GOPATH=/gopath
   - go get -t github.com/asiainfoLDP/datahub_repository
 script:
+  - export GOPATH=/gopath
   - go test -v github.com/asiainfoLDP/datahub_repository
