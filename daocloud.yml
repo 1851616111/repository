@@ -1,4 +1,4 @@
-image: daocloud.io/asiainfo_dev/ci-go-kafka:master-init
+image: daocloud.io/asiainfo_dev/ci-go-kafka:master-5ab033c
 services:
   - mongodb
 env:
