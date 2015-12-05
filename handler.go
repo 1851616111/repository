@@ -888,6 +888,7 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	user := r.Header.Get("User")
 	if rep.Repaccesstype == ACCESS_PRIVATE {
 		Q := bson.M{COL_PERMIT_REPNAME: rep.Repository_name, COL_PERMIT_USER: user}
+		Log.Errorf("get dataitem user %s", user)
 		if user != "" {
 			switch rep.Create_user == user {
 			case true:
