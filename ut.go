@@ -27,7 +27,7 @@ const (
 
 var (
 	LOCAL_LOCATION   *time.Location
-	BATCH_TIME_UNITS = []interface{}{"m", "h", "d"}
+	BATCH_TIME_UNITS = []interface{}{"month", "hour", "day", ""}
 )
 
 func init() {
@@ -285,7 +285,7 @@ type flow struct {
 	Money  float64 `json:"money"`
 }
 
-func (p *flow) cheParam() bool {
+func (p *flow) chkParam() bool {
 	if p.Expire <= 0 || p.Time <= 0 || p.Money <= 0 || !Contains(BATCH_TIME_UNITS, p.Unit) {
 		return false
 	}
@@ -307,7 +307,7 @@ type batch struct {
 	Money  float64 `json:"money"`
 }
 
-func (p *batch) cheParam() bool {
+func (p *batch) chkParam() bool {
 	if p.Expire <= 0 || p.Times <= 0 || p.Money <= 0 {
 		return false
 	}
@@ -320,7 +320,7 @@ type api struct {
 	Money  float64 `json:"money"`
 }
 
-func (p *api) cheParam() bool {
+func (p *api) chkParam() bool {
 	if p.Expire <= 0 || p.Times <= 0 || p.Money <= 0 {
 		return false
 	}
@@ -343,7 +343,7 @@ func chkPrice(price interface{}, supplyStyle string) *Error {
 			return E(ErrorCodeItemPriceOutOfLimit)
 		}
 		for i, v := range flows {
-			if !v.cheParam() {
+			if !v.chkParam() {
 				return ErrInvalidParameter(fmt.Sprintf("price[%d]", i))
 			}
 		}
@@ -353,7 +353,7 @@ func chkPrice(price interface{}, supplyStyle string) *Error {
 			return E(ErrorCodeItemPriceOutOfLimit)
 		}
 		for i, v := range apis {
-			if !v.cheParam() {
+			if !v.chkParam() {
 				return ErrInvalidParameter(fmt.Sprintf("price[%d]", i))
 			}
 		}
@@ -363,7 +363,7 @@ func chkPrice(price interface{}, supplyStyle string) *Error {
 			return E(ErrorCodeItemPriceOutOfLimit)
 		}
 		for i, v := range batches {
-			if !v.cheParam() {
+			if !v.chkParam() {
 				return ErrInvalidParameter(fmt.Sprintf("price[%d]", i))
 			}
 		}
