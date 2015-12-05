@@ -4,8 +4,33 @@ Host=http://10.1.235.98:8888
 #Host=http://hub.dataos.io/api
 user=panxy3@asiainfo.com
 passwd=88888888
-admin=datahub@asiainfo.com
-admin_passwd=BDXLDPdatahub
+admin=$1
+admin_passwd=$2
+
+function adminInput(){
+    while true
+    do
+        if [ "$admin" = "" ];then
+            echo -e "管理员用户名:"
+            read -a admin
+        else
+            break
+        fi
+
+    done
+
+     while true
+     do
+        if [ "$admin_passwd" = "" ];then
+            echo -e "管理员密码:"
+            read -a admin_passwd
+        else
+            break
+        fi
+     done
+}
+
+adminInput
 
 Basic=""
 AdminBasic=""

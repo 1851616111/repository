@@ -55,7 +55,7 @@ func init() {
 func Test_createRHandler(t *testing.T) {
 	contexts := []Context{
 		Context{
-			description: fmt.Sprintf("1. 创建Repository(全部参数) ----------> %s", repnames[0]),
+			description: fmt.Sprintf("1.【拥有者】【新增】Rep (全部参数) ----------> (%s)", repnames[0]),
 			param: param{
 				requestBody: `{
 									"repaccesstype": "public",
@@ -90,7 +90,7 @@ func Test_createRHandler(t *testing.T) {
 			},
 		},
 		Context{
-			description: fmt.Sprintf("2.创建Repository(参数repository_name重复) ----------> %s", repnames[0]),
+			description: fmt.Sprintf("2.【拥有者】【新增】Rep (参数repository_name重复) ----------> (%s)", repnames[0]),
 			param: param{
 				requestBody: `{
 									"repaccesstype": "public",
@@ -125,7 +125,7 @@ func Test_createRHandler(t *testing.T) {
 			},
 		},
 		Context{
-			description: fmt.Sprintf("3.创建Repository(参数只有repaccesstype) ----------> %s", repnames[2]),
+			description: fmt.Sprintf("3.【拥有者】【新增】Rep (参数只有repaccesstype) ----------> (%s)", repnames[2]),
 			param: param{
 				requestBody: `{
 									"repaccesstype": "public"
@@ -145,7 +145,7 @@ func Test_createRHandler(t *testing.T) {
 			},
 		},
 		Context{
-			description: fmt.Sprintf("4.创建Repository(参数只有comment) ----------> %s", repnames[3]),
+			description: fmt.Sprintf("4.【拥有者】【新增】Rep (参数只有comment) ----------> (%s)", repnames[3]),
 			param: param{
 				requestBody: `{
 									"comment": "中国移动北京终端详情"
@@ -165,7 +165,7 @@ func Test_createRHandler(t *testing.T) {
 			},
 		},
 		Context{
-			description: fmt.Sprintf("5.创建Repository(参数只有label) ----------> %s", repnames[4]),
+			description: fmt.Sprintf("5.【拥有者】【新增】Rep (参数只有label) ----------> (%s)", repnames[4]),
 			param: param{
 				requestBody: `{
 									"label": {
@@ -198,7 +198,7 @@ func Test_createRHandler(t *testing.T) {
 			},
 		},
 		Context{
-			description: fmt.Sprintf("6.创建Repository(参数只有label) ----------> %s", repnames[5]),
+			description: fmt.Sprintf("6.【拥有者】【新增】Rep (参数只有label) ----------> (%s)", repnames[5]),
 			param: param{
 				requestBody: `{
 									"label": {
@@ -225,7 +225,7 @@ func Test_createRHandler(t *testing.T) {
 			},
 		},
 		Context{
-			description: fmt.Sprintf("7.创建Repository(参数为空) ----------> %s", repnames[6]),
+			description: fmt.Sprintf("7.【拥有者】【新增】Rep (参数为空) ----------> (%s)", repnames[6]),
 			param: param{
 				requestBody: `{}`,
 				rsp:         &Rsp{w: httptest.NewRecorder()},
@@ -267,7 +267,7 @@ func Test_createRHandler(t *testing.T) {
 func Test_createDHandler(t *testing.T) {
 	contexts := []Context{
 		Context{
-			description: fmt.Sprintf("1.创建Dataitem(全部参数) ----------> %s/%s", repnames[0], itemnames[0]),
+			description: fmt.Sprintf("1.【拥有者】【新增】Item (全部参数) ----------> (%s/%s)", repnames[0], itemnames[0]),
 			param: param{
 				requestBody: `{
 								"itemaccesstype": "private",
@@ -297,7 +297,7 @@ func Test_createDHandler(t *testing.T) {
 			},
 		},
 		Context{
-			description: fmt.Sprintf("2.创建Dataitem(重复dataitem) ----------> %s/%s", repnames[0], itemnames[0]),
+			description: fmt.Sprintf("2.【拥有者】【新增】Item (重复dataitem) ----------> (%s/%s)", repnames[0], itemnames[0]),
 			param: param{
 				requestBody: `{
 								"itemaccesstype": "private",
@@ -327,7 +327,7 @@ func Test_createDHandler(t *testing.T) {
 			},
 		},
 		Context{
-			description: fmt.Sprintf("3.创建Dataitem(不存在的repository) ----------> %s/%s", repnames[1], itemnames[1]),
+			description: fmt.Sprintf("3.【拥有者】【新增】Item (不存在的repository) ----------> (%s/%s)", repnames[1], itemnames[1]),
 			param: param{
 				requestBody: `{
 								"itemaccesstype": "private",
@@ -357,7 +357,7 @@ func Test_createDHandler(t *testing.T) {
 			},
 		},
 		Context{
-			description: fmt.Sprintf("4.创建Dataitem(必选参数label.sys.supply_style缺失) ----------> %s/%s", repnames[2], itemnames[2]),
+			description: fmt.Sprintf("4.【拥有者】【新增】Item (必选参数label.sys.supply_style缺失) ----------> (%s/%s)", repnames[2], itemnames[2]),
 			param: param{
 				requestBody: `{
 								"itemaccesstype": "private",
@@ -385,7 +385,7 @@ func Test_createDHandler(t *testing.T) {
 			},
 		},
 		Context{
-			description: fmt.Sprintf("5.创建Dataitem(必选参数label.sys.supply_style违法) ----------> %s/%s", repnames[2], itemnames[2]),
+			description: fmt.Sprintf("5.【拥有者】【新增】Item (必选参数label.sys.supply_style违法) ----------> (%s/%s)", repnames[2], itemnames[2]),
 			param: param{
 				requestBody: `{
 								"itemaccesstype": "private",
@@ -413,7 +413,7 @@ func Test_createDHandler(t *testing.T) {
 			},
 		},
 		Context{
-			description: fmt.Sprintf("6.创建Dataitem(label自定义参数) ----------> %s/%s", repnames[2], itemnames[2]),
+			description: fmt.Sprintf("6.【拥有者】【新增】Item (label自定义参数) ----------> (%s/%s)", repnames[2], itemnames[2]),
 			param: param{
 				requestBody: `{
 								"itemaccesstype": "private",
@@ -449,7 +449,7 @@ func Test_createDHandler(t *testing.T) {
 			},
 		},
 		Context{
-			description: fmt.Sprintf("6.创建Dataitem(meta,sample,comment不传) ----------> %s/%s", repnames[2], itemnames[3]),
+			description: fmt.Sprintf("7.【拥有者】【新增】Item (meta,sample,comment不传) ----------> (%s/%s)", repnames[2], itemnames[3]),
 			param: param{
 				requestBody: `{
 								"itemaccesstype": "private",
@@ -501,10 +501,47 @@ func Test_createDHandler(t *testing.T) {
 	}
 }
 
+func Test_searchHandler(t *testing.T) {
+	contexts := []Context{
+		Context{
+
+			description: fmt.Sprintln("1.【任意】【查询】Search 关键字 (mobile)"),
+			param: param{
+				rsp: &Rsp{w: httptest.NewRecorder()},
+				db:  db.copy(),
+			},
+			expect: expect{
+				code: 200,
+				body: Body{Result{
+					Code: 0,
+					Msg:  "OK",
+				}},
+			},
+		},
+	}
+
+	for _, v := range contexts {
+		p := v.param
+		expect := v.expect
+		r, err := http.NewRequest("GET", fmt.Sprintf("/search?text=mobile", p.repName), strings.NewReader(p.requestBody))
+		get(err)
+
+		code, msg := searchHandler(r, p.rsp, p.db)
+
+		if !expect.expect(t, code, msg) {
+			t.Logf("%s fail.", v.description)
+			t.Log(code)
+			t.Log(msg)
+		} else {
+			t.Logf("%s success.", v.description)
+		}
+	}
+}
+
 func Test_createTagHandler(t *testing.T) {
 	contexts := []Context{
 		Context{
-			description: fmt.Sprintf("1.创建Tag(全部参数) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[0]),
+			description: fmt.Sprintf("1.【拥有者】【新增】Tag (全部参数) ----------> (%s/%s/%s)", repnames[0], itemnames[0], tagnames[0]),
 			param: param{
 				requestBody: `{
 								"comment":"2001MB"
@@ -523,7 +560,7 @@ func Test_createTagHandler(t *testing.T) {
 			},
 		},
 		Context{
-			description: fmt.Sprintf("2.创建Tag(重复创建) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[0]),
+			description: fmt.Sprintf("2.【拥有者】【新增】Tag (重复创建) ----------> (%s/%s/%s)", repnames[0], itemnames[0], tagnames[0]),
 			param: param{
 				requestBody: `{
 								"comment":"20001MB"
@@ -542,7 +579,7 @@ func Test_createTagHandler(t *testing.T) {
 			},
 		},
 		Context{
-			description: fmt.Sprintf("3.创建Tag(所属dataitem不存在) ----------> %s/%s/%s", repnames[0], itemnames[2], tagnames[1]),
+			description: fmt.Sprintf("3.【拥有者】【新增】Tag (所属dataitem不存在) ----------> (%s/%s/%s)", repnames[0], itemnames[2], tagnames[1]),
 			param: param{
 				requestBody: `{
 								"comment":"20001MB"
@@ -561,7 +598,7 @@ func Test_createTagHandler(t *testing.T) {
 			},
 		},
 		Context{
-			description: fmt.Sprintf("4.创建Tag(请求body未传参数) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[1]),
+			description: fmt.Sprintf("4.【拥有者】【新增】Tag (请求body未传参数) ----------> (%s/%s/%s)", repnames[0], itemnames[0], tagnames[1]),
 			param: param{
 				requestBody: ``,
 				rsp:         &Rsp{w: httptest.NewRecorder()},
@@ -600,7 +637,7 @@ func Test_createTagHandler(t *testing.T) {
 func Test_setSelectLabelHandler(t *testing.T) {
 	contexts := []Context{
 		Context{
-			description: fmt.Sprintf("1.创建精选栏目 --------------> %s", selectlabel),
+			description: fmt.Sprintf("1.【管理员】【新增】SelectLabel --------------> (%s)", selectlabel),
 			param: param{
 				requestBody: `{
 							"order": 1,
@@ -641,7 +678,7 @@ func Test_setSelectLabelHandler(t *testing.T) {
 func Test_getSelectLabelsHandler(t *testing.T) {
 	contexts := []Context{
 		Context{
-			description: fmt.Sprintf("1.查询精选栏目 --------------> %s", selectlabel),
+			description: fmt.Sprintf("1.【管理员】【查询】SelectLabel --------------> (%s)", selectlabel),
 			param: param{
 				rsp:        &Rsp{w: httptest.NewRecorder()},
 				param:      martini.Params{"labelname": selectlabel},
@@ -678,7 +715,7 @@ func Test_getSelectLabelsHandler(t *testing.T) {
 func Test_updateSelectLabelHandler(t *testing.T) {
 	contexts := []Context{
 		Context{
-			description: fmt.Sprintf("1.【管理员】更新现有精选栏目的名称  --------------> old: %s, new : %s", selectlabel, newselectlabel),
+			description: fmt.Sprintf("1.【管理员】【更新】SelectLabel   --------------> (old: %s, new : %s)", selectlabel, newselectlabel),
 			param: param{
 				requestBody: fmt.Sprintf(`{
 							"order": 2,
@@ -720,7 +757,7 @@ func Test_updateSelectLabelHandler(t *testing.T) {
 func Test_updateSelectHandler(t *testing.T) {
 	contexts := []Context{
 		Context{
-			description: fmt.Sprintf("1.【管理员】创建精选内容 ----------> %s/%s", repnames[0], itemnames[0]),
+			description: fmt.Sprintf("1.【管理员】将Item添加至精选 ----------> (%s/%s)", repnames[0], itemnames[0]),
 			param: param{
 
 				requestForm: url.Values{"select_labels": []string{newselectlabel}, "order": []string{"100"}},
@@ -760,7 +797,7 @@ func Test_updateSelectHandler(t *testing.T) {
 func Test_getSelectsHandler(t *testing.T) {
 	contexts := []Context{
 		Context{
-			description: fmt.Sprintf("1.【任意】返回精选内容，按照order排序"),
+			description: fmt.Sprintf("1.【任意】【查询】精选的Item(按照order排序)"),
 			param: param{
 				rsp:        &Rsp{w: httptest.NewRecorder()},
 				db:         db.copy(),
