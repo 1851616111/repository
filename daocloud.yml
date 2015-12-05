@@ -1,9 +1,11 @@
-image: daocloud.io/asiainfo_dev/datahub_kafka:master-init
+image: daocloud.io/asiainfo_dev/ci-go-kafka:master-init
 services:
   - mongodb
 env:
   - MONGO_PORT_27017_TCP_ADDR=$MONGODB_PORT_27017_TCP_ADDR
   - MONGO_PORT_27017_TCP_PORT=$MONGODB_PORT_27017_TCP_PORT
+  - MQ_KAFKA_ADDR=$MQ_KAFKA_ADDR
+  - MQ_KAFKA_PORT=$MQ_KAFKA_PORT
 before_script:
   - export GOPATH=/gopath
   - go get -t github.com/asiainfoLDP/datahub_repository
