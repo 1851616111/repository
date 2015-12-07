@@ -4,7 +4,10 @@ services:
 env:
   - MONGO_PORT_27017_TCP_ADDR=$MONGODB_PORT_27017_TCP_ADDR
   - MONGO_PORT_27017_TCP_PORT=$MONGODB_PORT_27017_TCP_PORT
-install:
+before_script:
+  #- apt-get update -y
+  #- apt-get -y install git-core subversion mercurial
+  #- export GOPATH=/gopath
   - env KAFKA_SCALA_VERSION 2.9.2
   - env KAFKA_VERSION 0.8.1.1
   - env KAFKA_RELEASE $KAFKA_SCALA_VERSION-$KAFKA_VERSION
@@ -12,10 +15,6 @@ install:
   - ADD http://www.eu.apache.org/dist/kafka/$KAFKA_VERSION/kafka_$KAFKA_RELEASE.tgz /opt/
   - tar zxvf /opt/kafka_$KAFKA_RELEASE.tgz -C /opt/
   - ./$KAFKA_HOME/bin/kafka-server-start.sh
-before_script:
-  #- apt-get update -y
-  #- apt-get -y install git-core subversion mercurial
-  #- export GOPATH=/gopath
   - cd /daocloud/builder/src && ls -ll
   #- go get -t github.com/asiainfoLDP/datahub_repository
 script:
