@@ -12,7 +12,8 @@ before_script:
   #- go get -t github.com/asiainfoLDP/datahub_repository
 script:
   - export GOPATH=/daocloud/builder
-  - ./daocloud/builder/src/Godeps restore
+  - cd /daocloud/builder/src
+  - ./Godeps restore
   - go test
 notify:  
   email:
