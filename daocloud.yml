@@ -13,7 +13,7 @@ before_script:
 script:
   - export GOPATH=/daocloud/builder
   - cd /daocloud/builder/src
-  - ./Godeps restore
+  - ./godep restore
   - go test
 notify:  
   email:
