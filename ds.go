@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/asiainfoLDP/datahub_messages/mq"
+	"github.com/asiainfoLDP/datahub_commons/mq"
 	"gopkg.in/mgo.v2"
 	"time"
 )
