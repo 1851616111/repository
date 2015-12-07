@@ -10,12 +10,9 @@ before_script:
   #- export GOPATH=/gopath
   - cd /daocloud/builder/src && ls -ll
   #- go get -t github.com/asiainfoLDP/datahub_repository
-  - mkdir -p /gopath/src/datahub_repository
-  - mv /daocloud/builder/src/* /gopath/src/datahub_repository
 script:
-  - export GOPATH=/gopath
-  - go get -t datahub_repository
-  - go test -v datahub_repository
+  - export GOPATH=//daocloud/builder
+  - go test -v
 notify:  
   email:
     recipients:
