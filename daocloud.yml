@@ -9,7 +9,7 @@ before_script:
   - go get -t github.com/asiainfoLDP/datahub_repository
 script:
   - export GOPATH=/gopath
-  - go test -v github.com/asiainfoLDP/datahub_repository
+#  - go test -v github.com/asiainfoLDP/datahub_repository
 notify:  
   email:
     recipients:
