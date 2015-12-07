@@ -4,12 +4,22 @@ services:
 env:
   - MONGO_PORT_27017_TCP_ADDR=$MONGODB_PORT_27017_TCP_ADDR
   - MONGO_PORT_27017_TCP_PORT=$MONGODB_PORT_27017_TCP_PORT
+  - MQ_KAFKA_ADDR=127.0.0.1
+  - MQ_KAFKA_PORT=9092
+install:
+  - apt-get update && apt-get install -y openjdk-7-jre-headless wget
+  - wget -q -O - http://mirrors.ibiblio.org/apache/kafka/0.8.2.1/kafka_2.10-0.8.2.1.tgz | tar -xzf - -C /opt
+  - env JAVA_HOME /usr/lib/jvm/java-7-openjdk-amd64
+  - env KAFKA_HOME /opt/kafka_2.10-0.8.2.1
+  - WORKDIR $KAFKA_HOME
+  - sed -i 's/zookeeper.connect=localhost:2181/zookeeper.connect=zookeeper:2181/' $KAFKA_HOME/config/server.properties
+  - ./$KAFKA_HOME/bin/kafka-server-start.sh
 before_script:
   #- apt-get update -y
   #- apt-get -y install git-core subversion mercurial
   #- export GOPATH=/gopath
-  - env KAFKA_SCALA_VERSION 2.9.2
-  - env KAFKA_VERSION 0.8.1.1
+  - env KAFKA_VERSION="0.8.2.1"
+  - env SCALA_VERSION="2.10"
   - env KAFKA_RELEASE $KAFKA_SCALA_VERSION-$KAFKA_VERSION
   - env KAFKA_HOME /opt/kafka_$KAFKA_RELEASE
   - ADD http://www.eu.apache.org/dist/kafka/$KAFKA_VERSION/kafka_$KAFKA_RELEASE.tgz /opt/
