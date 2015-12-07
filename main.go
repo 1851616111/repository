@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/asiainfoLDP/datahub_messages/mq"
+	"github.com/asiainfoLDP/datahub_commons/mq"
 	"github.com/go-martini/martini"
 	"net/http"
 )
