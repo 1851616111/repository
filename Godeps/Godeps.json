@@ -8,14 +8,12 @@
 			"Rev": "c36adfa07b2d88dce4a02ca821367cb03a12068a"
 		},
 		{
-			"ImportPath": "github.com/asiainfoLDP/datahub_messages/mq",
-			"Comment": "master_2015-11-30-2-gc4cc300",
-			"Rev": "c4cc300fb84181ebd3918a1eeb37af82f6108955"
+			"ImportPath": "github.com/asiainfoLDP/datahub_commons/log",
+			"Rev": "baeb7c1b74a31378456bdedc0bb7aa6ab654a87b"
 		},
 		{
-			"ImportPath": "github.com/asiainfoLDP/datahub_subscriptions/log",
-			"Comment": "master_2015-11-21-3-g4be9bd5",
-			"Rev": "4be9bd5d2bf6d7580aca380a024cc14b2052ab8b"
+			"ImportPath": "github.com/asiainfoLDP/datahub_commons/mq",
+			"Rev": "baeb7c1b74a31378456bdedc0bb7aa6ab654a87b"
 		},
 		{
 			"ImportPath": "github.com/codegangsta/inject",
