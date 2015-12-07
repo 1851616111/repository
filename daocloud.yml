@@ -10,4 +10,4 @@ script:
   - export GOPATH=/daocloud/builder/src
   #- cd /daocloud/builder/src
   - ./godep restore
-  - go test
+  - go test -v -cover
