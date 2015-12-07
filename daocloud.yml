@@ -5,14 +5,14 @@ env:
   - MONGO_PORT_27017_TCP_ADDR=$MONGODB_PORT_27017_TCP_ADDR
   - MONGO_PORT_27017_TCP_PORT=$MONGODB_PORT_27017_TCP_PORT
 before_script:
-  - apt-get update -y
-  - apt-get -y install git-core subversion mercurial
-  - export GOPATH=/gopath
-  - cd /daocloud//builder/src && ls -ll
-  - go get -t github.com/asiainfoLDP/datahub_repository
+  #- apt-get update -y
+  #- apt-get -y install git-core subversion mercurial
+  #- export GOPATH=/gopath
+  - cd /daocloud/builder/src && ls -ll
+  #- go get -t github.com/asiainfoLDP/datahub_repository
 script:
-  - export GOPATH=/gopath
-  - go test -v github.com/asiainfoLDP/datahub_repository
+  #- export GOPATH=/gopath
+  - go test -v /daocloud/builder/src
 notify:  
   email:
     recipients:
