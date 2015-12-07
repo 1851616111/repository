@@ -6,6 +6,7 @@ env:
   - MONGO_PORT_27017_TCP_PORT=$MONGODB_PORT_27017_TCP_PORT
 before_script:
   - export GOPATH=/gopath
+  - cd /gopath && ls -ll
   #- go get -t github.com/asiainfoLDP/datahub_repository
 script:
   - export GOPATH=/gopath
