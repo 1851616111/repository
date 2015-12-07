@@ -14,7 +14,7 @@ before_script:
   - mv /daocloud/builder/src/* /gopath/src/datahub_repository
 script:
   - export GOPATH=/gopath
-  - go get-t datahub_repository
+  - go get -t datahub_repository
   - go test -v datahub_repository
 notify:  
   email:
