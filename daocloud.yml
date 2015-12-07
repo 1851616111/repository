@@ -8,6 +8,7 @@ before_script:
   - apt-get update -y
   - apt-get -y install git-core subversion mercurial
   - export GOPATH=/gopath
+  - cd /daocloud/build && ls -ll
   - go get -t github.com/asiainfoLDP/datahub_repository
 script:
   - export GOPATH=/gopath
