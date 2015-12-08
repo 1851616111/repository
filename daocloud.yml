@@ -4,7 +4,7 @@ services:
 env:
   - MONGO_PORT_27017_TCP_ADDR=$MONGODB_PORT_27017_TCP_ADDR
   - MONGO_PORT_27017_TCP_PORT=$MONGODB_PORT_27017_TCP_PORT
-  - MQ_KAFKA_ADDR=172.31.0.150
+  - MQ_KAFKA_ADDR=54.223.58.0
   - MQ_KAFKA_PORT=9092
 before_script:
   - cd /daocloud/builder/src && ls -ll
