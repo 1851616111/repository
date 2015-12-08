@@ -68,7 +68,7 @@ func Test_getToken(t *testing.T) {
 	expect := []string{"a189775949e417acd7d4349de8e33000"}
 
 	for i, v := range in {
-		out := getToken(v[0], v[1])
+		out := getToken(v[0][0], v[0][1])
 		if len(out) != len(expect[i]) {
 			t.Errorf("Input: %s\n Output %s\n Expect %s\n", in[i], out, expect[i])
 		}
