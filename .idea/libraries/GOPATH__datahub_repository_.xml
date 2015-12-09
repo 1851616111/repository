@@ -19,11 +19,9 @@
       <root url="file://$PROJECT_DIR$/../../docker/docker/hack/make/.resources-windows" />
       <root url="file://$PROJECT_DIR$/../../../git.mrocker.com/cuixg/gateway/.git" />
       <root url="file://$PROJECT_DIR$/../../klauspost/crc32/.git" />
-      <root url="file://$PROJECT_DIR$/.git" />
       <root url="file://$PROJECT_DIR$/../../go-pg/pg/.git" />
       <root url="file://$PROJECT_DIR$/../datahub_subscriptions/Godeps/_workspace" />
       <root url="file://$PROJECT_DIR$/../../golang/snappy/.git" />
-      <root url="file://$PROJECT_DIR$/Godeps/_workspace" />
       <root url="file://$PROJECT_DIR$/../../docker/docker/pkg/tarsum/testdata" />
       <root url="file://$PROJECT_DIR$/../../aws/aws-sdk-go/.git" />
       <root url="file://$PROJECT_DIR$/../../docker/docker/hack/make/.build-rpm" />
@@ -38,16 +36,22 @@
       <root url="file://$PROJECT_DIR$/../../docker/docker/.git" />
       <root url="file://$PROJECT_DIR$/../../go-ini/ini/.git" />
       <root url="file://$PROJECT_DIR$/../tantan/Godeps/_workspace" />
+      <root url="file://$PROJECT_DIR$/Godeps/_workspace" />
       <root url="file://$PROJECT_DIR$/../../julienschmidt/httprouter/.git" />
       <root url="file://$PROJECT_DIR$/../../../gopkg.in/mgo.v2/.git" />
       <root url="file://$PROJECT_DIR$/../../../gopkg.in/bsm/ratelimit.v1/.git" />
+      <root url="file://$PROJECT_DIR$/../../../git.mrocker.com/cuixg/gateway/.idea" />
       <root url="file://$PROJECT_DIR$/../../cloudfoundry-samples/go_service_broker/.idea" />
       <root url="file://$PROJECT_DIR$/../../gorilla/context/.git" />
       <root url="file://$PROJECT_DIR$/../go_service_broker/.git" />
       <root url="file://$PROJECT_DIR$/../../go-sql-driver/mysql/.git" />
+      <root url="file://$PROJECT_DIR$/.idea" />
       <root url="file://$PROJECT_DIR$/../../../gopkg.in/pg.v3/.git" />
       <root url="file://$PROJECT_DIR$/../../docker/docker/docs/reference/api/_static" />
+      <root url="file://$PROJECT_DIR$" />
+      <root url="file://$PROJECT_DIR$/../service_broker/.idea" />
       <root url="file://$PROJECT_DIR$/../../docker/docker/.idea" />
+      <root url="file://$PROJECT_DIR$/.git" />
       <root url="file://$PROJECT_DIR$/../../../git.mrocker.com/cuixg/connector/.git" />
       <root url="file://$PROJECT_DIR$/../../../git.mrocker.com/cuixg/apns/.git" />
       <root url="file://$PROJECT_DIR$/../../../git.mrocker.com/cuixg/mtool/.git" />
@@ -56,6 +60,8 @@
       <root url="file://$PROJECT_DIR$/../../Shopify/sarama/.git" />
       <root url="file://$PROJECT_DIR$/../../golang/glog/.git" />
       <root url="file://$PROJECT_DIR$/../../go-martini/martini/.git" />
+      <root url="file://$PROJECT_DIR$/../../cloudfoundry/cf-mysql-broker/.bundle" />
+      <root url="file://$PROJECT_DIR$/../../cloudfoundry/cf-mysql-broker/.git" />
       <root url="file://$PROJECT_DIR$/../../../gopkg.in/mgo.v2/.idea" />
       <root url="file://$PROJECT_DIR$/../../eapache/go-resiliency/.git" />
       <root url="file://$PROJECT_DIR$/../datahub_commons/.git" />
@@ -63,11 +69,10 @@
       <root url="file://$PROJECT_DIR$/../../../gopkg.in/bufio.v1/.git" />
       <root url="file://$PROJECT_DIR$/../../gorilla/mux/.git" />
       <root url="file://$PROJECT_DIR$/../../docker/docker/pkg/archive/testdata" />
+      <root url="file://$PROJECT_DIR$/../../cloudfoundry/cf-mysql-broker/.idea" />
       <root url="file://$PROJECT_DIR$/../../vaughan0/go-ini/.git" />
       <root url="file://$PROJECT_DIR$/../../maximilien/softlayer-go/.git" />
       <root url="file://$PROJECT_DIR$/../../aws/aws-sdk-go/vendor/github.com/go-ini/ini/testdata" />
-      <root url="file://$PROJECT_DIR$/.idea" />
-      <root url="file://$PROJECT_DIR$" />
       <root url="file://$PROJECT_DIR$/../../go-martini/martini/.idea" />
     </excluded>
   </library>
