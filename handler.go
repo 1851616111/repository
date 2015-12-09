@@ -367,11 +367,11 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 
 func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string) (int, string) {
 	defer db.Close()
-	repname := param["repname"]
+	repname := strings.TrimSpace(param["repname"])
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
 	}
-	itemname := param["itemname"]
+	itemname := strings.TrimSpace(param["itemname"])
 	if itemname == "" {
 		return rsp.Json(400, ErrNoParameter("itemname"))
 	}
@@ -677,15 +677,15 @@ func getSelectLabelsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 //curl http://127.0.0.1:8080/repositories/NBA/bear23/0001 -d "{\"comment\":\"this is a tag\"}" -H user:admin
 func createTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string) (int, string) {
 	defer db.Close()
-	repname := param["repname"]
+	repname := strings.TrimSpace(param["repname"])
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
 	}
-	itemname := param["itemname"]
+	itemname := strings.TrimSpace(param["itemname"])
 	if itemname == "" {
 		return rsp.Json(400, ErrNoParameter("itemname"))
 	}
-	tagname := param["tag"]
+	tagname := strings.TrimSpace(param["tag"])
 	if tagname == "" {
 		return rsp.Json(400, ErrNoParameter("tag"))
 	}
