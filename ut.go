@@ -189,6 +189,9 @@ func (p *repository) ParseRequeset(r *http.Request) error {
 }
 
 func buildTime(absoluteTime string) string {
+	if len(absoluteTime) < 19 {
+		return absoluteTime
+	}
 	abst := absoluteTime[:19]
 	now := time.Now()
 	target_time, err := time.ParseInLocation(TimeFormat, abst, LOCAL_LOCATION)
