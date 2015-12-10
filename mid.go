@@ -28,9 +28,15 @@ func (db *DB) delRepository(exec bson.M) error {
 	return db.DB(DB_NAME).C(C_REPOSITORY).Remove(exec)
 }
 
-func (db *DB) getDataitem(query bson.M) (dataItem, error) {
+func (db *DB) getDataitem(query bson.M, abstract ...bool) (dataItem, error) {
 	res := new(dataItem)
-	err := db.DB(DB_NAME).C(C_DATAITEM).Find(query).One(res)
+	var err error
+
+	if len(abstract) > 0 && abstract[0] == true {
+		err = db.DB(DB_NAME).C(C_DATAITEM).Find(query).Select(bson.M{COL_COMMENT: "1", COL_CREATE_USER: "1", COL_ITEM_TAGS: "1", COL_LABEL: "1"}).One(res)
+	}
+	err = db.DB(DB_NAME).C(C_DATAITEM).Find(query).One(res)
+
 	return *res, err
 }
 

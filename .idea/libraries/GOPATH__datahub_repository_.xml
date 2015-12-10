@@ -19,8 +19,8 @@
       <root url="file://$PROJECT_DIR$/../../docker/docker/hack/make/.resources-windows" />
       <root url="file://$PROJECT_DIR$/../../../git.mrocker.com/cuixg/gateway/.git" />
       <root url="file://$PROJECT_DIR$/../../klauspost/crc32/.git" />
-      <root url="file://$PROJECT_DIR$/../datahub_subscriptions/Godeps/_workspace" />
       <root url="file://$PROJECT_DIR$/../../go-pg/pg/.git" />
+      <root url="file://$PROJECT_DIR$/../datahub_subscriptions/Godeps/_workspace" />
       <root url="file://$PROJECT_DIR$/../../golang/snappy/.git" />
       <root url="file://$PROJECT_DIR$/../../docker/docker/pkg/tarsum/testdata" />
       <root url="file://$PROJECT_DIR$/../../aws/aws-sdk-go/.git" />
@@ -70,7 +70,6 @@
       <root url="file://$PROJECT_DIR$/../../../gopkg.in/mgo.v2/.idea" />
       <root url="file://$PROJECT_DIR$/../../eapache/go-resiliency/.git" />
       <root url="file://$PROJECT_DIR$/../datahub_commons/.git" />
-      <root url="file://$PROJECT_DIR$/../../openshift/origin/.git" />
       <root url="file://$PROJECT_DIR$/../datahub_subscriptions/.git" />
       <root url="file://$PROJECT_DIR$/../../../gopkg.in/bufio.v1/.git" />
       <root url="file://$PROJECT_DIR$/../../gorilla/mux/.git" />

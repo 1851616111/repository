@@ -879,6 +879,11 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 		}
 	}
 
+	abstract := false
+	if p := strings.TrimSpace(r.FormValue("abstract")); p == "1" {
+		abstract = true
+	}
+
 	Q := bson.M{COL_REPNAME: repname}
 	rep, err := db.getRepository(Q)
 	if err != nil && err == mgo.ErrNotFound {
@@ -905,11 +910,21 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	}
 
 	Q = bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname}
-	item, err := db.getDataitem(Q)
+	item, err := db.getDataitem(Q, abstract)
 	if err != nil && err == mgo.ErrNotFound {
 		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s,%s=%s ", COL_REPNAME, repname, COL_ITEM_NAME, itemname)))
 	}
 	item.Optime = buildTime(item.Optime)
+
+	var res struct {
+		dataItem
+		Tags []tag `json:"taglist"`
+	}
+
+	if abstract == true {
+		res.dataItem = item
+		return rsp.Json(200, E(OK), res)
+	}
 
 	b_m, err := db.getFile(PREFIX_META, repname, itemname)
 	if err != nil {
@@ -931,10 +946,6 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	get(err)
 	buildTagsTime(tags)
 
-	var res struct {
-		dataItem
-		Tags []tag `json:"taglist"`
-	}
 	res.dataItem = item
 	res.Tags = tags
 
