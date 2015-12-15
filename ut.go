@@ -21,6 +21,7 @@ import (
 
 const (
 	TimeFormat            = "2006-01-02 15:04:05"
+	TimeFormatDay         = "2006-01-02"
 	DATAITEM_PRICE_EXPIRE = 30
 	DATAITEM_PRICE_MAX    = 6
 )
@@ -500,4 +501,46 @@ func getMd5(content string) string {
 
 func base64Encode(src []byte) []byte {
 	return []byte(base64.StdEncoding.EncodeToString(src))
+}
+
+func Compare(src interface{}, dst interface{}) bool {
+	v_src, v_dst := reflect.ValueOf(src), reflect.ValueOf(dst)
+
+	if reflect.TypeOf(src).Kind() == reflect.Ptr {
+		v_src = v_src.Elem()
+	}
+
+	if reflect.TypeOf(dst).Kind() == reflect.Ptr {
+		v_dst = v_dst.Elem()
+	}
+
+	if v_src.Kind() != reflect.Struct || v_dst.Kind() != reflect.Struct {
+		return false
+	}
+
+	for i := 0; i < v_src.NumField(); i++ {
+		switch v_src.Field(i).Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			if v_src.Field(i).Int() != v_dst.Field(i).Int() {
+				return false
+			}
+		case reflect.String:
+			if v_src.Field(i).String() != v_dst.Field(i).String() {
+				return false
+			}
+		case reflect.Float32, reflect.Float64:
+			if v_src.Field(i).Float() != v_dst.Field(i).Float() {
+				return false
+			}
+		case reflect.Bool:
+			if v_src.Field(i).Bool() != v_dst.Field(i).Bool() {
+				return false
+			}
+		default:
+			Log.Info("compare unsupport type")
+		}
+
+	}
+
+	return true
 }

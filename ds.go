@@ -14,6 +14,7 @@ const (
 	C_DATAITEM_PERMISSION   = "permission_item"
 	C_SELECT                = "select"
 	C_TAG                   = "tag"
+	C_STATIS_DAY            = "statis_day"
 	MQ_TOPIC                = "2_subscriptions.json"
 	MQ_KEY                  = "repositories"
 )

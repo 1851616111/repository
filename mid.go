@@ -60,6 +60,12 @@ func (db *DB) countNum(collection string, query bson.M) (i int) {
 	return
 }
 
+func (db *DB) countUsers(collection string, query bson.M) (i int) {
+	users := []string{}
+	db.DB(DB_NAME).C(collection).Find(query).Distinct(COL_CREATE_USER, &users)
+	return len(users)
+}
+
 func (db *DB) getTag(query bson.M) (tag, error) {
 	res := new(tag)
 	err := db.DB(DB_NAME).C(C_TAG).Find(query).One(&res)

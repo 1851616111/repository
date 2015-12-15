@@ -50,6 +50,7 @@ func main() {
 
 	go q_c.serve(&db)
 	go staticLoop(&db)
+	go adminStatisByDay(&db)
 	m := martini.Classic()
 	m.Handlers(martini.Recovery())
 	m.Use(func(w http.ResponseWriter, c martini.Context) {
