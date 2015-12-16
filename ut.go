@@ -353,7 +353,7 @@ func chkPrice(price interface{}, supplyStyle string) *Error {
 		}
 	case SUPPLY_STYLE_API:
 		json.Unmarshal(b, &apis)
-		if len(flows) > DATAITEM_PRICE_MAX {
+		if len(apis) > DATAITEM_PRICE_MAX {
 			return E(ErrorCodeItemPriceOutOfLimit)
 		}
 		for i, v := range apis {
@@ -363,7 +363,7 @@ func chkPrice(price interface{}, supplyStyle string) *Error {
 		}
 	case SUPPLY_STYLE_BATCH:
 		json.Unmarshal(b, &batches)
-		if len(flows) > DATAITEM_PRICE_MAX {
+		if len(batches) > DATAITEM_PRICE_MAX {
 			return E(ErrorCodeItemPriceOutOfLimit)
 		}
 		for i, v := range batches {
