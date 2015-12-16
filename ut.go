@@ -337,7 +337,9 @@ func getSupplyStyleTp(label interface{}) string {
 
 func chkPrice(price interface{}, supplyStyle string) *Error {
 	b, err := json.Marshal(price)
-	get(err)
+	if err != nil {
+		return ErrParseJson(err)
+	}
 
 	flows, apis, batches := []flow{}, []api{}, []batch{}
 	switch supplyStyle {
@@ -345,6 +347,9 @@ func chkPrice(price interface{}, supplyStyle string) *Error {
 		json.Unmarshal(b, &flows)
 		if len(flows) > DATAITEM_PRICE_MAX {
 			return E(ErrorCodeItemPriceOutOfLimit)
+		}
+		if len(flows) == 0 {
+			return nil
 		}
 		for i, v := range flows {
 			if !v.chkParam() {
@@ -356,6 +361,9 @@ func chkPrice(price interface{}, supplyStyle string) *Error {
 		if len(apis) > DATAITEM_PRICE_MAX {
 			return E(ErrorCodeItemPriceOutOfLimit)
 		}
+		if len(apis) == 0 {
+			return nil
+		}
 		for i, v := range apis {
 			if !v.chkParam() {
 				return ErrInvalidParameter(fmt.Sprintf("price[%d]", i))
@@ -365,6 +373,9 @@ func chkPrice(price interface{}, supplyStyle string) *Error {
 		json.Unmarshal(b, &batches)
 		if len(batches) > DATAITEM_PRICE_MAX {
 			return E(ErrorCodeItemPriceOutOfLimit)
+		}
+		if len(batches) == 0 {
+			return nil
 		}
 		for i, v := range batches {
 			if !v.chkParam() {

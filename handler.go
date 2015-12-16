@@ -419,10 +419,6 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		return rsp.Json(400, err)
 	}
 
-	if d.Price == "" {
-		return rsp.Json(400, ErrNoParameter("price"))
-	}
-
 	if err := chkPrice(d.Price, getSupplyStyleTp(d.Label)); err != nil {
 		return rsp.Json(400, err)
 	}
