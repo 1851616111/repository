@@ -290,7 +290,7 @@ type flow struct {
 }
 
 func (p *flow) chkParam() bool {
-	if p.Expire <= 0 || p.Time <= 0 || p.Money <= 0 || !Contains(BATCH_TIME_UNITS, p.Unit) {
+	if p.Expire <= 0 || p.Time <= 0 || p.Money < 0 || !Contains(BATCH_TIME_UNITS, p.Unit) {
 		return false
 	}
 	return true
@@ -312,7 +312,7 @@ type batch struct {
 }
 
 func (p *batch) chkParam() bool {
-	if p.Expire <= 0 || p.Times <= 0 || p.Money <= 0 {
+	if p.Expire <= 0 || p.Times <= 0 || p.Money < 0 {
 		return false
 	}
 	return true
@@ -325,7 +325,7 @@ type api struct {
 }
 
 func (p *api) chkParam() bool {
-	if p.Expire <= 0 || p.Times <= 0 || p.Money <= 0 {
+	if p.Expire <= 0 || p.Times <= 0 || p.Money < 0 {
 		return false
 	}
 	return true
