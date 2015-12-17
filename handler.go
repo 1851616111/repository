@@ -377,8 +377,12 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	}
 
 	Q := bson.M{COL_REPNAME: repname}
-	if _, err := db.getRepository(Q); err == mgo.ErrNotFound {
+	rep, err := db.getRepository(Q)
+	if err == mgo.ErrNotFound {
 		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("repname : %s", repname)))
+	}
+	if rep.Create_user != loginName {
+		return rsp.Json(400, E(ErrorCodePermissionDenied))
 	}
 
 	if n, _ := db.DB(DB_NAME).C(C_DATAITEM).Find(bson.M{COL_REPNAME: repname}).Count(); n >= 30 {
