@@ -64,21 +64,22 @@ func Test_base64Encode(t *testing.T) {
 }
 
 func Test_getToken(t *testing.T) {
-	in := [][]string{[]string{"panxy3@asiainfo.com", "88888888"}}
-	expect := []string{"a189775949e417acd7d4349de8e33000"}
+	user := "panxy3@asiainfo.com"
+	passwd := "88888888"
+	result := "a189775949e417acd7d4349de8e33000"
 
-	for i, v := range in {
-		out := getToken(v[0][0], v[0][1])
-		if len(out) != len(expect[i]) {
-			t.Errorf("Input: %s\n Output %s\n Expect %s\n", in[i], out, expect[i])
+		out := getToken(user, passwd)
+		if len(out) != len(result) {
+			t.Errorf("Input: %s\n Output %s\n Expect %s\n", user, passwd, result)
 		}
-	}
 }
 func Test_Compare(t *testing.T) {
+
 	src := []interface{}{statis{1, 1, 1, 1}, statis{1, 1, 1, 1}}
 	dst := []interface{}{statis{1, 1, 1, 1}, statis{2, 2, 2, 2}}
 	res := []bool{true, false}
 	for i, _ := range src {
+		t.Log(src[i], dst[i])
 		d := dst[i].(statis)
 		s := src[i].(statis)
 		if Compare(s, d) != res[i] {
