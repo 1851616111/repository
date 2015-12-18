@@ -6,6 +6,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 const (
@@ -73,7 +74,7 @@ func delRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 	defer db.Close()
 	r.ParseForm()
 	users := r.Form["username"]
-	deleteAll := r.FormValue("delall")
+	deleteAll := strings.TrimSpace(r.FormValue("delall"))
 	if len(users) == 0 || deleteAll == "" {
 		return rsp.Json(400, E(ErrorCodeNoParameter))
 	}
@@ -123,8 +124,10 @@ func setItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, 
 
 func delItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p Item_Permission) (int, string) {
 	defer db.Close()
+	r.ParseForm()
+
 	users := r.Form["username"]
-	deleteAll := r.FormValue("delall")
+	deleteAll := strings.TrimSpace(r.FormValue("delall"))
 
 	if len(users) == 0 || deleteAll == "" {
 		return rsp.Json(400, E(ErrorCodeNoParameter))
