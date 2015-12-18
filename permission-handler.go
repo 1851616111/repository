@@ -75,7 +75,7 @@ func delRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 	r.ParseForm()
 	users := r.Form["username"]
 	deleteAll := strings.TrimSpace(r.FormValue("delall"))
-	if len(users) == 0 || deleteAll == "" {
+	if len(users) == 0 && deleteAll == "" {
 		return rsp.Json(400, E(ErrorCodeNoParameter))
 	}
 
@@ -129,7 +129,7 @@ func delItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, 
 	users := r.Form["username"]
 	deleteAll := strings.TrimSpace(r.FormValue("delall"))
 
-	if len(users) == 0 || deleteAll == "" {
+	if len(users) == 0 && deleteAll == "" {
 		return rsp.Json(400, E(ErrorCodeNoParameter))
 	}
 
