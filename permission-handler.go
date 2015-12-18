@@ -6,12 +6,12 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
 	"net/http"
-	"strings"
 )
 
 const (
-	PERMISSION_WRITE = 1
-	PERMISSION_READ  = 0
+	PERMISSION_WRITE          = 1
+	PERMISSION_READ           = 0
+	DELETE_PERMISSION_USR_ALL = "1"
 )
 
 func setRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p Rep_Permission) (int, string) {
@@ -71,12 +71,20 @@ func getItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, 
 
 func delRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p Rep_Permission) (int, string) {
 	defer db.Close()
-	username := strings.TrimSpace(r.FormValue("username"))
-	if username == "" {
-		return rsp.Json(400, ErrNoParameter(username))
+	r.ParseForm()
+	users := r.Form["username"]
+	deleteAll := r.FormValue("delall")
+	if len(users) == 0 || deleteAll == "" {
+		return rsp.Json(400, E(ErrorCodeNoParameter))
 	}
 
-	exec := bson.M{COL_REPNAME: p.Repository_name, COL_PERMIT_USER: username}
+	cmdCondiction := bson.M{CMD_IN: users}
+
+	exec := bson.M{COL_REPNAME: p.Repository_name}
+	if deleteAll != DELETE_PERMISSION_USR_ALL {
+		exec[COL_PERMIT_USER] = cmdCondiction
+	}
+
 	if err := db.delPermit(C_REPOSITORY_PERMISSION, exec); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
@@ -115,14 +123,22 @@ func setItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, 
 
 func delItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p Item_Permission) (int, string) {
 	defer db.Close()
-	username := strings.TrimSpace(r.FormValue("username"))
-	if username == "" {
-		return rsp.Json(400, ErrNoParameter(username))
+	users := r.Form["username"]
+	deleteAll := r.FormValue("delall")
+
+	if len(users) == 0 || deleteAll == "" {
+		return rsp.Json(400, E(ErrorCodeNoParameter))
 	}
 
-	exec := bson.M{COL_PERMIT_REPNAME: p.Repository_name, COL_PERMIT_ITEMNAME: p.Dataitem_name, COL_PERMIT_USER: username}
+	cmdCondiction := bson.M{CMD_IN: users}
+	exec := bson.M{COL_REPNAME: p.Repository_name, COL_PERMIT_ITEMNAME: p.Dataitem_name}
+	if deleteAll != DELETE_PERMISSION_USR_ALL {
+		exec[COL_PERMIT_USER] = cmdCondiction
+	}
+
 	if err := db.delPermit(C_DATAITEM_PERMISSION, exec); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
+
 	return rsp.Json(200, E(OK))
 }
