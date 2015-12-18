@@ -115,8 +115,9 @@ func (db *DB) getPermits(collection string, query bson.M) (interface{}, error) {
 	return nil, errors.New("unknow err")
 }
 
-func (db *DB) delPermit(collection string, exec bson.M) error {
-	return db.DB(DB_NAME).C(collection).Remove(exec)
+func (db *DB) delPermit(collection string, exec bson.M) (err error) {
+	_, err = db.DB(DB_NAME).C(collection).RemoveAll(exec)
+	return
 }
 
 func setFileName(prefix, repname, itemname string) string {
