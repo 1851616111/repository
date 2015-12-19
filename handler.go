@@ -314,9 +314,9 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 		Q = bson.M{COL_CREATE_USER: loginName}
 	} else if loginName == "" && targetName != "" { // no login nd search targetName
 		Q = bson.M{COL_CREATE_USER: targetName, COL_REP_ACC: ACCESS_PUBLIC}
-	} else if loginName != "" && targetName != "" { //loging and search targetName
+	} else if loginName != "" && targetName != "" && loginName != targetName { //loging and search targetName
 		q := []bson.M{}
-		p_reps, _ := db.getPermits(COL_PERMIT_REPNAME, bson.M{COL_PERMIT_USER: loginName})
+		p_reps, _ := db.getPermits(C_REPOSITORY_PERMISSION, bson.M{COL_PERMIT_USER: loginName})
 		l := []string{}
 		if l_p_reps, ok := p_reps.([]Rep_Permission); ok {
 			if len(l_p_reps) > 0 {
