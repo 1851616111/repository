@@ -332,7 +332,14 @@ func (p *api) chkParam() bool {
 }
 
 func getSupplyStyleTp(label interface{}) string {
-	return label.(map[string]interface{})["sys"].(map[string]interface{})["supply_style"].(string)
+
+	if l, ok := label.(map[string]interface{}); ok {
+		return l["sys"].(map[string]interface{})["supply_style"].(string)
+	}
+	if l, ok := label.(bson.M); ok {
+		return l["sys"].(bson.M)["supply_style"].(string)
+	}
+	return SUPPLY_STYLE_UNRECOGNIZED
 }
 
 func chkPrice(price interface{}, supplyStyle string) *Error {
@@ -382,6 +389,8 @@ func chkPrice(price interface{}, supplyStyle string) *Error {
 				return ErrInvalidParameter(fmt.Sprintf("price[%d]", i))
 			}
 		}
+	case SUPPLY_STYLE_UNRECOGNIZED:
+		return ErrDataBase(errors.New("dataitem has no supply_style, please init"))
 	}
 
 	return nil
