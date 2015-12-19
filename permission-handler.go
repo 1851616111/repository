@@ -52,7 +52,13 @@ func setRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 
 func getRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p Rep_Permission) (int, string) {
 	defer db.Close()
+	r.ParseForm()
+
 	Q := bson.M{COL_REPNAME: p.Repository_name}
+	if user := strings.TrimSpace(r.FormValue("username")); user != "" {
+		Q[COL_PERMIT_USER] = user
+	}
+
 	l, err := db.getPermits(C_REPOSITORY_PERMISSION, Q)
 	if err != nil {
 		return rsp.Json(400, ErrDataBase(err))
@@ -62,7 +68,13 @@ func getRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 
 func getItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p Item_Permission) (int, string) {
 	defer db.Close()
+	r.ParseForm()
+
 	Q := bson.M{COL_PERMIT_REPNAME: p.Repository_name, COL_PERMIT_ITEMNAME: p.Dataitem_name}
+	if user := strings.TrimSpace(r.FormValue("username")); user != "" {
+		Q[COL_PERMIT_USER] = user
+	}
+
 	l, err := db.getPermits(C_DATAITEM_PERMISSION, Q)
 	if err != nil {
 		return rsp.Json(400, ErrDataBase(err))
