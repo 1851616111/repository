@@ -493,7 +493,7 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	}
 
 	if d.Price != nil {
-		if err := chkPrice(d.Price, getSupplyStyleTp(d.Label)); err != nil {
+		if err := chkPrice(d.Price, getSupplyStyleTp(item.Label)); err != nil {
 			return rsp.Json(400, err)
 		}
 		addPriceElemUid(d.Price)

@@ -68,10 +68,10 @@ func Test_getToken(t *testing.T) {
 	passwd := "88888888"
 	result := "a189775949e417acd7d4349de8e33000"
 
-		out := getToken(user, passwd)
-		if len(out) != len(result) {
-			t.Errorf("Input: %s\n Output %s\n Expect %s\n", user, passwd, result)
-		}
+	out := getToken(user, passwd)
+	if len(out) != len(result) {
+		t.Errorf("Input: %s\n Output %s\n Expect %s\n", user, passwd, result)
+	}
 }
 func Test_Compare(t *testing.T) {
 
