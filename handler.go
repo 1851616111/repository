@@ -310,7 +310,7 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 	targetName := strings.TrimSpace(r.FormValue("username"))
 	loginName := r.Header.Get("User")
 	Q := bson.M{}
-	if loginName != "" && targetName == "" { //login already and search myrepositories
+	if (loginName != "" && targetName == "") || (loginName != "" && targetName == loginName) { //login already and search myrepositories
 		Q = bson.M{COL_CREATE_USER: loginName}
 	} else if loginName == "" && targetName != "" { // no login nd search targetName
 		Q = bson.M{COL_CREATE_USER: targetName, COL_REP_ACC: ACCESS_PUBLIC}
