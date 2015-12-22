@@ -927,7 +927,9 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 
 	b_m, err := db.getFile(PREFIX_META, repname, itemname)
 	if err != nil {
-		Log.Error("get dataitem meta err :", err)
+		if err != mgo.ErrNotFound {
+			Log.Error("get dataitem meta err :", err)
+		}
 		item.Meta = ""
 	} else {
 		item.Meta = strings.TrimSpace(string(b_m))
@@ -935,7 +937,9 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 
 	b_s, err := db.getFile(PREFIX_SAMPLE, repname, itemname)
 	if err != nil {
-		Log.Error("get dataitem sample err :", err)
+		if err != mgo.ErrNotFound {
+			Log.Error("get dataitem sample err :", err)
+		}
 		item.Sample = ""
 	} else {
 		item.Sample = strings.TrimSpace(string(b_s))

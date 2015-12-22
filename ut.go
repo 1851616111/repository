@@ -324,7 +324,9 @@ func addPriceElemUid(price interface{}) {
 	if arr, ok := price.([]interface{}); ok {
 		for i, _ := range arr {
 			if m, ok := arr[i].(map[string]interface{}); ok {
-				m["uuid"] = bson.NewObjectId().Hex()
+				if m["plan_id"] == nil {
+					m["plan_id"] = bson.NewObjectId().Hex()
+				}
 			}
 		}
 	}
