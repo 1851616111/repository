@@ -6,6 +6,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -53,13 +54,25 @@ func setRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 func getRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p Rep_Permission) (int, string) {
 	defer db.Close()
 	r.ParseForm()
+	page_index, page_size := PAGE_INDEX, PAGE_SIZE
+	if p := strings.TrimSpace(r.FormValue("page")); p != "" {
+		if page_index, _ = strconv.Atoi(p); page_index <= 0 {
+			return rsp.Json(400, ErrInvalidParameter("page"))
+		}
+
+	}
+	if p := strings.TrimSpace(r.FormValue("size")); p != "" {
+		if page_size, _ = strconv.Atoi(p); page_size < -1 {
+			return rsp.Json(400, ErrInvalidParameter("size"))
+		}
+	}
 
 	Q := bson.M{COL_REPNAME: p.Repository_name}
 	if user := strings.TrimSpace(r.FormValue("username")); user != "" {
 		Q[COL_PERMIT_USER] = user
 	}
 
-	l, err := db.getPermits(C_REPOSITORY_PERMISSION, Q)
+	l, err := db.getPermits(C_REPOSITORY_PERMISSION, Q, []int{page_index, page_size})
 	if err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
@@ -69,13 +82,24 @@ func getRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 func getItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p Item_Permission) (int, string) {
 	defer db.Close()
 	r.ParseForm()
+	page_index, page_size := PAGE_INDEX, PAGE_SIZE
+	if p := strings.TrimSpace(r.FormValue("page")); p != "" {
+		if page_index, _ = strconv.Atoi(p); page_index <= 0 {
+			return rsp.Json(400, ErrInvalidParameter("page"))
+		}
 
+	}
+	if p := strings.TrimSpace(r.FormValue("size")); p != "" {
+		if page_size, _ = strconv.Atoi(p); page_size < -1 {
+			return rsp.Json(400, ErrInvalidParameter("size"))
+		}
+	}
 	Q := bson.M{COL_PERMIT_REPNAME: p.Repository_name, COL_PERMIT_ITEMNAME: p.Dataitem_name}
 	if user := strings.TrimSpace(r.FormValue("username")); user != "" {
 		Q[COL_PERMIT_USER] = user
 	}
 
-	l, err := db.getPermits(C_DATAITEM_PERMISSION, Q)
+	l, err := db.getPermits(C_DATAITEM_PERMISSION, Q, []int{page_index, page_size})
 	if err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}

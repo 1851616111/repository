@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -94,25 +93,27 @@ func (db *DB) getSelect(query bson.M) (Select, error) {
 	return *res, err
 }
 
-func (db *DB) getPermits(collection string, query bson.M) (interface{}, error) {
+func (db *DB) getPermits(collection string, query bson.M, page ...[]int) (interface{}, error) {
 	var err error
+	var l interface{}
 	switch collection {
 	case C_DATAITEM_PERMISSION:
-		l := []Item_Permission{}
-		err = db.DB(DB_NAME).C(collection).Find(query).All(&l)
-		if err != nil {
-			return l, err
-		}
-		return l, nil
+		l = []Item_Permission{}
 	case C_REPOSITORY_PERMISSION:
-		l := []Rep_Permission{}
-		err = db.DB(DB_NAME).C(collection).Find(query).All(&l)
-		if err != nil {
-			return l, err
-		}
-		return l, nil
+		l = []Rep_Permission{}
 	}
-	return nil, errors.New("unknow err")
+	if len(page) > 0 && len(page[0]) == 2 {
+		pageIndex := page[0][0]
+		pageSize := page[0][1]
+		err = db.DB(DB_NAME).C(collection).Find(query).Sort(COL_PERMIT_USER).Skip((pageIndex - 1) * pageSize).Limit(pageSize).All(&l)
+	} else {
+		err = db.DB(DB_NAME).C(collection).Find(query).All(&l)
+	}
+	if err != nil {
+		return l, err
+	}
+
+	return l, nil
 }
 
 func (db *DB) delPermit(collection string, exec bson.M) (err error) {
