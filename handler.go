@@ -424,7 +424,7 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		return rsp.Json(400, err)
 	}
 
-	if err := chkPrice(d.Price, getSupplyStyleTp(d.Label)); err != nil {
+	if err := chkPrice(d.Price); err != nil {
 		return rsp.Json(400, err)
 	}
 	addPriceElemUid(d.Price)
@@ -494,7 +494,7 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	}
 
 	if d.Price != nil {
-		if err := chkPrice(d.Price, getSupplyStyleTp(item.Label)); err != nil {
+		if err := chkPrice(d.Price); err != nil {
 			return rsp.Json(400, err)
 		}
 		addPriceElemUid(d.Price)
@@ -517,9 +517,7 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		}
 	}
 
-	if d.Comment != "" {
-		u[COL_COMMENT] = d.Comment
-	}
+	u[COL_COMMENT] = d.Comment
 
 	if len(u) > 0 {
 		now := time.Now().String()

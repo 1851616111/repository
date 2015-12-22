@@ -119,6 +119,10 @@ func (db *DB) getPermits(collection string, query bson.M, page ...[]int) (interf
 	return l, nil
 }
 
+func (db *DB) countPermits(collection string, query bson.M) (int, error) {
+	return db.DB(DB_NAME).C(collection).Find(query).Count()
+}
+
 func (db *DB) delPermit(collection string, exec bson.M) (err error) {
 	_, err = db.DB(DB_NAME).C(collection).RemoveAll(exec)
 	return

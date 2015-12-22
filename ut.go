@@ -282,50 +282,15 @@ func buildTime(absoluteTime string) string {
 //			}
 //	}
 //}
-type flow struct {
+type price struct {
 	Expire int64   `json:"expire"`
-	Time   int64   `json:"time"`
-	Unit   string  `json:"unit"`
+	Unit   int64   `json:"unit"`
 	Money  float64 `json:"money"`
+	Limit  int64   `json:"limit"`
 }
 
-func (p *flow) chkParam() bool {
-	if p.Expire <= 0 || p.Time <= 0 || p.Money < 0 || !Contains(BATCH_TIME_UNITS, p.Unit) {
-		return false
-	}
-	return true
-}
-
-func Contains(arr Arr, i interface{}) bool {
-	for _, v := range arr {
-		if v == i {
-			return true
-		}
-	}
-	return false
-}
-
-type batch struct {
-	Expire int64   `json:"expire"`
-	Times  int64   `json:"times"`
-	Money  float64 `json:"money"`
-}
-
-func (p *batch) chkParam() bool {
-	if p.Expire <= 0 || p.Times <= 0 || p.Money < 0 {
-		return false
-	}
-	return true
-}
-
-type api struct {
-	Expire int64   `json:"expire"`
-	Times  int64   `json:"times"`
-	Money  float64 `json:"money"`
-}
-
-func (p *api) chkParam() bool {
-	if p.Expire <= 0 || p.Times <= 0 || p.Money < 0 {
+func (p *price) chkParam() bool {
+	if p.Expire <= 0 || p.Unit < 0 || p.Money < 0 || p.Limit < 0 {
 		return false
 	}
 	return true
@@ -342,55 +307,26 @@ func getSupplyStyleTp(label interface{}) string {
 	return SUPPLY_STYLE_UNRECOGNIZED
 }
 
-func chkPrice(price interface{}, supplyStyle string) *Error {
-	b, err := json.Marshal(price)
+func chkPrice(prices interface{}) *Error {
+	b, err := json.Marshal(prices)
 	if err != nil {
 		return ErrParseJson(err)
 	}
 
-	flows, apis, batches := []flow{}, []api{}, []batch{}
-	switch supplyStyle {
-	case SUPPLY_STYLE_FLOW:
-		json.Unmarshal(b, &flows)
-		if len(flows) > DATAITEM_PRICE_MAX {
-			return E(ErrorCodeItemPriceOutOfLimit)
+	pricePlans := []price{}
+
+	json.Unmarshal(b, &pricePlans)
+	if len(pricePlans) > DATAITEM_PRICE_MAX {
+		return E(ErrorCodeItemPriceOutOfLimit)
+	}
+	if len(pricePlans) == 0 {
+		return nil
+	}
+
+	for i, v := range pricePlans {
+		if !v.chkParam() {
+			return ErrInvalidParameter(fmt.Sprintf("price[%d]", i))
 		}
-		if len(flows) == 0 {
-			return nil
-		}
-		for i, v := range flows {
-			if !v.chkParam() {
-				return ErrInvalidParameter(fmt.Sprintf("price[%d]", i))
-			}
-		}
-	case SUPPLY_STYLE_API:
-		json.Unmarshal(b, &apis)
-		if len(apis) > DATAITEM_PRICE_MAX {
-			return E(ErrorCodeItemPriceOutOfLimit)
-		}
-		if len(apis) == 0 {
-			return nil
-		}
-		for i, v := range apis {
-			if !v.chkParam() {
-				return ErrInvalidParameter(fmt.Sprintf("price[%d]", i))
-			}
-		}
-	case SUPPLY_STYLE_BATCH:
-		json.Unmarshal(b, &batches)
-		if len(batches) > DATAITEM_PRICE_MAX {
-			return E(ErrorCodeItemPriceOutOfLimit)
-		}
-		if len(batches) == 0 {
-			return nil
-		}
-		for i, v := range batches {
-			if !v.chkParam() {
-				return ErrInvalidParameter(fmt.Sprintf("price[%d]", i))
-			}
-		}
-	case SUPPLY_STYLE_UNRECOGNIZED:
-		return ErrDataBase(errors.New("dataitem has no supply_style, please init"))
 	}
 
 	return nil
