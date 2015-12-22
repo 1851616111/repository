@@ -27,8 +27,8 @@ const (
 )
 
 var (
-	LOCAL_LOCATION   *time.Location
-	BATCH_TIME_UNITS = []interface{}{"month", "hour", "day", ""}
+	LOCAL_LOCATION     *time.Location
+	COL_LABEL_CHILDREN = []string{"sys", "opt", "owner", "other"}
 )
 
 func init() {
@@ -284,27 +284,16 @@ func buildTime(absoluteTime string) string {
 //}
 type price struct {
 	Expire int64   `json:"expire"`
-	Unit   int64   `json:"unit"`
+	Units  int64   `json:"units"`
 	Money  float64 `json:"money"`
 	Limit  int64   `json:"limit"`
 }
 
 func (p *price) chkParam() bool {
-	if p.Expire <= 0 || p.Unit < 0 || p.Money < 0 || p.Limit < 0 {
+	if p.Expire <= 0 || p.Units < 0 || p.Money < 0 || p.Limit < 0 {
 		return false
 	}
 	return true
-}
-
-func getSupplyStyleTp(label interface{}) string {
-
-	if l, ok := label.(map[string]interface{}); ok {
-		return l["sys"].(map[string]interface{})["supply_style"].(string)
-	}
-	if l, ok := label.(bson.M); ok {
-		return l["sys"].(bson.M)["supply_style"].(string)
-	}
-	return SUPPLY_STYLE_UNRECOGNIZED
 }
 
 func chkPrice(prices interface{}) *Error {
@@ -341,6 +330,18 @@ func addPriceElemUid(price interface{}) {
 	}
 }
 
+func (rep *repository) chkLabel() {
+	if m, ok := rep.Label.(map[string]interface{}); ok {
+		for _, v := range COL_LABEL_CHILDREN {
+			if _, ok := m[v]; !ok {
+				m[v] = make(map[string]interface{})
+			}
+		}
+	} else {
+		rep.Label = new(Label)
+	}
+}
+
 func ifInLabel(i interface{}, column string) *Error {
 	m, ok := i.(map[string]interface{})
 	if !ok {
@@ -359,6 +360,13 @@ func ifInLabel(i interface{}, column string) *Error {
 	} else {
 		return ErrNoParameter("label.sys")
 	}
+
+	for _, v := range COL_LABEL_CHILDREN {
+		if _, ok := m[v]; !ok {
+			m[v] = make(map[string]interface{})
+		}
+	}
+
 	return nil
 }
 

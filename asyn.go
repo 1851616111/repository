@@ -62,9 +62,8 @@ func (db *DB) bulkHandle(es *[]exec) {
 		b.Unordered()
 		res, err := b.Run()
 		if err != nil {
-			Log.Errorf("queue asyn opt err %s. select :: %+v execute :: %+v", err.Error())
+			Log.Errorf("queue asyn operator err %s. result %+v", err.Error(), res)
 		}
-		Log.Errorf("queue asyn opt update result is %v", res)
 	}
 
 	*es = []exec{}
