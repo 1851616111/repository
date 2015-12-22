@@ -325,7 +325,7 @@ func chkPrice(prices interface{}) *Error {
 
 	for i, v := range pricePlans {
 		if !v.chkParam() {
-			return ErrInvalidParameter(fmt.Sprintf("price[%d]", i))
+			return ErrInvalidParameter(fmt.Sprintf("price[%d]: %+v \n", i, v))
 		}
 	}
 
