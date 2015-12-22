@@ -79,10 +79,10 @@ func getRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 	n, _ := db.countPermits(C_REPOSITORY_PERMISSION, Q)
 	res := struct {
 		L     []Rep_Permission `json:"permissions"`
-		Count int              `json:"count"`
+		Total int              `json:"total"`
 	}{
 		L:     l.([]Rep_Permission),
-		Count: n,
+		Total: n,
 	}
 	return rsp.Json(200, E(OK), res)
 }
@@ -114,10 +114,10 @@ func getItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, 
 	n, _ := db.countPermits(C_DATAITEM_PERMISSION, Q)
 	res := struct {
 		L     []Item_Permission `json:"permissions"`
-		Count int               `json:"count"`
+		Total int               `json:"total"`
 	}{
 		L:     l.([]Item_Permission),
-		Count: n,
+		Total: n,
 	}
 	return rsp.Json(200, E(OK), res)
 }
