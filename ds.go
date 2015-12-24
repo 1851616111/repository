@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/json"
-	"github.com/asiainfoLDP/datahub_commons/mq"
 	"gopkg.in/mgo.v2"
 	"time"
 )
@@ -15,8 +13,6 @@ const (
 	C_SELECT                = "select"
 	C_TAG                   = "tag"
 	C_STATIS_DAY            = "statis_day"
-	MQ_TOPIC                = "2_subscriptions.json"
-	MQ_KEY                  = "repositories"
 )
 
 type Label struct {
@@ -155,12 +151,14 @@ type m_rep struct {
 	Time            string      `json:"time"`
 }
 
-type Msg struct {
-	mq.MessageQueue
-}
+func (db *DB) mqPermissionHandler(m Ms) {
 
-func (m *Msg) MqJson(content interface{}) {
-	b, err := json.Marshal(content)
-	get(err)
-	msg.SendAsyncMessage(MQ_TOPIC, []byte(MQ_KEY), b)
+	if m[COL_REPNAME].(string) != "" && m[COL_ITEM_NAME].(string) != "" && m[COL_PERMIT_USER].(string) != "" {
+		copy := db.copy()
+		go func(db *DB, m *Ms) {
+			defer db.Close()
+			db.DB(DB_NAME).C(C_DATAITEM_PERMISSION).Insert(m)
+		}(copy, &m)
+	}
+
 }

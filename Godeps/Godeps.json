@@ -1,6 +1,6 @@
 {
 	"ImportPath": "github.com/asiainfoLDP/datahub_repository",
-	"GoVersion": "go1.5.1",
+	"GoVersion": "go1.5.2",
 	"Deps": [
 		{
 			"ImportPath": "github.com/Shopify/sarama",
@@ -9,10 +9,6 @@
 		},
 		{
 			"ImportPath": "github.com/asiainfoLDP/datahub_commons/log",
-			"Rev": "baeb7c1b74a31378456bdedc0bb7aa6ab654a87b"
-		},
-		{
-			"ImportPath": "github.com/asiainfoLDP/datahub_commons/mq",
 			"Rev": "baeb7c1b74a31378456bdedc0bb7aa6ab654a87b"
 		},
 		{

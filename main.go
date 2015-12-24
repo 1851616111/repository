@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/asiainfoLDP/datahub_commons/mq"
+	"github.com/asiainfoLDP/datahub_repository/mq"
 	"github.com/go-martini/martini"
 	"net/http"
 )
@@ -26,28 +26,11 @@ var (
 )
 
 func init() {
-	if DB_MONGO_ADDR == "" || DB_MONGO_PORT == "" {
-		DB_MONGO_ADDR = "10.1.235.98"
-		DB_MONGO_PORT = "27017"
-	}
-	if MQ_KAFKA_ADDR == "" || MQ_KAFKA_PORT == "" {
-		MQ_KAFKA_ADDR = DB_MONGO_ADDR
-		MQ_KAFKA_PORT = "9092"
-	}
 
-	DB_URL := fmt.Sprintf(`%s:%s/datahub?maxPoolSize=500`, DB_MONGO_ADDR, DB_MONGO_PORT)
-
-	se := connect(DB_URL)
-	db = DB{*se}
 	q_c = Queue{queueChannel}
+	initDB()
+	initMq()
 
-	MQ := fmt.Sprintf("%s:%s", MQ_KAFKA_ADDR, MQ_KAFKA_PORT)
-	m_q, err := mq.NewMQ([]string{MQ})
-	if err != nil {
-		Log.Errorf("initMQ error: %s", err.Error())
-		return
-	}
-	msg = Msg{m_q}
 }
 
 func main() {
@@ -127,5 +110,45 @@ func main() {
 
 	Log.Infof("service listen on %s", SERVICE_PORT)
 	Log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", SERVICE_PORT), nil))
+
+}
+
+func initDB() {
+
+	if DB_MONGO_ADDR == "" || DB_MONGO_PORT == "" {
+		DB_MONGO_ADDR = "10.1.235.98"
+		DB_MONGO_PORT = "27017"
+	}
+
+	DB_URL := fmt.Sprintf(`%s:%s/datahub?maxPoolSize=500`, DB_MONGO_ADDR, DB_MONGO_PORT)
+	db = DB{*connect(DB_URL)}
+
+}
+
+func initMq() {
+
+	if MQ_KAFKA_ADDR == "" || MQ_KAFKA_PORT == "" {
+		MQ_KAFKA_ADDR = DB_MONGO_ADDR
+		MQ_KAFKA_PORT = "9092"
+	}
+
+	MQ := fmt.Sprintf("%s:%s", MQ_KAFKA_ADDR, MQ_KAFKA_PORT)
+	m_q, err := mq.NewMQ([]string{MQ})
+	if err != nil {
+		Log.Errorf("initMQ error: %s", err.Error())
+		return
+	}
+
+	msg = Msg{m_q}
+
+	myListener := newMyMesssageListener(MQ_HANDLER_PERMISSION)
+
+	_, _, err = msg.SendSyncMessage(MQ_TOPIC_TO_REP, []byte(MQ_KEY_ADD_PERMISSION), []byte("")) // force create the topic
+	get(err)
+
+	err = msg.SetMessageListener(MQ_TOPIC_TO_REP, 0, mq.Offset_Marked, myListener)
+	if err != nil {
+		Log.Info("SetMessageListener error: ", err)
+	}
 
 }
