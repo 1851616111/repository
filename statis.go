@@ -5,17 +5,8 @@ import (
 	"time"
 )
 
-const (
-	Admin_Statis_Interval = 30
-)
-
-var (
-	statis_Time_All = []string{"today", "yesterday", "sevenday", "thirtyday", "average", "top"}
-	old_statis      statis
-)
-
 func (db *DB) getDStatis() {
-	items, err := db.getDataitems(0, ALL_DATAITEMS, nil)
+	items, err := db.getDataitems(0, SELECT_ALL, nil)
 	get(err)
 
 	Log.Infof("statis datitem total %d", len(items))
@@ -61,46 +52,9 @@ func staticLoop(db *DB) {
 	}
 }
 
-func adminStatisByDay(db *DB) {
-	for {
-		db.adminStatisByDay()
-		time.Sleep(time.Minute * Admin_Statis_Interval)
-	}
-}
-
 type statis struct {
 	UserNum int `json:"users"`
 	RepNum  int `json:"reps"`
 	ItemNum int `json:"items"`
 	TagNum  int `json:"tags"`
-}
-
-func (db *DB) adminStatisByDay() {
-	rep_user_num := db.countUsers(C_REPOSITORY, nil)
-	rep_num := db.countNum(C_REPOSITORY, nil)
-	item_num := db.countNum(C_DATAITEM, nil)
-	tag_num := db.countNum(C_TAG, nil)
-
-	new_statis := statis{
-		UserNum: rep_user_num,
-		RepNum:  rep_num,
-		ItemNum: item_num,
-		TagNum:  tag_num,
-	}
-
-	opt := struct {
-		day    string
-		statis statis
-	}{
-		day:    time.Now().Format(TimeFormatDay),
-		statis: new_statis,
-	}
-	if !Compare(old_statis, new_statis) {
-		old_statis = new_statis
-		go func(db *DB) {
-			copy := db.Copy()
-			defer copy.Close()
-			copy.DB(DB_NAME).C(C_STATIS_DAY).Upsert(bson.M{"day": opt.day}, opt)
-		}(db)
-	}
 }

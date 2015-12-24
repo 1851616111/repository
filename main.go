@@ -30,6 +30,10 @@ func init() {
 		DB_MONGO_ADDR = "10.1.235.98"
 		DB_MONGO_PORT = "27017"
 	}
+	if MQ_KAFKA_ADDR == "" || MQ_KAFKA_PORT == "" {
+		MQ_KAFKA_ADDR = DB_MONGO_ADDR
+		MQ_KAFKA_PORT = "9092"
+	}
 
 	DB_URL := fmt.Sprintf(`%s:%s/datahub?maxPoolSize=500`, DB_MONGO_ADDR, DB_MONGO_PORT)
 
@@ -50,7 +54,8 @@ func main() {
 
 	go q_c.serve(&db)
 	go staticLoop(&db)
-	go adminStatisByDay(&db)
+	go pushMetaDataLoop(&db)
+
 	m := martini.Classic()
 	m.Handlers(martini.Recovery())
 	m.Use(func(w http.ResponseWriter, c martini.Context) {

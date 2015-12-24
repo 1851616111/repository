@@ -24,6 +24,7 @@ const (
 	TimeFormatDay         = "2006-01-02"
 	DATAITEM_PRICE_EXPIRE = 30
 	DATAITEM_PRICE_MAX    = 6
+	DEFINE_TAG_NAME       = "column"
 )
 
 var (
@@ -509,4 +510,47 @@ func Compare(src interface{}, dst interface{}) bool {
 	}
 
 	return true
+}
+
+func getLabelValue(label interface{}, key string) interface{} {
+
+	keys := strings.Split(key, ".")
+
+	switch len(keys) {
+	case 1:
+		if l, ok := label.(map[string]interface{}); ok {
+			return l[keys[0]]
+		}
+		if l, ok := label.(bson.M); ok {
+			return l[keys[0]]
+		}
+	case 2:
+		if l, ok := label.(map[string]interface{}); ok {
+			return l[keys[0]].(map[string]interface{})[keys[1]].(string)
+		}
+		if l, ok := label.(bson.M); ok {
+			return l[keys[0]].(bson.M)[keys[1]].(string)
+		}
+	}
+	return nil
+}
+
+func getColumns(target interface{}) columns {
+	t := reflect.TypeOf(target)
+
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+
+	n := t.NumField()
+	cols := []column{}
+	for i := 0; i < n; i++ {
+		col := column{
+			ColumName: t.Field(i).Tag.Get(DEFINE_TAG_NAME),
+			ColumType: t.Field(i).Type.Name(),
+		}
+		cols = append(cols, col)
+	}
+
+	return columns(cols)
 }

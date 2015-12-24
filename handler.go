@@ -15,34 +15,36 @@ import (
 )
 
 const (
-	ACCESS_PRIVATE            = "private"
-	ACCESS_PUBLIC             = "public"
-	COL_REPNAME               = "repository_name"
-	COL_REP_ACC               = "repaccesstype"
-	COL_REP_ITEMS             = "items"
-	COL_ITEM_NAME             = "dataitem_name"
-	COL_ITEM_ACC              = "itemaccesstype"
-	COL_ITEM_TAGS             = "tags"
-	COL_COMMENT               = "comment"
-	COL_PRICE                 = "price"
-	COL_CREATE_USER           = "create_user"
-	COL_LABEL                 = "label"
-	COL_OPTIME                = "optime"
-	COL_ITEM_META             = "meta"
-	COL_ITEM_SAMPLE           = "sample"
-	COL_TAG_NAME              = "tag"
-	COL_SELECT_LABEL          = "labelname"
-	COL_SELECT_ORDER          = "order"
-	COL_SELECT_ICON           = "icon"
-	COL_PERMIT_USER           = "user_name"
-	COL_PERMIT_REPNAME        = "repository_name"
-	COL_PERMIT_ITEMNAME       = "dataitem_name"
-	COL_PERMIT_WRITE          = "write"
-	PAGE_INDEX                = 1
-	PAGE_SIZE                 = 6
-	PAGE_SIZE_SEARCH          = 10
-	PAGE_SIZE_SELECT          = 10
-	LABEL_NED_CHECK           = "supply_style"
+	ACCESS_PRIVATE        = "private"
+	ACCESS_PUBLIC         = "public"
+	COL_REPNAME           = "repository_name"
+	COL_REP_ACC           = "repaccesstype"
+	COL_REP_ITEMS         = "items"
+	COL_ITEM_NAME         = "dataitem_name"
+	COL_ITEM_ACC          = "itemaccesstype"
+	COL_ITEM_TAGS         = "tags"
+	COL_COMMENT           = "comment"
+	COL_PRICE             = "price"
+	COL_CREATE_USER       = "create_user"
+	COL_LABEL             = "label"
+	COL_OPTIME            = "optime"
+	COL_ITEM_META         = "meta"
+	COL_ITEM_SAMPLE       = "sample"
+	COL_TAG_NAME          = "tag"
+	COL_SELECT_LABEL      = "labelname"
+	COL_SELECT_ORDER      = "order"
+	COL_SELECT_ICON       = "icon"
+	COL_PERMIT_USER       = "user_name"
+	COL_PERMIT_REPNAME    = "repository_name"
+	COL_PERMIT_ITEMNAME   = "dataitem_name"
+	COL_PERMIT_WRITE      = "write"
+	PAGE_INDEX            = 1
+	PAGE_SIZE             = 6
+	PAGE_SIZE_SEARCH      = 10
+	PAGE_SIZE_SELECT      = 10
+	COL_ITEM_SYPPLY_STYLE = "supply_style"
+	LABEL_NED_CHECK       = COL_ITEM_SYPPLY_STYLE
+
 	SUPPLY_STYLE_API          = "api"
 	SUPPLY_STYLE_BATCH        = "batch"
 	SUPPLY_STYLE_FLOW         = "flow"
@@ -66,7 +68,6 @@ const (
 
 var (
 	SUPPLY_STYLE_ALL     = []string{SUPPLY_STYLE_API, SUPPLY_STYLE_BATCH, SUPPLY_STYLE_FLOW}
-	NED_CHECK_LABELS     = []string{LABEL_NED_CHECK}
 	SEARCH_DATAITEM_COLS = []string{COL_REPNAME, COL_ITEM_NAME, COL_COMMENT}
 )
 

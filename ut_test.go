@@ -33,8 +33,8 @@ func Test_chkPrice(t *testing.T) {
 		},
 	}
 
-	for k, v := range context {
-		if err := chkPrice(v, k.(string)); err != nil {
+	for _, v := range context {
+		if err := chkPrice(v); err != nil {
 			t.Errorf("Test_chkPrice fail: %s", err.ErrToString())
 		}
 	}

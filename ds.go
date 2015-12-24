@@ -160,6 +160,7 @@ type Msg struct {
 }
 
 func (m *Msg) MqJson(content interface{}) {
-	b, _ := json.Marshal(content)
+	b, err := json.Marshal(content)
+	get(err)
 	msg.SendAsyncMessage(MQ_TOPIC, []byte(MQ_KEY), b)
 }
