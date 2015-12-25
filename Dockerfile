@@ -3,7 +3,6 @@ FROM golang:1.5.1
 WORKDIR /go/src/github.com/asiainfoLDP/datahub_repository
 ADD . /go/src/github.com/asiainfoLDP/datahub_repository
 
-RUN go get github.com/asiainfoLDP/datahub_repository
 RUN go get github.com/tools/godep
 
 RUN godep restore && \
