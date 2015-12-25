@@ -5,13 +5,12 @@ ADD . /go/src/github.com/asiainfoLDP/datahub_repository
 
 RUN go get github.com/tools/godep
 
-RUN godep restore && \
-    godep go install
+RUN godep go build
 
 EXPOSE 8089
 
 ENV SERVICE_NAME=datahub_repository
 
-ENTRYPOINT ["/go/bin/datahub_repository"]
+ENTRYPOINT ["/go/src/github.com/asiainfoLDP/datahub_repository"]
 
 
