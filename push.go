@@ -101,7 +101,7 @@ type meta_rep struct {
 }
 
 type meta_item struct {
-	Id             int    `json:"id" column:"repuser"`
+	Id             int    `json:"id" column:"id"`
 	RepUser        string ` json:"repuser" column:"repuser"`
 	Rep            string ` json:"repname" column:"repname"`
 	RepAccessType  string ` json:"repaccesstype" column:"repaccesstype"`
