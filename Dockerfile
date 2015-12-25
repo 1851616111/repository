@@ -1,7 +1,7 @@
 FROM golang:1.5.1
 
-WORKDIR /go/src/github.com/asiainfoLDP
-ADD . /go/src/github.com/asiainfoLDP/
+WORKDIR /go/src/github.com/asiainfoLDP/datahub_repository
+ADD . /go/src/github.com/asiainfoLDP/datahub_repository/
 RUN cd /go/src/github.com/asiainfoLDP && ls
 RUN cd /go/src/github.com/asiainfoLDP/datahub_repository && ls
 RUN cd /go/src/github.com/asiainfoLDP/datahub_repository/mq && ls
