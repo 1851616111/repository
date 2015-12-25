@@ -15,36 +15,41 @@ import (
 )
 
 const (
-	ACCESS_PRIVATE        = "private"
-	ACCESS_PUBLIC         = "public"
-	COL_REPNAME           = "repository_name"
-	COL_REP_ACC           = "repaccesstype"
-	COL_REP_ITEMS         = "items"
-	COL_ITEM_NAME         = "dataitem_name"
-	COL_ITEM_ACC          = "itemaccesstype"
-	COL_ITEM_TAGS         = "tags"
-	COL_COMMENT           = "comment"
-	COL_PRICE             = "price"
-	COL_CREATE_USER       = "create_user"
-	COL_LABEL             = "label"
-	COL_OPTIME            = "optime"
-	COL_ITEM_META         = "meta"
-	COL_ITEM_SAMPLE       = "sample"
-	COL_TAG_NAME          = "tag"
-	COL_SELECT_LABEL      = "labelname"
-	COL_SELECT_ORDER      = "order"
-	COL_SELECT_ICON       = "icon"
-	COL_PERMIT_USER       = "user_name"
-	COL_PERMIT_REPNAME    = "repository_name"
-	COL_PERMIT_ITEMNAME   = "dataitem_name"
-	COL_PERMIT_WRITE      = "write"
-	PAGE_INDEX            = 1
-	PAGE_SIZE             = 6
-	PAGE_SIZE_SEARCH      = 10
-	PAGE_SIZE_SELECT      = 10
-	COL_ITEM_SYPPLY_STYLE = "supply_style"
-	LABEL_NED_CHECK       = COL_ITEM_SYPPLY_STYLE
-
+	ACCESS_PRIVATE            = "private"
+	ACCESS_PUBLIC             = "public"
+	COL_REPNAME               = "repository_name"
+	COL_REP_ACC               = "repaccesstype"
+	COL_REP_ITEMS             = "items"
+	COL_ITEM_NAME             = "dataitem_name"
+	COL_ITEM_ACC              = "itemaccesstype"
+	COL_ITEM_TAGS             = "tags"
+	COL_COMMENT               = "comment"
+	COL_PRICE                 = "price"
+	COL_CREATE_USER           = "create_user"
+	COL_LABEL                 = "label"
+	COL_OPTIME                = "optime"
+	COL_ITEM_META             = "meta"
+	COL_ITEM_SAMPLE           = "sample"
+	COL_TAG_NAME              = "tag"
+	COL_SELECT_LABEL          = "labelname"
+	COL_SELECT_ORDER          = "order"
+	COL_SELECT_ICON           = "icon"
+	COL_PERMIT_USER           = "user_name"
+	COL_PERMIT_REPNAME        = "repository_name"
+	COL_PERMIT_ITEMNAME       = "dataitem_name"
+	COL_PERMIT_WRITE          = "write"
+	PAGE_INDEX                = 1
+	PAGE_SIZE                 = 6
+	PAGE_SIZE_SEARCH          = 10
+	PAGE_SIZE_SELECT          = 10
+	LIMIT_TAG_LENGTH          = 20
+	LIMIT_ITEM_LENGTH         = 200
+	LIMIT_REP_LENGTH          = 200
+	PARAM_TAG_NAME            = "tag"
+	PARAM_ITEM_NAME           = "itemname"
+	PARAM_REP_NAME            = "repname"
+	COL_ITEM_SYPPLY_STYLE     = "supply_style"
+	LABEL_NED_CHECK           = COL_ITEM_SYPPLY_STYLE
 	SUPPLY_STYLE_API          = "api"
 	SUPPLY_STYLE_BATCH        = "batch"
 	SUPPLY_STYLE_FLOW         = "flow"
@@ -73,10 +78,11 @@ var (
 
 func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, login_name string, l Limit) (int, string) {
 	defer db.Close()
-	repname := strings.TrimSpace(param["repname"])
-	if repname == "" {
-		return rsp.Json(400, ErrNoParameter("repname"))
+	repname := param[PARAM_REP_NAME]
+	if err := cheParam(PARAM_REP_NAME, repname); err != nil {
+		return rsp.Json(400, err)
 	}
+
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
@@ -369,13 +375,13 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 
 func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string) (int, string) {
 	defer db.Close()
-	repname := strings.TrimSpace(param["repname"])
-	if repname == "" {
-		return rsp.Json(400, ErrNoParameter("repname"))
+
+	repname, itemname := param[PARAM_REP_NAME], param[PARAM_ITEM_NAME]
+	if err := cheParam(PARAM_REP_NAME, repname); err != nil {
+		return rsp.Json(400, err)
 	}
-	itemname := strings.TrimSpace(param["itemname"])
-	if itemname == "" {
-		return rsp.Json(400, ErrNoParameter("itemname"))
+	if err := cheParam(PARAM_ITEM_NAME, itemname); err != nil {
+		return rsp.Json(400, err)
 	}
 
 	Q := bson.M{COL_REPNAME: repname}
@@ -674,20 +680,17 @@ func getSelectLabelsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	return rsp.Json(200, E(OK), l)
 }
 
-//curl http://127.0.0.1:8080/repositories/NBA/bear23/0001 -d "{\"comment\":\"this is a tag\"}" -H user:admin
 func createTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string) (int, string) {
 	defer db.Close()
-	repname := strings.TrimSpace(param["repname"])
-	if repname == "" {
-		return rsp.Json(400, ErrNoParameter("repname"))
+	repname, itemname, tagname := param[PARAM_REP_NAME], param[PARAM_ITEM_NAME], param[PARAM_TAG_NAME]
+	if err := cheParam(PARAM_REP_NAME, repname); err != nil {
+		return rsp.Json(400, err)
 	}
-	itemname := strings.TrimSpace(param["itemname"])
-	if itemname == "" {
-		return rsp.Json(400, ErrNoParameter("itemname"))
+	if err := cheParam(PARAM_ITEM_NAME, itemname); err != nil {
+		return rsp.Json(400, err)
 	}
-	tagname := strings.TrimSpace(param["tag"])
-	if tagname == "" {
-		return rsp.Json(400, ErrNoParameter("tag"))
+	if err := cheParam(PARAM_TAG_NAME, tagname); err != nil {
+		return rsp.Json(400, err)
 	}
 
 	Q := bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname}

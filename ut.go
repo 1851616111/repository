@@ -533,3 +533,25 @@ func getColumns(target interface{}) columns {
 
 	return columns(cols)
 }
+
+func cheParam(paramName, paramValue string) *Error {
+	if strings.TrimSpace(paramValue) == "" {
+		return ErrNoParameter(paramName)
+	}
+
+	var paramLengthLimit int
+	switch paramName {
+	case PARAM_ITEM_NAME:
+		paramLengthLimit = LIMIT_ITEM_LENGTH
+	case PARAM_REP_NAME:
+		paramLengthLimit = LIMIT_REP_LENGTH
+	case PARAM_TAG_NAME:
+		paramLengthLimit = LIMIT_TAG_LENGTH
+	}
+
+	if len(paramValue) > paramLengthLimit {
+		return ErrInvalidParameter(fmt.Sprintf("%s : %s", paramName, fmt.Sprintf("out of limit %d", paramLengthLimit)))
+	}
+
+	return nil
+}
