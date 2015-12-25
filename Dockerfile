@@ -1,7 +1,7 @@
 FROM golang:1.5.1
 
-WORKDIR /go/src/datahub_repository
-ADD . /go/src/datahub_repository/
+WORKDIR /go/src/github.com/asiainfoLDP
+ADD . /go/src/github.com/asiainfoLDP/
 
 RUN echo $GOPATH
 RUN pwd
