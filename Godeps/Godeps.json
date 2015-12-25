@@ -8,10 +8,6 @@
 			"Rev": "c36adfa07b2d88dce4a02ca821367cb03a12068a"
 		},
 		{
-			"ImportPath": "github.com/asiainfoLDP/datahub_commons/log",
-			"Rev": "baeb7c1b74a31378456bdedc0bb7aa6ab654a87b"
-		},
-		{
 			"ImportPath": "github.com/codegangsta/inject",
 			"Comment": "v1.0-rc1-10-g33e0aa1",
 			"Rev": "33e0aa1cb7c019ccc3fbe049a8262a6403d30504"

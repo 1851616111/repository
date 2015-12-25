@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/asiainfoLDP/datahub_repository/log"
 	"github.com/asiainfoLDP/datahub_repository/mq"
 	"github.com/go-martini/martini"
 	"net/http"
@@ -22,7 +23,7 @@ var (
 	db  DB
 	q_c Queue
 	msg Msg
-	Log = NewLogger("http handler")
+	Log = log.NewLogger("http handler")
 )
 
 func init() {
