@@ -348,8 +348,6 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 		case 2:
 			Q[CMD_OR] = q
 		}
-	} else if loginName == targetName && targetName == "" { // invalid param
-		return rsp.Json(400, ErrNoParameter("username or user"))
 	}
 
 	rep := []repository{}
