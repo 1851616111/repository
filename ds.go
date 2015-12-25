@@ -153,7 +153,7 @@ type m_rep struct {
 
 func (db *DB) mqPermissionHandler(m Ms) {
 
-	if m[COL_REPNAME].(string) != "" && m[COL_ITEM_NAME].(string) != "" && m[COL_PERMIT_USER].(string) != "" {
+	if m[COL_REPNAME] != nil && m[COL_ITEM_NAME] != nil && m[COL_PERMIT_USER] != nil {
 		copy := db.copy()
 		go func(db *DB, m *Ms) {
 			defer db.Close()
