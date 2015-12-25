@@ -5,6 +5,8 @@ ADD . /go/src/github.com/asiainfoLDP/
 
 RUN echo $GOPATH
 RUN pwd
+RUN cd /go/src/github.com/asiainfoLDP/datahub_repository && ls
+RUN cd /go/src/github.com/asiainfoLDP/datahub_repository/mq && ls
 RUN go get github.com/tools/godep
 RUN godep restore
 RUN godep go install
