@@ -51,10 +51,11 @@ func pushMetaData(src *DB, dst *Msg) {
 	go func(items *[]dataItem, dst *Msg) {
 		data := []meta_item{}
 
-		for _, v := range *items {
+		for i, v := range *items {
 			rep := m_Cache_Rep[v.Repository_name]
 
 			meta := meta_item{
+				Id:             i,
 				RepUser:        rep.User,
 				Rep:            v.Repository_name,
 				RepAccessType:  rep.AccessType,
@@ -100,6 +101,7 @@ type meta_rep struct {
 }
 
 type meta_item struct {
+	Id             int    `json:"id" column:"repuser"`
 	RepUser        string ` json:"repuser" column:"repuser"`
 	Rep            string ` json:"repname" column:"repname"`
 	RepAccessType  string ` json:"repaccesstype" column:"repaccesstype"`

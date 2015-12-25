@@ -918,8 +918,9 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 
 	var res struct {
 		dataItem
-		Tags      []tag `json:"taglist"`
-		Permisson bool  `json:"permission"`
+		Tags      []tag  `json:"taglist"`
+		Permisson bool   `json:"permission"`
+		Stat      string `json:"pricestate"`
 	}
 
 	if abstract == true {
@@ -966,6 +967,7 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 
 	res.dataItem = item
 	res.Tags = tags
+	res.Stat = getPriceStat(item.Price)
 
 	return rsp.Json(200, E(OK), res)
 }

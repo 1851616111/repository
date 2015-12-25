@@ -20,11 +20,14 @@ import (
 )
 
 const (
-	TimeFormat            = "2006-01-02 15:04:05"
-	TimeFormatDay         = "2006-01-02"
-	DATAITEM_PRICE_EXPIRE = 30
-	DATAITEM_PRICE_MAX    = 6
-	DEFINE_TAG_NAME       = "column"
+	TimeFormat             = "2006-01-02 15:04:05"
+	TimeFormatDay          = "2006-01-02"
+	DATAITEM_PRICE_EXPIRE  = 30
+	DATAITEM_PRICE_MAX     = 6
+	DEFINE_TAG_NAME        = "column"
+	PRICE_STATE_FREE       = "免费"
+	PRICE_STATE_FREE_LIMIT = "限量免费"
+	PRICE_STATE_NOT_FREE   = "付费"
 )
 
 var (
@@ -229,60 +232,6 @@ func buildTime(absoluteTime string) string {
 	return fmt.Sprintf("%s|%d年前", abst, year)
 }
 
-//func Parse(p *dataItem, cb ...func()) {
-//	t := reflect.TypeOf(*p)
-//	v := reflect.ValueOf(p).Elem()
-//	for i := 0; i < t.NumField(); i++ {
-//		f := t.Field(i)
-//		if name := r.PostFormValue(strings.ToLower(f.Name)); name != "" {
-//			switch f.Type.Name() {
-//			case "int":
-//				i, _ := strconv.Atoi(name)
-//				v.FieldByName(f.Name).SetInt(int64(i))
-//			case "string":
-//				v.FieldByName(f.Name).SetString(name)
-//			case "float32":
-//			case "float64":
-//				ff, _ := strconv.ParseFloat(name, 10)
-//				v.FieldByName(f.Name).SetFloat(ff)
-//			}
-//		}
-//	}
-//}
-
-//func paramSetter(p *dataItem, cb ...func()) {
-//	t := reflect.TypeOf(*p)
-//	v := reflect.ValueOf(p).Elem()
-//	for i := 0; i < t.NumField(); i++ {
-//		f := t.Field(i)
-//		switch f.Type.Name() {
-//		case "int":
-//			i, _ := strconv.Atoi(name)
-//			v.FieldByName(f.Name).SetInt(int64(i))
-//		case "string":
-//			v.FieldByName(f.Name).SetString(name)
-//		case "float32":
-//		case "float64":
-//			ff, _ := strconv.ParseFloat(name, 10)
-//			v.FieldByName(f.Name).SetFloat(ff)
-//		case "interface{}":
-//
-//		}
-//		v.Field(i).
-//		if name := r.PostFormValue(strings.ToLower(f.Name)); name != "" {
-//			switch f.Type.Name() {
-//			case "int":
-//				i, _ := strconv.Atoi(name)
-//				v.FieldByName(f.Name).SetInt(int64(i))
-//			case "string":
-//				v.FieldByName(f.Name).SetString(name)
-//			case "float32":
-//			case "float64":
-//				ff, _ := strconv.ParseFloat(name, 10)
-//				v.FieldByName(f.Name).SetFloat(ff)
-//			}
-//	}
-//}
 type price struct {
 	Expire int64   `json:"expire"`
 	Units  int64   `json:"units"`
@@ -321,6 +270,36 @@ func chkPrice(prices interface{}) *Error {
 
 	return nil
 }
+
+func getPriceStat(prices interface{}) string {
+	b, err := json.Marshal(prices)
+	if err != nil {
+		return ""
+	}
+
+	pricePlans := []price{}
+
+	json.Unmarshal(b, &pricePlans)
+
+	if len(pricePlans) == 0 {
+		return ""
+	}
+
+	for _, v := range pricePlans {
+		if v.Money == 0 {
+			if v.Limit > 0 {
+				return PRICE_STATE_FREE_LIMIT
+			} else {
+				return PRICE_STATE_FREE
+			}
+		} else {
+			return PRICE_STATE_NOT_FREE
+		}
+	}
+
+	return ""
+}
+
 func addPriceElemUid(price interface{}) {
 	if arr, ok := price.([]interface{}); ok {
 		for i, _ := range arr {
