@@ -190,9 +190,7 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 		items := []string{}
 		ds := []dataItem{}
 		Q := bson.M{COL_REPNAME: repname}
-		if user != "" {
-			Q[COL_CREATE_USER] = user
-		}
+
 		ds, err = db.getDataitems(page_index, page_size, Q)
 		get(err)
 		for _, v := range ds {

@@ -35,6 +35,7 @@
       <root url="file://$PROJECT_DIR$/../../spf13/pflag/.git" />
       <root url="file://$PROJECT_DIR$/../../prometheus/client_golang/.git" />
       <root url="file://$PROJECT_DIR$/../datahub_subscriptions/Godeps/_workspace" />
+      <root url="file://$PROJECT_DIR$/../../spf13/.idea" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/bower/node_modules/update-notifier/node_modules/latest-version/node_modules/package-json/node_modules/.bin" />
       <root url="file://$PROJECT_DIR$/../../prometheus/common/expfmt/testdata" />
       <root url="file://$PROJECT_DIR$/../../gonum/floats/.travis" />
@@ -58,6 +59,7 @@
       <root url="file://$PROJECT_DIR$/../../prometheus/common/.git" />
       <root url="file://$PROJECT_DIR$/../../daviddengcn/go-colortext/.git" />
       <root url="file://$PROJECT_DIR$/../../jteeuwen/go-bindata/testdata" />
+      <root url="file://$PROJECT_DIR$/../../tools/godep/.idea" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/grunt-google-cdn/node_modules/.bin" />
       <root url="file://$PROJECT_DIR$/../../mesos/mesos-go/.git" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/optimist/test/_" />
