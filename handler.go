@@ -898,7 +898,7 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 			case true:
 				Log.Errorf("get dataitem : this is my repository")
 			case false:
-				if !db.hasPermission(COL_PERMIT_REPNAME, Q) {
+				if !db.hasPermission(C_REPOSITORY_PERMISSION, Q) {
 					return rsp.Json(400, E(ErrorCodePermissionDenied))
 				}
 			}
