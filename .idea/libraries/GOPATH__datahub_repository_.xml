@@ -129,6 +129,7 @@
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/semver-diff/node_modules/.bin" />
       <root url="file://$PROJECT_DIR$/../../emicklei/go-restful/.git" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/.tito" />
+      <root url="file://$PROJECT_DIR$/../../spf13/pflag/.idea" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/npmconf/node_modules/.bin" />
       <root url="file://$PROJECT_DIR$/../../coreos/go-semver/.git" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/.git" />
@@ -163,6 +164,7 @@
       <root url="file://$PROJECT_DIR$/../../mesos/mesos-go/examples/Godeps/_workspace" />
       <root url="file://$PROJECT_DIR$/../../golang/groupcache/.git" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/noptify/node_modules/.bin" />
+      <root url="file://$PROJECT_DIR$/Godeps/_workspace" />
       <root url="file://$PROJECT_DIR$/../../mmitton/ldap/.git" />
       <root url="file://$PROJECT_DIR$/../../mmitton/asn1-ber/.git" />
       <root url="file://$PROJECT_DIR$/../../appc/spec/Godeps/_workspace" />
@@ -182,6 +184,7 @@
       <root url="file://$PROJECT_DIR$/../../davecgh/go-spew/spew/testdata" />
       <root url="file://$PROJECT_DIR$/../../appc/cni/.git" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/cli-color/test/__playground" />
+      <root url="file://$PROJECT_DIR$/.git" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/decompress-targz/node_modules/.bin" />
       <root url="file://$PROJECT_DIR$/../../scalingdata/gcfg/testdata" />
       <root url="file://$PROJECT_DIR$/../../scalingdata/gcfg/.git" />
@@ -190,12 +193,14 @@
       <root url="file://$PROJECT_DIR$/../../juju/ratelimit/.git" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/fsevents/node_modules/.bin" />
       <root url="file://$PROJECT_DIR$/../../abbot/go-http-auth/.git" />
+      <root url="file://$PROJECT_DIR$/.idea" />
       <root url="file://$PROJECT_DIR$/../../Sirupsen/logrus/.git" />
       <root url="file://$PROJECT_DIR$/../../evanphx/json-patch/.git" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/htmlhint/node_modules/shelljs/test/resources/ls/a_dir/.hidden_dir" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/bower/node_modules/cardinal/node_modules/redeyed/node_modules/.bin" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/htmlhint/node_modules/shelljs/test/resources/ls/.hidden_dir" />
       <root url="file://$PROJECT_DIR$/../../pborman/uuid/.git" />
+      <root url="file://$PROJECT_DIR$" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/.bin" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/_output" />
       <root url="file://$PROJECT_DIR$/../../influxdb/influxdb/.hooks" />
@@ -213,6 +218,7 @@
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/grunt-svgmin/node_modules/.bin" />
       <root url="file://$PROJECT_DIR$/../../pkg/profile/.git" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/bower/node_modules/insight/node_modules/configstore/node_modules/write-file-atomic/.nyc_output" />
+      <root url="file://$PROJECT_DIR$/../../openshift/origin/hack/Godeps/_workspace" />
       <root url="file://$PROJECT_DIR$/../../gonum/graph/.git" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/less/.idea" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/karma-coverage/node_modules/escodegen/node_modules/.bin" />
@@ -237,8 +243,6 @@
       <root url="file://$PROJECT_DIR$/../../godbus/dbus/_examples" />
       <root url="file://$PROJECT_DIR$/../datafactory_ldap/.idea" />
       <root url="file://$PROJECT_DIR$/../datafactory_ldap/.git" />
-      <root url="file://$PROJECT_DIR$/.idea" />
-      <root url="file://$PROJECT_DIR$" />
       <root url="file://$PROJECT_DIR$/../../docker/docker/hack/make/.build-rpm" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/ibrik/node_modules/.bin" />
       <root url="file://$PROJECT_DIR$/../../../gopkg.in/mgo.v2/.git" />
@@ -249,7 +253,6 @@
       <root url="file://$PROJECT_DIR$/../../eapache/queue/.git" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/configstore/node_modules/.bin" />
       <root url="file://$PROJECT_DIR$/../../godbus/dbus/.git" />
-      <root url="file://$PROJECT_DIR$/.git" />
       <root url="file://$PROJECT_DIR$/../../eapache/go-resiliency/.git" />
       <root url="file://$PROJECT_DIR$/../../docker/docker/hack/make/.resources-windows" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/test/extended/fixtures/sti-environment-build-app/.sti" />
@@ -263,7 +266,6 @@
       <root url="file://$PROJECT_DIR$/../../mxk/go-flowrate/.git" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/bower/node_modules/insight/node_modules/os-name/node_modules/win-release/node_modules/.bin" />
       <root url="file://$PROJECT_DIR$/../test/yepengxj/bdx-paas-training-redis-slave/.git" />
-      <root url="file://$PROJECT_DIR$/Godeps/_workspace" />
       <root url="file://$PROJECT_DIR$/../test/yepengxj/bdx-paas-training-guestbook/.git" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/maxmin/node_modules/.bin" />
       <root url="file://$PROJECT_DIR$/../../bradfitz/http2/testdata" />
