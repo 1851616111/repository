@@ -13,8 +13,6 @@ var (
 	DB_NAME            = "datahub"
 	SERVICE_PORT       = Env("goservice_port", false)
 
-	DB_MONGO_USER   = Env("DB_MONGO_USER", false)
-	DB_MONGO_PASSWD = Env("DB_MONGO_PASSWD", false)
 	DB_MONGO_ADDR   = Env("MONGO_PORT_27017_TCP_ADDR", false)
 	DB_MONGO_PORT   = Env("MONGO_PORT_27017_TCP_PORT", false)
 	MQ_KAFKA_ADDR   = Env("MQ_KAFKA_ADDR", false)
