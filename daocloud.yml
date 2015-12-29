@@ -18,4 +18,4 @@ script:
   - go get github.com/tools/godep
   - cd /daocloud/builder/src/github.com/asiainfoLDP/datahub_repository
   - $GOPATH/bin/godep restore
-  - go test -v -cover ./...
+  - ./test.sh
