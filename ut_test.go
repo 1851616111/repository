@@ -73,17 +73,4 @@ func Test_getToken(t *testing.T) {
 		t.Errorf("Input: %s\n Output %s\n Expect %s\n", user, passwd, result)
 	}
 }
-func Test_Compare(t *testing.T) {
 
-	src := []interface{}{statis{1, 1, 1, 1}, statis{1, 1, 1, 1}}
-	dst := []interface{}{statis{1, 1, 1, 1}, statis{2, 2, 2, 2}}
-	res := []bool{true, false}
-	for i, _ := range src {
-		t.Log(src[i], dst[i])
-		d := dst[i].(statis)
-		s := src[i].(statis)
-		if Compare(s, d) != res[i] {
-			t.Errorf("compare not equal")
-		}
-	}
-}
