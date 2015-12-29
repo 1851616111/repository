@@ -25,14 +25,14 @@ var (
 )
 
 func init() {
-
-	initMq()
 	initDB()
 	q_c = Queue{queueChannel}
 
 }
 
 func main() {
+
+	initMq()
 
 	go q_c.serve(&db)
 	go staticLoop(&db)
