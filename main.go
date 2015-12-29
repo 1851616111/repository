@@ -46,7 +46,7 @@ func main() {
 		c.Map(&msg)
 		copy := db.Copy()
 		c.Map(&DB{*copy})
-	})
+	}
 
 	m.Get("/search", searchHandler)
 
