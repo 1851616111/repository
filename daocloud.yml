@@ -10,7 +10,6 @@ before_script:
   - cd /daocloud/builder/src && ls -ll
 script:
   - export GOPATH=/daocloud/builder/src
-  #- cd /daocloud/builder/src
   - go get github.com/tools/godep
   - godep restore
   - go test -v 
