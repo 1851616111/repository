@@ -7,4 +7,4 @@ export API_SERVER=10.1.235.98
 export API_PORT=8888
 
 
-go test
+go test -v
