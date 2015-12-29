@@ -120,6 +120,7 @@ func initDB() {
 	}
 
 	DB_URL := fmt.Sprintf(`%s:%s/datahub?maxPoolSize=500`, DB_MONGO_ADDR, DB_MONGO_PORT)
+	Log.Info(DB_URL)
 	db = DB{*connect(DB_URL)}
 
 }
@@ -132,6 +133,7 @@ func initMq() {
 	}
 
 	MQ := fmt.Sprintf("%s:%s", MQ_KAFKA_ADDR, MQ_KAFKA_PORT)
+	Log.Info(MQ)
 	m_q, err := mq.NewMQ([]string{MQ})
 	if err != nil {
 		Log.Errorf("initMQ error: %s", err.Error())
