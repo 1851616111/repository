@@ -11,5 +11,9 @@ script:
   - export GOPATH=/daocloud/builder/src
   - pwd
   - go get github.com/tools/godep
+  - echo $GOPATH
+  - cd $GOPATH
+  - ls -ll
   - godep restore
+  - echo $GOPATH
   - go test -v 
