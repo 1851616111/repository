@@ -7,13 +7,15 @@ env:
   - MQ_KAFKA_ADDR=54.223.58.0
   - MQ_KAFKA_PORT=9092
 
+before_script:
+  - mkdir -p /daocloud/builder/tmp
+  - mv -f /daocloud/builder/src/* /daocloud/builder/tmp
+  - mkdir -p /daocloud/builder/src/github.com/asiainfoLDP
+  - mv -f /daocloud/builder/tmp /daocloud/builder/src/github.com/asiainfoLDP/datahub_repository
+  - cd /daocloud/builder/src/github.com/asiainfoLDP/datahub_repository && ls -ll
 script:
   - export GOPATH=/daocloud/builder
-  - pwd
   - go get github.com/tools/godep
-  - echo $GOPATH
-  - cd $GOPATH
-  - ls -ll
-  - godep restore
-  - echo $GOPATH
-  - go test -v 
+  - cd /daocloud/builder/src/github.com/asiainfoLDP/datahub_repository
+  - $GOPATH/bin/godep restore
+  - go test -v -cover ./...
