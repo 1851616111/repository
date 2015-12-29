@@ -18,16 +18,14 @@ var (
 	MQ_KAFKA_ADDR = Env("MQ_KAFKA_ADDR", false)
 	MQ_KAFKA_PORT = Env("MQ_KAFKA_PORT", false)
 
-	db  DB
+	db  DB = initDB()
 	q_c Queue
 	msg Msg
 	Log = log.NewLogger("http handler")
 )
 
 func init() {
-	initDB()
 	q_c = Queue{queueChannel}
-
 }
 
 func main() {
@@ -114,7 +112,7 @@ func main() {
 
 }
 
-func initDB() {
+func initDB() DB {
 
 	if DB_MONGO_ADDR == "" || DB_MONGO_PORT == "" {
 		DB_MONGO_ADDR = "10.1.235.98"
@@ -123,7 +121,7 @@ func initDB() {
 
 	DB_URL := fmt.Sprintf(`%s:%s/datahub?maxPoolSize=500`, DB_MONGO_ADDR, DB_MONGO_PORT)
 	Log.Info(DB_URL)
-	db = DB{*connect(DB_URL)}
+	return  DB{*connect(DB_URL)}
 
 }
 

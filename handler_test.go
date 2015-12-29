@@ -43,6 +43,8 @@ func init() {
 	selectlabel = fmt.Sprintf("精选栏目_%d", ramdom)
 	newselectlabel = fmt.Sprintf("精选栏目_new_%d", ramdom)
 
+	db := initDB()
+
 	go q_c.serve(&db)
 
 	token = getToken(USERNAME, "88888888")
