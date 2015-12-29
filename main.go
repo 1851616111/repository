@@ -13,10 +13,10 @@ var (
 	DB_NAME            = "datahub"
 	SERVICE_PORT       = Env("goservice_port", false)
 
-	DB_MONGO_ADDR   = Env("MONGO_PORT_27017_TCP_ADDR", false)
-	DB_MONGO_PORT   = Env("MONGO_PORT_27017_TCP_PORT", false)
-	MQ_KAFKA_ADDR   = Env("MQ_KAFKA_ADDR", false)
-	MQ_KAFKA_PORT   = Env("MQ_KAFKA_PORT", false)
+	DB_MONGO_ADDR = Env("MONGO_PORT_27017_TCP_ADDR", false)
+	DB_MONGO_PORT = Env("MONGO_PORT_27017_TCP_PORT", false)
+	MQ_KAFKA_ADDR = Env("MQ_KAFKA_ADDR", false)
+	MQ_KAFKA_PORT = Env("MQ_KAFKA_PORT", false)
 
 	db  DB
 	q_c Queue

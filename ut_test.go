@@ -73,4 +73,3 @@ func Test_getToken(t *testing.T) {
 		t.Errorf("Input: %s\n Output %s\n Expect %s\n", user, passwd, result)
 	}
 }
-

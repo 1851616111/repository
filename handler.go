@@ -222,10 +222,11 @@ func delRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 	}
 
 	tmp := m_rep{Type: MQ_TYPE_DEL_REP, Repository_name: Q[COL_REPNAME], Time: time.Now().String()}
-	go func(msg *Msg, rep m_rep) {
-		msg.MqJson(rep)
-	}(msg, tmp)
-
+	if msg != nil {
+		go func(msg *Msg, rep m_rep) {
+			msg.MqJson(rep)
+		}(msg, tmp)
+	}
 	var opt interface{}
 	has := db.countNum(C_REPOSITORY, bson.M{COL_CREATE_USER: r.Header.Get("User"), COL_REP_ACC: rep.Repaccesstype})
 	switch rep.Repaccesstype {
@@ -568,9 +569,11 @@ func delDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 	go asynUpdateOpt(C_REPOSITORY, bson.M{COL_REPNAME: repname}, bson.M{CMD_INC: bson.M{"items": -1}, CMD_SET: bson.M{COL_OPTIME: time.Now().String()}})
 
 	tmp := m_item{Type: MQ_TYPE_DEL_ITEM, Repository_name: Q[COL_REPNAME], Dataitem_name: Q[COL_ITEM_NAME], Time: time.Now().String()}
-	go func(msg *Msg, item m_item) {
-		msg.MqJson(tmp)
-	}(msg, tmp)
+	if msg != nil {
+		go func(msg *Msg, item m_item) {
+			msg.MqJson(tmp)
+		}(msg, tmp)
+	}
 
 	return rsp.Json(200, E(OK))
 }
@@ -723,11 +726,12 @@ func createTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, l
 	go asynUpdateOpt(C_REPOSITORY, bson.M{COL_REPNAME: repname}, bson.M{CMD_SET: bson.M{COL_OPTIME: now}})
 
 	go asynUpdateOpt(C_DATAITEM, Q, bson.M{CMD_INC: bson.M{"tags": 1}, CMD_SET: bson.M{COL_OPTIME: now}})
-
-	go func(msg *Msg,t tag) {
-		m_t := m_tag{Type: MQ_TYPE_ADD_TAG, Repository_name: t.Repository_name, Dataitem_name: t.Dataitem_name, Tag: t.Tag, Time: t.Optime}
-		msg.MqJson(m_t)
-	}(msg, *t)
+	if msg != nil {
+		go func(msg *Msg, t tag) {
+			m_t := m_tag{Type: MQ_TYPE_ADD_TAG, Repository_name: t.Repository_name, Dataitem_name: t.Dataitem_name, Tag: t.Tag, Time: t.Optime}
+			msg.MqJson(m_t)
+		}(msg, *t)
+	}
 
 	return rsp.Json(200, E(OK))
 }
@@ -847,10 +851,11 @@ func delTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, logi
 	go asynUpdateOpt(C_DATAITEM, bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname}, bson.M{CMD_INC: bson.M{"tags": -1}, CMD_SET: bson.M{COL_OPTIME: time.Now().String()}})
 
 	t := m_tag{Type: MQ_TYPE_DEL_TAG, Repository_name: Q[COL_REPNAME], Dataitem_name: Q[COL_ITEM_NAME], Tag: Q[COL_TAG_NAME], Time: time.Now().String()}
-	go func(msg *Msg, t m_tag) {
-		msg.MqJson(t)
-	}(msg,t)
-
+	if msg != nil {
+		go func(msg *Msg, t m_tag) {
+			msg.MqJson(t)
+		}(msg, t)
+	}
 	return rsp.Json(200, E(OK))
 }
 

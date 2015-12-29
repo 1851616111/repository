@@ -3,8 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/go-martini/martini"
 	"github.com/asiainfoLDP/datahub_repository/log"
+	"github.com/go-martini/martini"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
@@ -622,7 +622,7 @@ func Test_createTagHandler(t *testing.T) {
 		expect := v.expect
 		r, err := http.NewRequest("POST", "/repositories/rep/item/tag", strings.NewReader(p.requestBody))
 		get(err)
-		code, msg := createTagHandler(r, p.rsp, p.param, p.db, p.login_name, &msg)
+		code, msg := createTagHandler(r, p.rsp, p.param, p.db, p.login_name, nil)
 
 		if !expect.expect(t, code, msg) {
 			t.Logf("%s fail.", v.description)
@@ -1807,7 +1807,7 @@ func Test_delTagHandler(t *testing.T) {
 		r, err := http.NewRequest("DELETE", "/repositories/rep/item/tag", strings.NewReader(p.requestBody))
 		get(err)
 		r.Header.Set("User", USERNAME)
-		code, msg := delTagHandler(r, p.rsp, p.param, p.db, p.login_name, &msg)
+		code, msg := delTagHandler(r, p.rsp, p.param, p.db, p.login_name, nil)
 
 		if !expect.expect(t, code, msg) {
 			t.Logf("%s fail.", v.description)
@@ -1900,7 +1900,7 @@ func Test_delDHandler(t *testing.T) {
 		expect := v.expect
 		r, err := http.NewRequest("DELETE", "/repositories/rep/item", strings.NewReader(p.requestBody))
 		get(err)
-		code, msg := delDHandler(r, p.rsp, p.param, p.db, p.login_name, &msg)
+		code, msg := delDHandler(r, p.rsp, p.param, p.db, p.login_name, nil)
 
 		if !expect.expect(t, code, msg) {
 			t.Logf("%s fail.", v.description)
@@ -2044,7 +2044,7 @@ func Test_delRHandler(t *testing.T) {
 
 		r.Header.Set("User", USERNAME)
 
-		code, msg := delRHandler(r, p.rsp, p.param, p.db, p.login_name, &msg)
+		code, msg := delRHandler(r, p.rsp, p.param, p.db, p.login_name, nil)
 		if !expect.expect(t, code, msg) {
 			t.Logf("%s fail.", v.description)
 			t.Log(code)
@@ -2133,7 +2133,6 @@ type param struct {
 	param       martini.Params
 	db          *DB
 	login_name  string
-	msg			*Msg
 	limit       Limit
 	repName     string
 }
