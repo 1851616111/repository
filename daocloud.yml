@@ -9,7 +9,7 @@ env:
 
 script:
   - export GOPATH=/daocloud/builder/src
-  - echo $pwd
+  - pwd
   - go get github.com/tools/godep
   - godep restore
   - go test -v 
