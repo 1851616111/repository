@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/go-martini/martini"
+	"github.com/asiainfoLDP/datahub_repository/log"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
@@ -29,7 +30,7 @@ var (
 )
 
 func init() {
-	Log = NewLogger("test")
+	Log = log.NewLogger("test")
 	rd := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
 	ramdom = rd.Int()
 
