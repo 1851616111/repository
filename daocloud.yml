@@ -8,7 +8,9 @@ env:
   - MQ_KAFKA_PORT=9092
 before_script:
   - cd /daocloud/builder/src && ls -ll
+  - echo $GOPATH
 script:
+  - echo $GOPATH
   - export GOPATH=/daocloud/builder/src
   - go get github.com/tools/godep
   - godep restore
