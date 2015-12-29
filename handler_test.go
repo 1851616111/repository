@@ -622,7 +622,7 @@ func Test_createTagHandler(t *testing.T) {
 		expect := v.expect
 		r, err := http.NewRequest("POST", "/repositories/rep/item/tag", strings.NewReader(p.requestBody))
 		get(err)
-		code, msg := createTagHandler(r, p.rsp, p.param, p.db, p.login_name)
+		code, msg := createTagHandler(r, p.rsp, p.param, p.db, p.login_name, &msg)
 
 		if !expect.expect(t, code, msg) {
 			t.Logf("%s fail.", v.description)
@@ -1807,7 +1807,7 @@ func Test_delTagHandler(t *testing.T) {
 		r, err := http.NewRequest("DELETE", "/repositories/rep/item/tag", strings.NewReader(p.requestBody))
 		get(err)
 		r.Header.Set("User", USERNAME)
-		code, msg := delTagHandler(r, p.rsp, p.param, p.db, p.login_name)
+		code, msg := delTagHandler(r, p.rsp, p.param, p.db, p.login_name, &msg)
 
 		if !expect.expect(t, code, msg) {
 			t.Logf("%s fail.", v.description)
@@ -1900,7 +1900,7 @@ func Test_delDHandler(t *testing.T) {
 		expect := v.expect
 		r, err := http.NewRequest("DELETE", "/repositories/rep/item", strings.NewReader(p.requestBody))
 		get(err)
-		code, msg := delDHandler(r, p.rsp, p.param, p.db, p.login_name)
+		code, msg := delDHandler(r, p.rsp, p.param, p.db, p.login_name, &msg)
 
 		if !expect.expect(t, code, msg) {
 			t.Logf("%s fail.", v.description)
@@ -2044,7 +2044,7 @@ func Test_delRHandler(t *testing.T) {
 
 		r.Header.Set("User", USERNAME)
 
-		code, msg := delRHandler(r, p.rsp, p.param, p.db, p.login_name)
+		code, msg := delRHandler(r, p.rsp, p.param, p.db, p.login_name, &msg)
 		if !expect.expect(t, code, msg) {
 			t.Logf("%s fail.", v.description)
 			t.Log(code)
@@ -2079,7 +2079,7 @@ func Test_delSelectLabelHandler(t *testing.T) {
 		expect := v.expect
 		r, err := http.NewRequest("DELETE", "/select_labels/:labelname", strings.NewReader(p.requestBody))
 		get(err)
-		code, msg := delSelectLabelHandler(r, p.rsp, p.param, p.db)
+		code, msg := delSelectLabelHandler(r, p.rsp, p.param, p.db.copy())
 
 		if !expect.expect(t, code, msg) {
 			t.Logf("%s fail.", v.description)
@@ -2133,6 +2133,7 @@ type param struct {
 	param       martini.Params
 	db          *DB
 	login_name  string
+	msg			*Msg
 	limit       Limit
 	repName     string
 }
@@ -2160,5 +2161,5 @@ func initDataitemName(casenum int) string {
 }
 
 func initTagName(casenum int) string {
-	return fmt.Sprintf("test_tag_%d_case_%d", ramdom, casenum)
+	return fmt.Sprintf("test_tag_%d_case_%d", ramdom, casenum)[0:20]
 }

@@ -26,9 +26,9 @@ var (
 
 func init() {
 
-	q_c = Queue{queueChannel}
-	initDB()
 	initMq()
+	initDB()
+	q_c = Queue{queueChannel}
 
 }
 
@@ -43,6 +43,7 @@ func main() {
 	m.Use(func(w http.ResponseWriter, c martini.Context) {
 		rsp := &Rsp{w: w}
 		c.Map(rsp)
+		c.Map(&msg)
 		copy := db.Copy()
 		c.Map(&DB{*copy})
 	})
