@@ -47,7 +47,7 @@ func init() {
 
 	go q_c.serve(&db)
 
-	token = getToken(USERNAME, "88888888")
+	token = getToken(USERNAME, "q")
 	if len(token) != 32 {
 		Log.Error("Init token failed\n")
 	} else {

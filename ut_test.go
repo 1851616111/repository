@@ -39,37 +39,37 @@ func Test_chkPrice(t *testing.T) {
 		}
 	}
 }
-func Test_getMd5(t *testing.T) {
-	in := []string{"88888888"}
-	expect := []string{"8ddcff3a80f4189ca1c9d4d902c3c909"}
-
-	for i, v := range in {
-		out := getMd5(v)
-		if out != expect[i] {
-			t.Errorf("input %s, output %s, expect %s", in[i], out, expect[i])
-		}
-	}
-}
-
-func Test_base64Encode(t *testing.T) {
-	in := []string{"panxy3@asiainfo.com:8ddcff3a80f4189ca1c9d4d902c3c909"}
-	expect := []string{"cGFueHkzQGFzaWFpbmZvLmNvbTo4ZGRjZmYzYTgwZjQxODljYTFjOWQ0ZDkwMmMzYzkwOQ=="}
-
-	for i, v := range in {
-		out := string(base64Encode([]byte(v)))
-		if out != expect[i] {
-			t.Errorf("Input: %s\n Output %s\n Expect %s\n", in[i], out, expect[i])
-		}
-	}
-}
-
-func Test_getToken(t *testing.T) {
-	user := "panxy3@asiainfo.com"
-	passwd := "q"
-	result := "a189775949e417acd7d4349de8e33000"
-
-	out := getToken(user, passwd)
-	if len(out) != len(result) {
-		t.Errorf("Input: %s\n Output %s\n Expect %s\n", user, passwd, result)
-	}
-}
+//func Test_getMd5(t *testing.T) {
+//	in := []string{"88888888"}
+//	expect := []string{"8ddcff3a80f4189ca1c9d4d902c3c909"}
+//
+//	for i, v := range in {
+//		out := getMd5(v)
+//		if out != expect[i] {
+//			t.Errorf("input %s, output %s, expect %s", in[i], out, expect[i])
+//		}
+//	}
+//}
+//
+//func Test_base64Encode(t *testing.T) {
+//	in := []string{"panxy3@asiainfo.com:8ddcff3a80f4189ca1c9d4d902c3c909"}
+//	expect := []string{"cGFueHkzQGFzaWFpbmZvLmNvbTo4ZGRjZmYzYTgwZjQxODljYTFjOWQ0ZDkwMmMzYzkwOQ=="}
+//
+//	for i, v := range in {
+//		out := string(base64Encode([]byte(v)))
+//		if out != expect[i] {
+//			t.Errorf("Input: %s\n Output %s\n Expect %s\n", in[i], out, expect[i])
+//		}
+//	}
+//}
+//
+//func Test_getToken(t *testing.T) {
+//	user := "panxy3@asiainfo.com"
+//	passwd := "q"
+//	result := "a189775949e417acd7d4349de8e33000"
+//
+//	out := getToken(user, passwd)
+//	if len(out) != len(result) {
+//		t.Errorf("Input: %s\n Output %s\n Expect %s\n", user, passwd, result)
+//	}
+//}
