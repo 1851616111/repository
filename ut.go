@@ -371,17 +371,27 @@ func httpGet(getUrl string, credential ...string) ([]byte, error) {
 		}
 		req.Header.Set(credential[0], credential[1])
 		resp, err = http.DefaultClient.Do(req)
+		if err != nil {
+			Log.Error("http get err:%s", err.Error() )
+			return nil, err
+		}
+		if resp.StatusCode != 200 {
+			return nil, fmt.Errorf("[http get] status err %s, %d\n", getUrl, resp.StatusCode)
+		}
 	} else {
 		resp, err = http.Get(getUrl)
+		if err != nil {
+			Log.Error("http get err:%s", err.Error() )
+			return nil, err
+		}
+		if resp.StatusCode != 200 {
+			return nil, fmt.Errorf("[http get] status err %s, %d\n", getUrl, resp.StatusCode)
+		}
 	}
 
-	if err != nil {
-		return nil, err
-	}
 
-	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("[http get] status err %s, %d\n", getUrl, resp.StatusCode)
-	}
+
+
 	return ioutil.ReadAll(resp.Body)
 }
 
