@@ -378,7 +378,6 @@ func httpGet(getUrl string, credential ...string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("[http get] status err %s, %d\n", getUrl, resp.StatusCode)
@@ -438,6 +437,7 @@ func getToken(user, passwd string) string {
 	if err := json.Unmarshal(b, &i); err != nil {
 		Log.Errorf("unmarshal token err: %s", err.Error())
 	}
+
 	return i.(map[string]interface{})["token"].(string)
 }
 
