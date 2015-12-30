@@ -63,13 +63,13 @@ func Test_base64Encode(t *testing.T) {
 	}
 }
 
-func Test_getToken(t *testing.T) {
-	user := "panxy3@asiainfo.com"
-	passwd := "88888888"
-	result := "a189775949e417acd7d4349de8e33000"
-
-	out := getToken(user, passwd)
-	if len(out) != len(result) {
-		t.Errorf("Input: %s\n Output %s\n Expect %s\n", user, passwd, result)
-	}
-}
+//func Test_getToken(t *testing.T) {
+//	user := "panxy3@asiainfo.com"
+//	passwd := "88888888"
+//	result := "a189775949e417acd7d4349de8e33000"
+//
+//	out := getToken(user, passwd)
+//	if len(out) != len(result) {
+//		t.Errorf("Input: %s\n Output %s\n Expect %s\n", user, passwd, result)
+//	}
+//}
