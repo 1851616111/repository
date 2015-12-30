@@ -2162,5 +2162,5 @@ func initDataitemName(casenum int) string {
 }
 
 func initTagName(casenum int) string {
-	return fmt.Sprintf("test_tag_%d_case_%d", ramdom, casenum)[0:20]
+	return fmt.Sprintf("%d%d", ramdom, casenum)[0:20]
 }
