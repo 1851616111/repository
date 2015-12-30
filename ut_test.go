@@ -22,14 +22,9 @@ func Test_ifInLabel(t *testing.T) {
 func Test_chkPrice(t *testing.T) {
 	context := M{
 		"api": []map[string]interface{}{
-			map[string]interface{}{"times": 1000, "money": 5, "expire": DATAITEM_PRICE_EXPIRE},
-			map[string]interface{}{"times": 10000, "money": 45, "expire": DATAITEM_PRICE_EXPIRE},
-			map[string]interface{}{"times": 100000.00, "money": 400.00, "expire": DATAITEM_PRICE_EXPIRE},
-		},
-		"flow": []map[string]interface{}{
-			map[string]interface{}{"time": 1000, "unit": "h", "money": 5, "expire": DATAITEM_PRICE_EXPIRE},
-			map[string]interface{}{"time": 10000, "unit": "h", "money": 45, "expire": DATAITEM_PRICE_EXPIRE},
-			map[string]interface{}{"time": 100000.00, "unit": "d", "money": 400.00, "expire": DATAITEM_PRICE_EXPIRE},
+			map[string]interface{}{"units": 1000, "money": 5, "expire": DATAITEM_PRICE_EXPIRE},
+			map[string]interface{}{"units": 10000, "money": 45, "expire": DATAITEM_PRICE_EXPIRE},
+			map[string]interface{}{"units": 100000, "money": 400.00, "expire": DATAITEM_PRICE_EXPIRE},
 		},
 	}
 
