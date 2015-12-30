@@ -3,7 +3,7 @@
 #export MQ_KAFKA_ADDR=10.1.235.98
 #export MQ_KAFKA_PORT=9092
 
-export API_SERVER=10.1.235.98
+export API_SERVER=54.223.58.0
 export API_PORT=8888
 
 
