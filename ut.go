@@ -371,18 +371,27 @@ func httpGet(getUrl string, credential ...string) ([]byte, error) {
 		}
 		req.Header.Set(credential[0], credential[1])
 		resp, err = http.DefaultClient.Do(req)
+		if err != nil {
+			Log.Error("http get err:%s", err.Error() )
+			return nil, err
+		}
+		if resp.StatusCode != 200 {
+			return nil, fmt.Errorf("[http get] status err %s, %d\n", getUrl, resp.StatusCode)
+		}
 	} else {
 		resp, err = http.Get(getUrl)
+		if err != nil {
+			Log.Error("http get err:%s", err.Error() )
+			return nil, err
+		}
+		if resp.StatusCode != 200 {
+			return nil, fmt.Errorf("[http get] status err %s, %d\n", getUrl, resp.StatusCode)
+		}
 	}
 
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("[http get] status err %s, %d\n", getUrl, resp.StatusCode)
-	}
+
+
 	return ioutil.ReadAll(resp.Body)
 }
 
@@ -426,6 +435,9 @@ func getToken(user, passwd string) string {
 	passwdMd5 := getMd5(passwd)
 	token := fmt.Sprintf("Basic %s", string(base64Encode([]byte(fmt.Sprintf("%s:%s", user, passwdMd5)))))
 	URL := fmt.Sprintf("http://%s:%s/repositories/test", API_SERVER, API_PORT)
+	Log.Info("--------->", URL)
+	Log.Info("--------->", AUTHORIZATION)
+	Log.Info("--------->", token)
 	b, err := httpGet(URL, AUTHORIZATION, token)
 	if err != nil {
 		Log.Errorf("get token err: %s", err.Error())
@@ -435,6 +447,7 @@ func getToken(user, passwd string) string {
 	if err := json.Unmarshal(b, &i); err != nil {
 		Log.Errorf("unmarshal token err: %s", err.Error())
 	}
+
 	return i.(map[string]interface{})["token"].(string)
 }
 
