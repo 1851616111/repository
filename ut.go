@@ -427,8 +427,8 @@ func getToken(user, passwd string) string {
 	token := fmt.Sprintf("Basic %s", string(base64Encode([]byte(fmt.Sprintf("%s:%s", user, passwdMd5)))))
 	URL := fmt.Sprintf("http://%s:%s/repositories/test", API_SERVER, API_PORT)
 	Log.Info("--------->", URL)
-	Log.Info("--------->", AUTHORIZATIONL)
-	Log.Info("--------->", toke)
+	Log.Info("--------->", AUTHORIZATION)
+	Log.Info("--------->", URL)
 	b, err := httpGet(URL, AUTHORIZATION, token)
 	if err != nil {
 		Log.Errorf("get token err: %s", err.Error())
