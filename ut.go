@@ -434,7 +434,7 @@ func HttpPostJson(postUrl string, body []byte, credential ...string) ([]byte, er
 func getToken(user, passwd string) string {
 	passwdMd5 := getMd5(passwd)
 	token := fmt.Sprintf("Basic %s", string(base64Encode([]byte(fmt.Sprintf("%s:%s", user, passwdMd5)))))
-	URL := fmt.Sprintf("http://%s:%s/repositories/test", API_SERVER, API_PORT)
+	URL := fmt.Sprintf("http://%s:%s, API_SERVER, API_PORT)
 	Log.Info("--------->", URL)
 	Log.Info("--------->", AUTHORIZATION)
 	Log.Info("--------->", token)
