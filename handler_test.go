@@ -1566,7 +1566,7 @@ func Test_updateTagHandler(t *testing.T) {
 								"comment":"20001MB"
 							}`,
 				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[2]},
+				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[2]+"123"},
 				db:         db.copy(),
 				login_name: USERNAME,
 			},
