@@ -428,7 +428,7 @@ func getToken(user, passwd string) string {
 	URL := fmt.Sprintf("http://%s:%s/repositories/test", API_SERVER, API_PORT)
 	Log.Info("--------->", URL)
 	Log.Info("--------->", AUTHORIZATION)
-	Log.Info("--------->", URL)
+	Log.Info("--------->", token)
 	b, err := httpGet(URL, AUTHORIZATION, token)
 	if err != nil {
 		Log.Errorf("get token err: %s", err.Error())
