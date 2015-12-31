@@ -1103,8 +1103,8 @@ func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 
 	username := r.Header.Get("User")
 	username2 := r.Header.Get("user")
-	Log.Info("--------> user little %s", username2)
-	Log.Info("--------> user big %s", username)
+	Log.Infof("--------> user little %s", username2)
+	Log.Infof("--------> user big %s", username)
 	var m bson.M
 	if select_labels := strings.TrimSpace(r.FormValue("select_labels")); select_labels != "" {
 		m = bson.M{"label.sys.select_labels": select_labels}
