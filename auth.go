@@ -98,9 +98,11 @@ func chkUserLimit(w http.ResponseWriter, r *http.Request, c martini.Context, db 
 		u := result.Data.(map[string]interface{})
 		l := Limit{}
 		if pub, exist := u[VIP_SERVICE_RET_RET_PUB]; exist {
+			Log.Infof(" limit pub %#v\n", l)
 			l.Rep_Public = int(pub.(float64))
 		}
 		if pri, exist := u[VIP_SERVICE_RET_RET_PRI]; exist {
+			Log.Infof(" limit pir %#v\n", l)
 			l.Rep_Private = int(pri.(float64))
 		}
 		if l.Rep_Public == VIP_SERVICE_ADMIN_PUB {
@@ -109,6 +111,7 @@ func chkUserLimit(w http.ResponseWriter, r *http.Request, c martini.Context, db 
 		if l.Rep_Private == VIP_SERVICE_ADMIN_PUB {
 			l.Rep_Private = 100000
 		}
+		Log.Infof("chkUserLimit limit %#v\n", l)
 		c.Map(l)
 		return
 	}

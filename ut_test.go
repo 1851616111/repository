@@ -34,6 +34,7 @@ func Test_chkPrice(t *testing.T) {
 		}
 	}
 }
+
 //func Test_getMd5(t *testing.T) {
 //	in := []string{"88888888"}
 //	expect := []string{"8ddcff3a80f4189ca1c9d4d902c3c909"}
