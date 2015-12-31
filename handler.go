@@ -1112,8 +1112,12 @@ func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	Q := bson.M{}
 	l := db.getPublicReps()
 	if username != "" {
+		Log.Infof("----->select usename %s", username)
 		private := db.getPrivateReps(username)
+		Log.Infof("----->select %#v", private)
+
 		l = append(l, private...)
+
 	}
 
 	if len(l) > 0 {

@@ -65,6 +65,7 @@
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/optimist/test/_" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/bin-version-check/node_modules/.bin" />
       <root url="file://$PROJECT_DIR$/../../MakeNowJust/heredoc/.git" />
+      <root url="file://$PROJECT_DIR$/../test/.idea" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/bower/node_modules/update-notifier/node_modules/semver-diff/node_modules/.bin" />
       <root url="file://$PROJECT_DIR$/../../../golang.org/x/tools/go/types/testdata" />
       <root url="file://$PROJECT_DIR$/../../docker/distribution/.git" />
@@ -315,11 +316,13 @@
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/download/node_modules/.bin" />
       <root url="file://$PROJECT_DIR$/../../prometheus/client_model/.git" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/insight/node_modules/.bin" />
+      <root url="file://$PROJECT_DIR$/../../openshift/origin/pkg/cmd/server/.idea" />
       <root url="file://$PROJECT_DIR$/../../pmezard/go-difflib/.git" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/strip-dirs/node_modules/.bin" />
       <root url="file://$PROJECT_DIR$/../../prometheus/procfs/.git" />
       <root url="file://$PROJECT_DIR$/../../gogo/protobuf/protoc-gen-gogo/testdata" />
       <root url="file://$PROJECT_DIR$/../../../golang.org/x/tools/go/pointer/testdata" />
+      <root url="file://$PROJECT_DIR$/../../openshift/origin/pkg/cmd/server/origin/.idea" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/phantomjs/node_modules/.bin" />
       <root url="file://$PROJECT_DIR$/../../shurcooL/sanitized_anchor_name/.git" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/svgo/node_modules/.bin" />
