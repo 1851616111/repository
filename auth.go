@@ -82,10 +82,18 @@ func chkUserLimit(w http.ResponseWriter, r *http.Request, c martini.Context, db 
 		return
 	}
 	b, err := httpGet(fmt.Sprintf("http://%s:%s/vip/%s", API_SERVER, API_PORT, login_Name), AUTHORIZATION, token)
-	get(err)
+	if err != nil {
+		Log.Error(fmt.Sprintf("http://%s:%s/vip/%s", API_SERVER, API_PORT, login_Name), AUTHORIZATION, token)
+		Log.Errorf("chkUserLimit err :%s\n", err)
+	}
+
 	result := new(Result)
 	err = json.Unmarshal(b, result)
-	get(err)
+	if err != nil {
+		Log.Errorf("chkUserLimit err :%s\n", err)
+	}
+
+	Log.Infof("chkUserLimit %#v\n", *result)
 	if result.Data != nil {
 		u := result.Data.(map[string]interface{})
 		l := Limit{}

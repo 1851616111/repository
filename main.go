@@ -121,7 +121,7 @@ func initDB() DB {
 
 	DB_URL := fmt.Sprintf(`%s:%s/datahub?maxPoolSize=500`, DB_MONGO_ADDR, DB_MONGO_PORT)
 	Log.Info(DB_URL)
-	return  DB{*connect(DB_URL)}
+	return DB{*connect(DB_URL)}
 
 }
 
