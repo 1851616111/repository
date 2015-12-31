@@ -111,13 +111,18 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		opt = struct {
 			Public int `json:"public"`
 		}{has + 1}
+		Log.Infof("createRHandler ACCESS_PUBLIC max  %d", max)
+		Log.Infof("createRHandler ACCESS_PUBLIC l.Rep_Public  %d", l.Rep_Public)
 	case ACCESS_PRIVATE:
 		max = l.Rep_Private
 		opt = struct {
 			Private int `json:"private"`
 		}{has + 1}
+		Log.Infof("createRHandler ACCESS_PRIVATE max  %d", max)
+		Log.Infof("createRHandler ACCESS_PRIVATE l.Rep_Private  %d", l.Rep_Private)
 	}
 
+	Log.Infof("createRHandler the result max %d\n", max)
 	if has >= max {
 		return rsp.Json(400, ErrRepOutOfLimit(max))
 	}
