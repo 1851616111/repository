@@ -125,6 +125,7 @@ func (db *DB) getPermits(collection string, query bson.M, page ...[]int) (interf
 			list = l
 		case C_REPOSITORY_PERMISSION:
 			l := []Rep_Permission{}
+			Log.Infof("------>query %#v", query)
 			err = db.DB(DB_NAME).C(collection).Find(query).All(&l)
 			list = l
 		}
@@ -133,6 +134,7 @@ func (db *DB) getPermits(collection string, query bson.M, page ...[]int) (interf
 	if err != nil {
 		return list, err
 	}
+	Log.Infof("------>result  %#v", list)
 	return list, nil
 }
 
