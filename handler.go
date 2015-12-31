@@ -78,6 +78,7 @@ var (
 
 func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, login_name string, l Limit) (int, string) {
 	defer db.Close()
+	fmt.Println("--------->%#v\n", l)
 	repname := param[PARAM_REP_NAME]
 	if err := cheParam(PARAM_REP_NAME, repname); err != nil {
 		return rsp.Json(400, err)
