@@ -1100,7 +1100,6 @@ func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 			return rsp.Json(400, ErrInvalidParameter("size"))
 		}
 	}
-
 	username := r.Header.Get("User")
 	username2 := r.Header.Get("user")
 	Log.Infof("--------> user little %s", username2)
