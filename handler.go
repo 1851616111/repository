@@ -924,7 +924,7 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	var res struct {
 		dataItem
 		Tags      []tag  `json:"taglist"`
-		Permisson bool   `json:"permission"`
+		Permisson bool   `json:"permission,omitempty"`
 		Stat      string `json:"pricestate"`
 	}
 
