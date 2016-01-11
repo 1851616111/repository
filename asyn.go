@@ -2,58 +2,78 @@ package main
 
 import (
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 	"time"
 )
 
 const (
-	CHANNE_MAX_ZISE = 20000
+	CHANNE_MAX_ZISE  = 20000
+	Exec_Type_Update = "update"
+	Exec_Type_Upsert = "upsert"
+	Exec_Type_Insert = "insert"
 )
 
 var (
-	queueChannel = make(chan exec, CHANNE_MAX_ZISE)
+	queue = make(chan Execute, CHANNE_MAX_ZISE)
 )
 
-type exec struct {
-	collectionName string
-	selector       bson.M
-	update         bson.M
+type Execute struct {
+	Collection string
+	Selector   interface{}
+	Update     interface{}
+	Type       string
 }
+
+type execs []Execute
 
 type Queue struct {
-	q chan exec
+	q chan Execute
 }
 
-func (q *Queue) producer(e exec) {
-	queueChannel <- e
+func (q *Queue) producer(e ...Execute) {
+	for _, v := range e {
+		queue <- v
+	}
 }
 
 func (q *Queue) serve(db *DB) {
-	l := []exec{}
+	updates, upserts, inserts := execs{}, execs{}, execs{}
 	for {
 		select {
 		case exec := <-q.q:
-			l = append(l, exec)
-		case <-time.After(time.Second):
-			if len(l) > 0 {
-				copy := db.copy()
-				go copy.bulkHandle(&l)
+			switch exec.Type {
+			case Exec_Type_Update:
+				updates = append(updates, exec)
+			case Exec_Type_Upsert:
+				upserts = append(upserts, exec)
+			case Exec_Type_Insert:
+				inserts = append(inserts, exec)
 			}
+
+		case <-time.After(time.Second):
+			updates.serve(db, Exec_Type_Update)
+			upserts.serve(db, Exec_Type_Upsert)
+			inserts.serve(db, Exec_Type_Insert)
 		}
 	}
 }
 
-func (db *DB) bulkHandle(es *[]exec) {
+func (db *DB) bulkHandle(es *execs, Type string) {
 	defer db.Close()
 	m := make(M)
 	for _, exec := range *es {
-		bulk, ok := m[exec.collectionName]
+		bulk, ok := m[exec.Collection]
 		if !ok {
-			b := db.DB(DB_NAME).C(exec.collectionName).Bulk()
-			m[exec.collectionName] = b
-			b.Update(exec.selector, exec.update)
-		} else {
-			bulk.(*mgo.Bulk).Update(exec.selector, exec.update)
+			b := db.DB(DB_NAME).C(exec.Collection).Bulk()
+			m[exec.Collection] = b
+		}
+
+		switch Type {
+		case Exec_Type_Update:
+			bulk.(*mgo.Bulk).Update(exec.Selector, exec.Update)
+		case Exec_Type_Upsert:
+			bulk.(*mgo.Bulk).Upsert(exec.Selector, exec.Update)
+		case Exec_Type_Insert:
+			bulk.(*mgo.Bulk).Insert(exec.Update)
 		}
 	}
 
@@ -66,9 +86,16 @@ func (db *DB) bulkHandle(es *[]exec) {
 		}
 	}
 
-	*es = []exec{}
+	*es = execs{}
 }
 
-func asynUpdateOpt(collection string, selector, updater bson.M) {
-	q_c.producer(exec{collection, selector, updater})
+func (p *execs) serve(db *DB, Type string) {
+	if len(*p) > 0 {
+		copy := db.copy()
+		go copy.bulkHandle(p, Type)
+	}
+}
+
+func asynExec(e ...Execute) {
+	q_c.producer(e...)
 }

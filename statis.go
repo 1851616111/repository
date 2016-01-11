@@ -8,6 +8,7 @@ import (
 func (db *DB) getDStatis() {
 	items, err := db.getDataitems(0, SELECT_ALL, nil)
 	get(err)
+	execs := []Execute{}
 
 	Log.Infof("statis datitem total %d", len(items))
 	for _, v := range items {
@@ -16,16 +17,23 @@ func (db *DB) getDStatis() {
 		get(err)
 		if n != v.Tags {
 			Log.Infof("correct %s/%s tags = %d", v.Repository_name, v.Dataitem_name, n)
-			exec := bson.M{CMD_SET: bson.M{COL_ITEM_TAGS: n}}
-			go asynUpdateOpt(C_DATAITEM, Q, exec)
+			exec := Execute{
+				Collection: C_DATAITEM,
+				Selector:   Q,
+				Update:     bson.M{CMD_SET: bson.M{COL_ITEM_TAGS: n}},
+				Type:       Exec_Type_Update,
+			}
+			execs = append(execs, exec)
 		}
 	}
+	go asynExec(execs...)
 	Log.Info("statis datitem over")
 }
 
 func (db *DB) getRStatis() {
 	reps, err := db.getRepositories(nil)
 	get(err)
+	execs := []Execute{}
 
 	Log.Infof("statis repository total %d", len(reps))
 	for _, v := range reps {
@@ -34,10 +42,18 @@ func (db *DB) getRStatis() {
 		get(err)
 		if n != v.Items {
 			Log.Infof("correct %s items = %d", v.Repository_name, n)
-			exec := bson.M{CMD_SET: bson.M{COL_REP_ITEMS: n}}
-			go asynUpdateOpt(C_REPOSITORY, Q, exec)
+
+			exec := Execute{
+				Collection: C_REPOSITORY,
+				Selector:   Q,
+				Update:     bson.M{CMD_SET: bson.M{COL_REP_ITEMS: n}},
+				Type:       Exec_Type_Update,
+			}
+			execs = append(execs, exec)
 		}
 	}
+
+	go asynExec(execs...)
 	Log.Error("statis repository over")
 }
 

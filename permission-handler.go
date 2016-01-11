@@ -41,9 +41,9 @@ func setRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 	}
 	r_p.Repository_name = p.Repository_name
 
-	Q := bson.M{COL_PERMIT_REPNAME: p.Repository_name, COL_PERMIT_USER: r_p.User_name}
+	selector := bson.M{COL_PERMIT_REPNAME: p.Repository_name, COL_PERMIT_USER: r_p.User_name}
 
-	if _, err := db.DB(DB_NAME).C(C_REPOSITORY_PERMISSION).Upsert(Q, r_p); err != nil {
+	if _, err := db.DB(DB_NAME).C(C_REPOSITORY_PERMISSION).Upsert(selector, r_p); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
 

@@ -292,8 +292,14 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 
 	if len(u) > 0 {
 		u[COL_OPTIME] = time.Now().String()
-		updater := bson.M{"$set": u}
-		go asynUpdateOpt(C_REPOSITORY, selector, updater)
+		update := bson.M{"$set": u}
+		exec := Execute{
+			Collection: C_REPOSITORY,
+			Selector:   selector,
+			Update:     update,
+			Type:       Exec_Type_Update,
+		}
+		go asynExec(exec)
 	}
 
 	return rsp.Json(200, E(OK))
@@ -450,7 +456,14 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		return rsp.Json(400, ErrDataBase(err))
 	}
 
-	go asynUpdateOpt(C_REPOSITORY, bson.M{COL_REPNAME: repname}, bson.M{CMD_INC: bson.M{"items": 1}, CMD_SET: bson.M{COL_OPTIME: now.String()}})
+	exec := Execute{
+		Collection: C_REPOSITORY,
+		Selector:   bson.M{COL_REPNAME: repname},
+		Update:     bson.M{CMD_INC: bson.M{"items": 1}, CMD_SET: bson.M{COL_OPTIME: now.String()}},
+		Type:       Exec_Type_Update,
+	}
+
+	go asynExec(exec)
 
 	return rsp.Json(200, E(OK))
 }
@@ -527,10 +540,25 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	if len(u) > 0 {
 		now := time.Now().String()
 		u[COL_OPTIME] = now
-		updater := bson.M{"$set": u}
-		go asynUpdateOpt(C_DATAITEM, selector, updater)
+		update := bson.M{"$set": u}
 
-		go asynUpdateOpt(C_REPOSITORY, bson.M{COL_REPNAME: repname}, bson.M{"$set": bson.M{COL_OPTIME: now}})
+		exec := []Execute{
+			{
+				Collection: C_DATAITEM,
+				Selector:   selector,
+				Update:     update,
+				Type:       Exec_Type_Update,
+			},
+			{
+				Collection: C_REPOSITORY,
+				Selector:   bson.M{COL_REPNAME: repname},
+				Update:     bson.M{"$set": bson.M{COL_OPTIME: now}},
+				Type:       Exec_Type_Update,
+			},
+		}
+
+		go asynExec(exec...)
+
 	}
 	return rsp.Json(200, E(OK))
 }
@@ -567,7 +595,14 @@ func delDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 		db.delFile(PREFIX_SAMPLE, repname, itemname)
 	}(db.copy())
 
-	go asynUpdateOpt(C_REPOSITORY, bson.M{COL_REPNAME: repname}, bson.M{CMD_INC: bson.M{"items": -1}, CMD_SET: bson.M{COL_OPTIME: time.Now().String()}})
+	exec := Execute{
+		Collection: C_REPOSITORY,
+		Selector:   bson.M{COL_REPNAME: repname},
+		Update:     bson.M{CMD_INC: bson.M{"items": -1}, CMD_SET: bson.M{COL_OPTIME: time.Now().String()}},
+		Type:       Exec_Type_Update,
+	}
+
+	go asynExec(exec)
 
 	tmp := m_item{Type: MQ_TYPE_DEL_ITEM, Repository_name: Q[COL_REPNAME], Dataitem_name: Q[COL_ITEM_NAME], Time: time.Now().String()}
 	if msg != nil {
@@ -649,8 +684,16 @@ func updateSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, d
 		return rsp.Json(400, ErrNoParameter("newlabelname or order"))
 	}
 
-	updater := bson.M{CMD_SET: u}
-	go asynUpdateOpt(C_SELECT, selector, updater)
+	update := bson.M{CMD_SET: u}
+
+	exec := Execute{
+		Collection: C_SELECT,
+		Selector:   selector,
+		Update:     update,
+		Type:       Exec_Type_Update,
+	}
+
+	go asynExec(exec)
 
 	return rsp.Json(200, E(OK))
 }
@@ -724,9 +767,23 @@ func createTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, l
 		return rsp.Json(400, ErrDataBase(err))
 	}
 
-	go asynUpdateOpt(C_REPOSITORY, bson.M{COL_REPNAME: repname}, bson.M{CMD_SET: bson.M{COL_OPTIME: now}})
+	exec := []Execute{
+		{
+			Collection: C_REPOSITORY,
+			Selector:   bson.M{COL_REPNAME: repname},
+			Update:     bson.M{CMD_SET: bson.M{COL_OPTIME: now}},
+			Type:       Exec_Type_Update,
+		},
+		{
+			Collection: C_DATAITEM,
+			Selector:   Q,
+			Update:     bson.M{CMD_INC: bson.M{"tags": 1}, CMD_SET: bson.M{COL_OPTIME: now}},
+			Type:       Exec_Type_Update,
+		},
+	}
 
-	go asynUpdateOpt(C_DATAITEM, Q, bson.M{CMD_INC: bson.M{"tags": 1}, CMD_SET: bson.M{COL_OPTIME: now}})
+	go asynExec(exec...)
+
 	if msg != nil {
 		go func(msg *Msg, t tag) {
 			m_t := m_tag{Type: MQ_TYPE_ADD_TAG, Repository_name: t.Repository_name, Dataitem_name: t.Dataitem_name, Tag: t.Tag, Time: t.Optime}
@@ -781,11 +838,29 @@ func updateTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, l
 	}
 
 	now := time.Now().String()
-	go asynUpdateOpt(C_REPOSITORY, bson.M{COL_REPNAME: repname}, bson.M{CMD_SET: bson.M{COL_OPTIME: now}})
 
-	go asynUpdateOpt(C_DATAITEM, Q_item, bson.M{CMD_INC: bson.M{"tags": 1}, CMD_SET: bson.M{COL_OPTIME: now}})
+	exec := []Execute{
+		{
+			Collection: C_REPOSITORY,
+			Selector:   bson.M{COL_REPNAME: repname},
+			Update:     bson.M{CMD_SET: bson.M{COL_OPTIME: now}},
+			Type:       Exec_Type_Update,
+		},
+		{
+			Collection: C_DATAITEM,
+			Selector:   Q_item,
+			Update:     bson.M{CMD_INC: bson.M{"tags": 1}, CMD_SET: bson.M{COL_OPTIME: now}},
+			Type:       Exec_Type_Update,
+		},
+		{
+			Collection: C_TAG,
+			Selector:   Q_tag,
+			Update:     bson.M{"$set": bson.M{COL_COMMENT: t.Comment, COL_OPTIME: now}},
+			Type:       Exec_Type_Update,
+		},
+	}
 
-	go asynUpdateOpt(C_TAG, Q_tag, bson.M{"$set": bson.M{COL_COMMENT: t.Comment, COL_OPTIME: now}})
+	go asynExec(exec...)
 
 	return rsp.Json(200, E(OK))
 }
@@ -849,7 +924,14 @@ func delTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, logi
 		return rsp.Json(400, ErrDataBase(err))
 	}
 
-	go asynUpdateOpt(C_DATAITEM, bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname}, bson.M{CMD_INC: bson.M{"tags": -1}, CMD_SET: bson.M{COL_OPTIME: time.Now().String()}})
+	exec := Execute{
+		Collection: C_DATAITEM,
+		Selector:   bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname},
+		Update:     bson.M{CMD_INC: bson.M{"tags": -1}, CMD_SET: bson.M{COL_OPTIME: time.Now().String()}},
+		Type:       Exec_Type_Update,
+	}
+
+	go asynExec(exec)
 
 	t := m_tag{Type: MQ_TYPE_DEL_TAG, Repository_name: Q[COL_REPNAME], Dataitem_name: Q[COL_ITEM_NAME], Tag: Q[COL_TAG_NAME], Time: time.Now().String()}
 	if msg != nil {
@@ -1055,9 +1137,15 @@ func updateSelectHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB
 	u := bson.M{}
 	u["label.sys.select_labels"] = select_labels
 	u["label.sys.order"] = order
-	updater := bson.M{"$set": u}
+	update := bson.M{"$set": u}
 
-	go q_c.producer(exec{C_DATAITEM, selector, updater})
+	exec := Execute{
+		Collection: C_DATAITEM,
+		Selector:   selector,
+		Update:     update,
+		Type:       Exec_Type_Update,
+	}
+	go asynExec(exec)
 
 	return rsp.Json(200, E(OK))
 }
@@ -1078,9 +1166,16 @@ func delSelectHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (
 	u := bson.M{}
 	u["label.sys.select_labels"] = 1
 	u["label.sys.order"] = 1
-	updater := bson.M{CMD_UNSET: u}
+	update := bson.M{CMD_UNSET: u}
 
-	go q_c.producer(exec{C_DATAITEM, selector, updater})
+	exec := Execute{
+		Collection: C_DATAITEM,
+		Selector:   selector,
+		Update:     update,
+		Type:       Exec_Type_Update,
+	}
+
+	go asynExec(exec)
 
 	return rsp.Json(200, E(OK))
 }

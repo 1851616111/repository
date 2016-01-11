@@ -172,8 +172,14 @@ func (db *DB) optLabels(r *http.Request, reg []*regexp.Regexp, s interface{}, Q 
 						colValue = values[0]
 					}
 
-					exec := bson.M{optTp: bson.M{colName: colValue}}
-					go asynUpdateOpt(collectionName, Q, exec)
+					exec := Execute{
+						Collection: collectionName,
+						Selector:   Q,
+						Update:     bson.M{optTp: bson.M{colName: colValue}},
+						Type:       Exec_Type_Update,
+					}
+
+					go asynExec(exec)
 				}
 			}
 		case LABEL_OTHER:
@@ -194,8 +200,14 @@ func (db *DB) optLabels(r *http.Request, reg []*regexp.Regexp, s interface{}, Q 
 						colValue = values[0]
 					}
 
-					exec := bson.M{optTp: bson.M{colName: colValue}}
-					go asynUpdateOpt(collectionName, Q, exec)
+					exec := Execute{
+						Collection: collectionName,
+						Selector:   Q,
+						Update:     bson.M{optTp: bson.M{colName: colValue}},
+						Type:       Exec_Type_Update,
+					}
+
+					go asynExec(exec)
 				}
 			}
 		}

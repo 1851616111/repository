@@ -25,7 +25,7 @@ var (
 )
 
 func init() {
-	q_c = Queue{queueChannel}
+	q_c = Queue{queue}
 }
 
 func main() {
