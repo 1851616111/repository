@@ -6,6 +6,7 @@ import (
 	"github.com/go-martini/martini"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -13,8 +14,8 @@ const (
 	AUTHORIZATION = "Authorization"
 
 	USER_SERVICE_RET_USERTYPE = "userType"
-	VIP_SERVICE_RET_RET_PUB   = "repoPub"
-	VIP_SERVICE_RET_RET_PRI   = "repoPri"
+	Quota_Rep_Pub             = "quotaPublic"
+	Quota_Rep_Pri             = "quotaPrivate"
 	VIP_SERVICE_ADMIN_PUB     = -1
 	VIP_SERVICE_ADMIN_PRI     = -1
 )
@@ -81,7 +82,7 @@ func chkUserLimit(w http.ResponseWriter, r *http.Request, c martini.Context, db 
 		http.Error(w, E(ErrorCodeUnauthorized).ErrToString(), 401)
 		return
 	}
-	b, err := httpGet(fmt.Sprintf("http://%s:%s/vip/%s", API_SERVER, API_PORT, login_Name), AUTHORIZATION, token)
+	b, err := httpGet(fmt.Sprintf("http://%s:%s/quota/%s/repository", API_SERVER, API_PORT, login_Name), AUTHORIZATION, token)
 	if err != nil {
 		Log.Error(fmt.Sprintf("http://%s:%s/vip/%s", API_SERVER, API_PORT, login_Name), AUTHORIZATION, token)
 		Log.Errorf("chkUserLimit err :%s\n", err)
@@ -96,14 +97,14 @@ func chkUserLimit(w http.ResponseWriter, r *http.Request, c martini.Context, db 
 	if result.Data != nil {
 		u := result.Data.(map[string]interface{})
 		l := Limit{}
-		if pub, exist := u[VIP_SERVICE_RET_RET_PUB]; exist {
-			Log.Infof(" limit pub %#v\n", l)
-			l.Rep_Public = int(pub.(float64))
+		if pub, exist := u[Quota_Rep_Pub]; exist {
+			l.Rep_Public, _ = strconv.Atoi(pub.(string))
 		}
-		if pri, exist := u[VIP_SERVICE_RET_RET_PRI]; exist {
-			Log.Infof(" limit pir %#v\n", l)
-			l.Rep_Private = int(pri.(float64))
+		if pri, exist := u[Quota_Rep_Pri]; exist {
+			l.Rep_Private, _ = strconv.Atoi(pri.(string))
 		}
+		Log.Infof(" user limit %#v\n", l)
+
 		if l.Rep_Public == VIP_SERVICE_ADMIN_PUB {
 			l.Rep_Public = 100000
 		}
