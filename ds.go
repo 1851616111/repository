@@ -32,7 +32,7 @@ type repository struct {
 	Label           interface{} `json:"label"`
 	Ct              time.Time   `json:"-"`
 	st              time.Time
-	Cooperate       interface{} `json:"-"`
+	Cooperate       interface{} `bson:"cooperators", json:"-"`
 }
 
 type Namelist []names
@@ -60,6 +60,7 @@ type dataItem struct {
 	Label           interface{} `json:"label"`
 	Ct              time.Time   `json:"-"`
 	st              time.Time
+	Cooperate       bool `json:cooperate`
 }
 
 type tag struct {

@@ -562,3 +562,12 @@ func cheParam(paramName, paramValue string) *Error {
 
 	return nil
 }
+
+func ifCooperate(cooperate interface{}, loginName string) bool {
+	if cooperates, ok := cooperate.([]string); ok {
+		if len(cooperates) > 0 {
+			return contains(cooperates, loginName)
+		}
+	}
+	return false
+}

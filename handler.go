@@ -26,7 +26,8 @@ const (
 	COL_COMMENT               = "comment"
 	COL_PRICE                 = "price"
 	COL_CREATE_USER           = "create_user"
-	COL_REP_COOPERATOR        = "cooperator"
+	COL_REP_COOPERATOR        = "cooperators"
+	COL_ITEM_COOPERATOR       = "cooperator"
 	COL_LABEL                 = "label"
 	COL_OPTIME                = "optime"
 	COL_ITEM_META             = "meta"
@@ -197,6 +198,10 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 		ds := []dataItem{}
 		Q := bson.M{COL_REPNAME: repname}
 
+		if user != "" && ifCooperate(rep.Cooperate, user) {
+			Q[COL_ITEM_COOPERATOR] = true
+			Q[COL_CREATE_USER] = user
+		}
 		ds, err = db.getDataitems(page_index, page_size, Q)
 		get(err)
 		for _, v := range ds {
@@ -420,7 +425,9 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	if err == mgo.ErrNotFound {
 		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("repname : %s", repname)))
 	}
-	if rep.Create_user != loginName {
+
+	cooperate := ifCooperate(rep.Cooperate, loginName)
+	if rep.Create_user != loginName && !cooperate {
 		return rsp.Json(400, E(ErrorCodePermissionDenied))
 	}
 
@@ -449,6 +456,7 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	d.Optime = now.String()
 	d.Ct = now
 	d.Tags = 0
+	d.Cooperate = cooperate
 
 	if d.Itemaccesstype != ACCESS_PRIVATE && d.Itemaccesstype != ACCESS_PUBLIC {
 		d.Itemaccesstype = ACCESS_PUBLIC
