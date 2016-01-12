@@ -32,12 +32,14 @@ type repository struct {
 	Label           interface{} `json:"label"`
 	Ct              time.Time   `json:"-"`
 	st              time.Time
+	Cooperate       interface{} `json:"-"`
 }
 
 type Namelist []names
 type names struct {
-	Repository_name string `json:"repname"`
-	Dataitem_name   string `json:"itemname,omitempty"`
+	Repository_name  string `json:"repname"`
+	Cooperate_status string `json:"cooperate_status,omitempty"`
+	Dataitem_name    string `json:"itemname,omitempty"`
 }
 type search struct {
 	Repository_name string

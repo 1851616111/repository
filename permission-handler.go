@@ -165,7 +165,7 @@ func delRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 			Collection: C_REPOSITORY,
 			Selector:   bson.M{COL_REPNAME: result.Repository_name},
 			Update:     bson.M{CMD_PULL: bson.M{COL_REP_COOPERATOR: result.User_name}},
-			Type:      Exec_Type_Update,
+			Type:       Exec_Type_Update,
 		}
 		execs = append(execs, exec)
 	}

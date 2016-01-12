@@ -72,6 +72,8 @@ const (
 	MQ_TYPE_DEL_TAG           = "0x00020001"
 	MQ_TYPE_DEL_ITEM          = "0x00020002"
 	MQ_TYPE_DEL_REP           = "0x00020003"
+	STATUS_COOPERATORRING     = "协作中"
+	STATUS_COOPERATOR         = "协作"
 )
 
 var (
@@ -328,7 +330,16 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 	loginName := r.Header.Get("User")
 	Q := bson.M{}
 	if (loginName != "" && targetName == "") || (loginName != "" && targetName == loginName) { //login already and search myrepositories
-		Q = bson.M{COL_CREATE_USER: loginName}
+		Q = bson.M{
+			CMD_OR: []bson.M{
+				bson.M{
+					COL_CREATE_USER: loginName, // my repositories
+				},
+				bson.M{
+					COL_REP_COOPERATOR: loginName, // cooperator repositories
+				},
+			},
+		}
 	} else if loginName == "" && targetName != "" { // no login nd search targetName
 		Q = bson.M{COL_CREATE_USER: targetName, COL_REP_ACC: ACCESS_PUBLIC}
 	} else if loginName != "" && targetName != "" && loginName != targetName { //loging and search targetName
@@ -362,19 +373,32 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 	rep := []repository{}
 
 	if page_size == -1 {
-		if err := db.DB(DB_NAME).C(C_REPOSITORY).Find(Q).Sort("-ct").Select(bson.M{COL_REPNAME: "1"}).All(&rep); err != nil {
+		if err := db.DB(DB_NAME).C(C_REPOSITORY).Find(Q).Sort("-ct").Select(bson.M{COL_REPNAME: "1", COL_CREATE_USER: "1", COL_REP_COOPERATOR: "1"}).All(&rep); err != nil {
 			return rsp.Json(400, ErrDataBase(err))
 		}
 	} else {
-		err := db.DB(DB_NAME).C(C_REPOSITORY).Find(Q).Sort("-ct").Select(bson.M{COL_REPNAME: "1"}).Skip((page_index - 1) * page_size).Limit(page_size).All(&rep)
+		err := db.DB(DB_NAME).C(C_REPOSITORY).Find(Q).Sort("-ct").Select(bson.M{COL_REPNAME: "1", COL_CREATE_USER: "1", COL_REP_COOPERATOR: "1"}).Skip((page_index - 1) * page_size).Limit(page_size).All(&rep)
 		if err != nil {
 			return rsp.Json(400, ErrDataBase(err))
 		}
 	}
 
 	l := []names{}
-	for _, v := range rep {
-		l = append(l, names{Repository_name: v.Repository_name})
+	if loginName != "" {
+		for _, v := range rep {
+			status := ""
+			if cooperates, ok := v.Cooperate.([]string); ok {
+				if len(cooperates) > 0 {
+					if contains(cooperates, loginName) {
+						status = STATUS_COOPERATORRING
+						continue
+					}
+					status = STATUS_COOPERATOR
+				}
+			}
+
+			l = append(l, names{Repository_name: v.Repository_name, Cooperate_status: status})
+		}
 	}
 
 	return rsp.Json(200, E(OK), l)
@@ -1396,7 +1420,7 @@ func (m Ms) sortMapToArray(l *[]names) {
 
 	for _, k := range keys {
 		str := strings.Split(m[k].(string), "/")
-		*l = append(*l, names{str[0], str[1]})
+		*l = append(*l, names{Repository_name: str[0], Dataitem_name: str[1]})
 	}
 }
 
