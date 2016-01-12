@@ -60,7 +60,7 @@ type dataItem struct {
 	Label           interface{} `json:"label"`
 	Ct              time.Time   `json:"-"`
 	st              time.Time
-	Cooperate       bool `json:cooperate`
+	Cooperate       bool `json:"-"`
 }
 
 type tag struct {

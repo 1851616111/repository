@@ -588,3 +588,21 @@ func cheParam(paramName, paramValue string) *Error {
 func ifCooperate(cooperate interface{}, loginName string) bool {
 	return contains(cooperate, loginName)
 }
+
+func lenCooperate(cooperate interface{}) int {
+	l, ok := cooperate.([]interface{})
+	if ok {
+		return len(l)
+	}
+	return 0
+}
+
+func getCooperateStat(d dataItem, loginName string) string {
+	if loginName != d.Create_user && d.Cooperate == true {
+		return STATUS_COOPERATOR
+	}
+	if loginName == d.Create_user && d.Cooperate == true {
+		return STATUS_COOPERATORRING
+	}
+	return ""
+}
