@@ -61,10 +61,10 @@ func (db *DB) bulkHandle(es *execs, Type string) {
 	defer db.Close()
 	m := make(M)
 	for _, exec := range *es {
-		_, ok := m[exec.Collection]
+		bulk, ok := m[exec.Collection]
 		if !ok {
-			b := db.DB(DB_NAME).C(exec.Collection).Bulk()
-			m[exec.Collection] = b
+			bulk = db.DB(DB_NAME).C(exec.Collection).Bulk()
+			m[exec.Collection] = bulk
 		}
 
 		switch Type {
