@@ -352,10 +352,32 @@ func ifInLabel(i interface{}, column string) *Error {
 	return nil
 }
 
-func contains(l []string, str string) bool {
-	for _, v := range l {
-		if str == v {
-			return true
+func contains(list interface{}, str string) bool {
+	if list == nil {
+		return false
+	}
+
+	switch list.(type) {
+
+	case []interface{}:
+		l, ok := list.([]interface{})
+		if !ok {
+			return false
+		}
+		for _, v := range l {
+			if str == v.(string) {
+				return true
+			}
+		}
+	case []string:
+		l, ok := list.([]string)
+		if !ok {
+			return false
+		}
+		for _, v := range l {
+			if str == v {
+				return true
+			}
 		}
 	}
 	return false
@@ -564,10 +586,5 @@ func cheParam(paramName, paramValue string) *Error {
 }
 
 func ifCooperate(cooperate interface{}, loginName string) bool {
-	if cooperates, ok := cooperate.([]string); ok {
-		if len(cooperates) > 0 {
-			return contains(cooperates, loginName)
-		}
-	}
-	return false
+	return contains(cooperate, loginName)
 }

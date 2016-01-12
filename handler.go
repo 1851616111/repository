@@ -392,13 +392,13 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 	if loginName != "" {
 		for _, v := range rep {
 			status := ""
-			if cooperates, ok := v.Cooperate.([]string); ok {
+			if cooperates, ok := v.Cooperate.([]interface{}); ok {
 				if len(cooperates) > 0 {
 					if contains(cooperates, loginName) {
 						status = STATUS_COOPERATORRING
-						continue
+					} else {
+						status = STATUS_COOPERATOR
 					}
-					status = STATUS_COOPERATOR
 				}
 			}
 

@@ -55,7 +55,7 @@ func setRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 	if r_p.Opt_permission == PERMISSION_WRITE {
 		exec := Execute{
 			Collection: C_REPOSITORY,
-			Selector:   bson.M{COL_REPNAME: p.Repository_name, COL_CREATE_USER: r_p.User_name},
+			Selector:   bson.M{COL_REPNAME: p.Repository_name},
 			Update:     bson.M{CMD_ADDTOSET: bson.M{COL_REP_COOPERATOR: r_p.User_name}},
 			Type:       Exec_Type_Update,
 		}
