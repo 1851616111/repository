@@ -61,7 +61,7 @@ func (db *DB) bulkHandle(es *execs, Type string) {
 	defer db.Close()
 	m := make(M)
 	for _, exec := range *es {
-		bulk, ok := m[exec.Collection]
+		_, ok := m[exec.Collection]
 		if !ok {
 			b := db.DB(DB_NAME).C(exec.Collection).Bulk()
 			m[exec.Collection] = b
@@ -69,11 +69,11 @@ func (db *DB) bulkHandle(es *execs, Type string) {
 
 		switch Type {
 		case Exec_Type_Update:
-			bulk.(*mgo.Bulk).Update(exec.Selector, exec.Update)
+			m[exec.Collection].(*mgo.Bulk).Update(exec.Selector, exec.Update)
 		case Exec_Type_Upsert:
-			bulk.(*mgo.Bulk).Upsert(exec.Selector, exec.Update)
+			m[exec.Collection].(*mgo.Bulk).Upsert(exec.Selector, exec.Update)
 		case Exec_Type_Insert:
-			bulk.(*mgo.Bulk).Insert(exec.Update)
+			m[exec.Collection].(*mgo.Bulk).Insert(exec.Update)
 		}
 	}
 
@@ -84,6 +84,7 @@ func (db *DB) bulkHandle(es *execs, Type string) {
 		if err != nil {
 			Log.Errorf("queue asyn operator err %s. result %+v", err.Error(), res)
 		}
+		//todo save fail bulk and retry
 	}
 
 	*es = execs{}
