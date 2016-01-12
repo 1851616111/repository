@@ -1231,9 +1231,6 @@ func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 		}
 	}
 	username := r.Header.Get("User")
-	username2 := r.Header.Get("user")
-	Log.Infof("--------> user little %s", username2)
-	Log.Infof("--------> user big %s", username)
 	var m bson.M
 	if select_labels := strings.TrimSpace(r.FormValue("select_labels")); select_labels != "" {
 		m = bson.M{"label.sys.select_labels": select_labels}
@@ -1244,12 +1241,8 @@ func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	Q := bson.M{}
 	l := db.getPublicReps()
 	if username != "" {
-		Log.Infof("----->select usename %s", username)
 		private := db.getPrivateReps(username)
-		Log.Infof("----->select %#v", private)
-
 		l = append(l, private...)
-
 	}
 
 	if len(l) > 0 {
