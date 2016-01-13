@@ -21,11 +21,11 @@ func init() {
 }
 
 func pushMetaDataLoop(db *DB) {
-	timer1 := time.NewTicker(1 * time.Hour)
+	timer := time.NewTicker(1 * time.Minute)
 	for {
 		select {
-		case <-timer1.C:
-			if time.Now().Hour() == 23 {
+		case <-timer.C:
+			if time.Now().Hour() == 23 && time.Now().Minute() == 1 {
 				copy := db.copy()
 				pushMetaData(copy, &msg)
 			}
@@ -88,7 +88,7 @@ func pushMetaData(src *DB, dst *Msg) {
 			Data:    data,
 		}
 
-		dst.MqJson(pld)
+		dst.MqJson(MQ_TOPIC_TO_REP, pld)
 
 	}(&items, dst)
 

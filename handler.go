@@ -235,7 +235,7 @@ func delRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 	tmp := m_rep{Type: MQ_TYPE_DEL_REP, Repository_name: Q[COL_REPNAME], Time: time.Now().String()}
 	if msg != nil {
 		go func(msg *Msg, rep m_rep) {
-			msg.MqJson(rep)
+			msg.MqJson(MQ_TOPIC_TO_SUB, rep)
 		}(msg, tmp)
 	}
 	var opt interface{}
@@ -642,7 +642,7 @@ func delDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 	tmp := m_item{Type: MQ_TYPE_DEL_ITEM, Repository_name: Q[COL_REPNAME], Dataitem_name: Q[COL_ITEM_NAME], Time: time.Now().String()}
 	if msg != nil {
 		go func(msg *Msg, item m_item) {
-			msg.MqJson(tmp)
+			msg.MqJson(MQ_TOPIC_TO_SUB, tmp)
 		}(msg, tmp)
 	}
 
@@ -822,7 +822,7 @@ func createTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, l
 	if msg != nil {
 		go func(msg *Msg, t tag) {
 			m_t := m_tag{Type: MQ_TYPE_ADD_TAG, Repository_name: t.Repository_name, Dataitem_name: t.Dataitem_name, Tag: t.Tag, Time: t.Optime}
-			msg.MqJson(m_t)
+			msg.MqJson(MQ_TOPIC_TO_SUB, m_t)
 		}(msg, *t)
 	}
 
@@ -971,7 +971,7 @@ func delTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, logi
 	t := m_tag{Type: MQ_TYPE_DEL_TAG, Repository_name: Q[COL_REPNAME], Dataitem_name: Q[COL_ITEM_NAME], Tag: Q[COL_TAG_NAME], Time: time.Now().String()}
 	if msg != nil {
 		go func(msg *Msg, t m_tag) {
-			msg.MqJson(t)
+			msg.MqJson(MQ_TOPIC_TO_SUB, t)
 		}(msg, t)
 	}
 	return rsp.Json(200, E(OK))

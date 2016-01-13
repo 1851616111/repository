@@ -17,10 +17,10 @@ type Msg struct {
 	mq.MessageQueue
 }
 
-func (m *Msg) MqJson(content interface{}) {
+func (m *Msg) MqJson(topic string, content interface{}) {
 	b, err := json.Marshal(content)
 	get(err)
-	msg.SendAsyncMessage(MQ_TOPIC_TO_SUB, []byte(MQ_KEY), b)
+	msg.SendSyncMessage(topic, []byte(MQ_KEY), b)
 }
 
 type MyMesssageListener struct {
