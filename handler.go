@@ -134,6 +134,7 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	rep.Create_user = login_name
 	rep.Repository_name = repname
 	rep.Items = 0
+	rep.CooperateItems = 0
 	rep.chkLabel()
 
 	if err := db.DB(DB_NAME).C(C_REPOSITORY).Insert(rep); err != nil {
@@ -493,7 +494,7 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	exec := Execute{
 		Collection: C_REPOSITORY,
 		Selector:   bson.M{COL_REPNAME: repname},
-		Update:     bson.M{CMD_INC: bson.M{"items": 1}, CMD_SET: bson.M{COL_OPTIME: now.String()}},
+		Update:     bson.M{CMD_INC: bson.M{"items": 1, "cooperateitems": 1}, CMD_SET: bson.M{COL_OPTIME: now.String()}},
 		Type:       Exec_Type_Update,
 	}
 
@@ -632,7 +633,7 @@ func delDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 	exec := Execute{
 		Collection: C_REPOSITORY,
 		Selector:   bson.M{COL_REPNAME: repname},
-		Update:     bson.M{CMD_INC: bson.M{"items": -1}, CMD_SET: bson.M{COL_OPTIME: time.Now().String()}},
+		Update:     bson.M{CMD_INC: bson.M{"items": -1, "cooperateitems": -1}, CMD_SET: bson.M{COL_OPTIME: time.Now().String()}},
 		Type:       Exec_Type_Update,
 	}
 

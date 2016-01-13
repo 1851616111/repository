@@ -29,6 +29,7 @@ type repository struct {
 	Comment         string      `json:"comment"`
 	Optime          string      `json:"optime,omitempty"`
 	Items           int         `json:"items"`
+	CooperateItems  int         `json:"cooperateitems"`
 	Label           interface{} `json:"label"`
 	Ct              time.Time   `json:"-"`
 	st              time.Time
