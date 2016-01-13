@@ -8,6 +8,7 @@ import (
 const (
 	C_REPOSITORY            = "repository"
 	C_DATAITEM              = "dataitem"
+	C_DATAITEM_DEL          = "dataitem_del"
 	C_REPOSITORY_PERMISSION = "permission_rep"
 	C_DATAITEM_PERMISSION   = "permission_item"
 	C_SELECT                = "select"

@@ -51,6 +51,19 @@ func (db *DB) getDataitems(pageIndex, pageSize int, query bson.M) ([]dataItem, e
 }
 
 func (db *DB) delDataitem(exec bson.M) error {
+	result := dataItem{}
+	if err := db.DB(DB_NAME).C(C_DATAITEM).Find(exec).One(&result); err != nil {
+		Log.Error("del dataitem %#v err %s", exec, err.Error())
+		return err
+	}
+
+	e := Execute{
+		Collection: C_DATAITEM_DEL,
+		Update:     result,
+		Type:       Exec_Type_Insert,
+	}
+	go asynExec(e)
+
 	return db.DB(DB_NAME).C(C_DATAITEM).Remove(exec)
 }
 
@@ -185,9 +198,20 @@ func (db *DB) getFile(prefix, repName, itemName string) ([]byte, error) {
 }
 
 func (db *DB) delFile(prefix, repName, itemName string) *Error {
+	file, err := db.getFile(prefix, repName, itemName)
+	if err != nil {
+		return ErrFile(err)
+	}
+
+	newPrefix := fmt.Sprintf("del_%s", prefix)
+	if err := db.setFile(newPrefix, repName, itemName, file); err != nil {
+		return err
+	}
+
 	if err := db.DB(DB_NAME).GridFS(C_FS).Remove(setFileName(prefix, repName, itemName)); err != nil {
 		return ErrFile(err)
 	}
+
 	return nil
 }
 

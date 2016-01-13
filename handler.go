@@ -1043,7 +1043,7 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	var res struct {
 		dataItem
 		Tags          []tag  `json:"taglist"`
-		Permisson     bool   `json:"permission,omitempty"`
+		Permisson     bool   `json:"permission"`
 		Stat          string `json:"pricestate"`
 		StatCooperate string `json:"cooperatestate"`
 	}
@@ -1058,17 +1058,12 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 		return rsp.Json(200, E(OK), res)
 	}
 
-	//already can see rep, just see item permission
-	if p := strings.TrimSpace(r.FormValue("haspermission")); p == "1" {
-
-		switch item.Itemaccesstype {
-		case ACCESS_PUBLIC:
-			res.Permisson = true
-		case ACCESS_PRIVATE:
-			Q = bson.M{COL_PERMIT_ITEMNAME: itemname, COL_PERMIT_USER: user}
-			res.Permisson = db.hasPermission(C_DATAITEM_PERMISSION, Q)
-		}
-
+	switch item.Itemaccesstype {
+	case ACCESS_PUBLIC:
+		res.Permisson = true
+	case ACCESS_PRIVATE:
+		Q = bson.M{COL_PERMIT_ITEMNAME: itemname, COL_PERMIT_USER: user}
+		res.Permisson = db.hasPermission(C_DATAITEM_PERMISSION, Q)
 	}
 
 	b_m, err := db.getFile(PREFIX_META, repname, itemname)
