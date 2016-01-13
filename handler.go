@@ -528,7 +528,6 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	return rsp.Json(200, E(OK))
 }
 
-//curl http://127.0.0.1:8080/repositories/NBA/bear23 -d "{\"itemaccesstype\":\"public\", \"meta\":\"{}\",\"sample\":\"{}\",\"comment\":\"中国移动北京终端详情\", \"label\":{\"sys\":{\"supply_style\":\"flow\",\"refresh\":\"3天\"}}}" -H user:admin
 func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string) (int, string) {
 	defer db.Close()
 	repname := param["repname"]
@@ -618,8 +617,18 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		}
 
 		go asynExec(exec...)
-
 	}
+
+	if item.Itemaccesstype == ACCESS_PUBLIC && u[COL_ITEM_ACC] == ACCESS_PRIVATE {
+		token := r.Header.Get(AUTHORIZATION)
+		users := getItemSubers(repname, itemname, token)
+		if len(users) > 0 {
+			for _, user := range users {
+				setDataitemPermission(repname, itemname, user)
+			}
+		}
+	}
+
 	return rsp.Json(200, E(OK))
 }
 

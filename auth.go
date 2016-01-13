@@ -74,47 +74,17 @@ func updateUser(r *http.Request, real interface{}) ([]byte, error) {
 	return HttpPostJson(fmt.Sprintf("http://%s:%s/quota/%s/repository/use", API_SERVER, API_PORT, login_Name), b, AUTHORIZATION, token)
 }
 
-func chkUserLimit(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
-	login_Name := r.Header.Get("User")
+func getUserLimit(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
+	loginName := r.Header.Get("User")
 	token := r.Header.Get(AUTHORIZATION)
-	if login_Name == "" || token == "" {
-		Log.Infof("create repository token: %s, login_name: %s", token, login_Name)
+	if loginName == "" || token == "" {
+		Log.Infof("create repository token: %s, login_name: %s", token, loginName)
 		http.Error(w, E(ErrorCodeUnauthorized).ErrToString(), 401)
 		return
 	}
-	b, err := httpGet(fmt.Sprintf("http://%s:%s/quota/%s/repository", API_SERVER, API_PORT, login_Name), AUTHORIZATION, token)
-	if err != nil {
-		Log.Error(fmt.Sprintf("http://%s:%s/vip/%s", API_SERVER, API_PORT, login_Name), AUTHORIZATION, token)
-		Log.Errorf("chkUserLimit err :%s\n", err)
-	}
 
-	result := new(Result)
-	err = json.Unmarshal(b, result)
-	if err != nil {
-		Log.Errorf("chkUserLimit err :%s\n", err)
-	}
-
-	if result.Data != nil {
-		u := result.Data.(map[string]interface{})
-		l := Limit{}
-		if pub, exist := u[Quota_Rep_Pub]; exist {
-			l.Rep_Public, _ = strconv.Atoi(pub.(string))
-		}
-		if pri, exist := u[Quota_Rep_Pri]; exist {
-			l.Rep_Private, _ = strconv.Atoi(pri.(string))
-		}
-		Log.Infof(" user limit %#v\n", l)
-
-		if l.Rep_Public == VIP_SERVICE_ADMIN_PUB {
-			l.Rep_Public = 100000
-		}
-		if l.Rep_Private == VIP_SERVICE_ADMIN_PUB {
-			l.Rep_Private = 100000
-		}
-		c.Map(l)
-		return
-	}
-	http.Error(w, E(ErrorCodeUnauthorized).ErrToString(), 401)
+	l := getUserQuota(token, loginName)
+	c.Map(l)
 }
 
 func authAdmin(w http.ResponseWriter, r *http.Request, c martini.Context, db *DB) {
@@ -169,4 +139,67 @@ func chkItemPermission(w http.ResponseWriter, r *http.Request, param martini.Par
 		return
 	}
 	c.Map(Item_Permission{Repository_name: repName, Dataitem_name: itemname})
+}
+
+func getUserQuota(token, loginName string) Limit {
+	b, err := httpGet(fmt.Sprintf("http://%s:%s/quota/%s/repository", API_SERVER, API_PORT, loginName), AUTHORIZATION, token)
+	if err != nil {
+		Log.Error(fmt.Sprintf("http://%s:%s/quota/%s/repository", API_SERVER, API_PORT, loginName), AUTHORIZATION, token)
+		Log.Errorf("chkUserLimit err :%s\n", err)
+	}
+
+	result := new(Result)
+	err = json.Unmarshal(b, result)
+	if err != nil {
+		Log.Errorf("chkUserLimit err :%s\n", err)
+	}
+
+	l := Limit{}
+	if result.Data != nil {
+		u := result.Data.(map[string]interface{})
+
+		if pub, exist := u[Quota_Rep_Pub]; exist {
+			l.Rep_Public, _ = strconv.Atoi(pub.(string))
+		}
+		if pri, exist := u[Quota_Rep_Pri]; exist {
+			l.Rep_Private, _ = strconv.Atoi(pri.(string))
+		}
+		Log.Infof(" user limit %#v\n", l)
+
+		if l.Rep_Public == VIP_SERVICE_ADMIN_PUB {
+			l.Rep_Public = 100000
+		}
+		if l.Rep_Private == VIP_SERVICE_ADMIN_PUB {
+			l.Rep_Private = 100000
+		}
+	}
+
+	return l
+}
+
+func getItemSubers(repname, itemname, token string) []string {
+	url := fmt.Sprintf("http://%s:%s/subscriptions/subscriptors/%s/%s?phase=1", API_SERVER, API_PORT, repname, itemname)
+	b, err := httpGet(url, AUTHORIZATION, token)
+	if err != nil {
+		Log.Error(url)
+		Log.Errorf("update dataitem, get subscriptors err :%s\n", err)
+	}
+
+	result := new(Result)
+	err = json.Unmarshal(b, result)
+	if err != nil {
+		Log.Errorf("update dataitem, get subscriptors err :%s\n", err)
+	}
+
+	if result.Data != nil {
+		if u, ok := result.Data.(map[string]interface{}); ok {
+			if u["results"] != nil {
+				if l, ok := u["results"].([]string); ok {
+					return l
+				}
+			}
+		}
+	}
+
+	return []string{}
 }
