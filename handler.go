@@ -1044,7 +1044,7 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 		Tags          []tag  `json:"taglist"`
 		Permisson     bool   `json:"permission,omitempty"`
 		Stat          string `json:"pricestate"`
-		StatCooperate string `json:"cooperate_status"`
+		StatCooperate string `json:"cooperatestate"`
 	}
 
 	priceStat := getPriceStat(item.Price)

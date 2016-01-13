@@ -38,7 +38,7 @@ type repository struct {
 type Namelist []names
 type names struct {
 	Repository_name  string `json:"repname"`
-	Cooperate_status string `json:"cooperate_status,omitempty"`
+	Cooperate_status string `json:"cooperatestate,omitempty"`
 	Dataitem_name    string `json:"itemname,omitempty"`
 }
 type search struct {
