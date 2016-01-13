@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"gopkg.in/mgo.v2/bson"
+	"time"
 )
 
 const (
@@ -24,6 +25,19 @@ func (db *DB) getRepositories(query bson.M) ([]repository, error) {
 }
 
 func (db *DB) delRepository(exec bson.M) error {
+	result := repository{}
+	if err := db.DB(DB_NAME).C(C_REPOSITORY).Find(exec).One(&result); err != nil {
+		Log.Error("del repository %#v err %s", exec, err.Error())
+		return err
+	}
+
+	e := Execute{
+		Collection: C_REPOSITORY_DEL,
+		Update:     result,
+		Type:       Exec_Type_Insert,
+	}
+	go asynExec(e)
+
 	return db.DB(DB_NAME).C(C_REPOSITORY).Remove(exec)
 }
 
@@ -43,9 +57,9 @@ func (db *DB) getDataitems(pageIndex, pageSize int, query bson.M) ([]dataItem, e
 	res := []dataItem{}
 	var err error
 	if pageSize == SELECT_ALL {
-		err = db.DB(DB_NAME).C(C_DATAITEM).Find(query).Sort("-ct").Select(bson.M{COL_ITEM_NAME: "1", COL_REPNAME: "1", COL_ITEM_TAGS: "1"}).All(&res)
+		err = db.DB(DB_NAME).C(C_DATAITEM).Find(query).Sort("-ct").All(&res)
 	} else {
-		err = db.DB(DB_NAME).C(C_DATAITEM).Find(query).Sort("-ct").Select(bson.M{COL_ITEM_NAME: "1"}).Skip((pageIndex - 1) * pageSize).Limit(pageSize).All(&res)
+		err = db.DB(DB_NAME).C(C_DATAITEM).Find(query).Sort("-ct").Skip((pageIndex - 1) * pageSize).Limit(pageSize).All(&res)
 	}
 	return res, err
 }
@@ -257,4 +271,43 @@ func (db *DB) getPublicReps() []string {
 		}
 	}
 	return s
+}
+func (db *DB) deleteDataitemsFunc(items []dataItem, msg *Msg) {
+	for i, _ := range items {
+		if err := db.deleteDataitemFunc(items[i], msg); err != nil {
+			Log.Errorf("delete dataitems %#v  err %s", items[i], err)
+		}
+	}
+}
+
+func (db *DB) deleteDataitemFunc(item dataItem, msg *Msg) error {
+	Q := bson.M{COL_REPNAME: item.Repository_name, COL_ITEM_NAME: item.Dataitem_name}
+
+	if err := db.delDataitem(Q); err != nil {
+		return err
+	}
+
+	go func(db *DB, repname, itemname string) {
+		defer db.Close()
+		db.delFile(PREFIX_META, repname, itemname)
+		db.delFile(PREFIX_SAMPLE, repname, itemname)
+	}(db.copy(), item.Repository_name, item.Dataitem_name)
+
+	exec := Execute{
+		Collection: C_REPOSITORY,
+		Selector:   bson.M{COL_REPNAME: item.Repository_name},
+		Update:     bson.M{CMD_INC: bson.M{"items": -1, "cooperateitems": -1}, CMD_SET: bson.M{COL_OPTIME: time.Now().String()}},
+		Type:       Exec_Type_Update,
+	}
+
+	go asynExec(exec)
+
+	tmp := m_item{TimeId: fmt.Sprintf("%d", item.Ct.Unix()), Type: MQ_TYPE_DEL_ITEM, Repository_name: Q[COL_REPNAME], Dataitem_name: Q[COL_ITEM_NAME], Time: time.Now().String()}
+	if msg != nil {
+		go func(msg *Msg, item m_item) {
+			msg.MqJson(MQ_TOPIC_TO_SUB, tmp)
+		}(msg, tmp)
+	}
+
+	return nil
 }

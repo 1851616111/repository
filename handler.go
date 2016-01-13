@@ -220,19 +220,39 @@ func delRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 	if repname == "" {
 		return rsp.Json(400, ErrNoParameter("repname"))
 	}
+
 	Q := bson.M{COL_REPNAME: repname}
 	rep, err := db.getRepository(Q)
 	if err != nil && err == mgo.ErrNotFound {
 		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s", COL_REPNAME, repname)))
 	}
+
 	if rep.Create_user != loginName {
 		return rsp.Json(400, E(ErrorCodePermissionDenied))
 	}
+
+	if rep.CooperateItems > 0 {
+		return rsp.Json(400, E(ErrorCodeRepExistCooperateItem))
+	}
+
+	items, err := db.getDataitems(0, SELECT_ALL, Q)
+	if err != nil {
+		return rsp.Json(400, ErrParseJson(err))
+	}
+
+	for _, v := range items {
+		if v.Create_user != loginName {
+			return rsp.Json(400, ErrRepExistCooperateItem(repname, v.Dataitem_name))
+		}
+	}
+
+	db.deleteDataitemsFunc(items, msg)
+
 	if err := db.delRepository(Q); err != nil {
 		return rsp.Json(200, ErrDataBase(err))
 	}
 
-	tmp := m_rep{Type: MQ_TYPE_DEL_REP, Repository_name: Q[COL_REPNAME], Time: time.Now().String()}
+	tmp := m_rep{TimeId: fmt.Sprintf("%d", rep.Ct.Unix()), Type: MQ_TYPE_DEL_REP, Repository_name: Q[COL_REPNAME], Time: time.Now().String()}
 	if msg != nil {
 		go func(msg *Msg, rep m_rep) {
 			msg.MqJson(MQ_TOPIC_TO_SUB, rep)
@@ -614,36 +634,15 @@ func delDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 
 	item, err := db.getDataitem(Q)
 	if err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s %s:=%s", COL_REPNAME, repname, COL_ITEM_NAME, itemname)))
+		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s %s=%s", COL_REPNAME, repname, COL_ITEM_NAME, itemname)))
 	}
 
 	if item.Create_user != loginName {
 		return rsp.Json(400, E(ErrorCodePermissionDenied))
 	}
 
-	if err := db.delDataitem(Q); err != nil {
-		return rsp.Json(200, ErrDataBase(err))
-	}
-
-	go func(db *DB) {
-		db.delFile(PREFIX_META, repname, itemname)
-		db.delFile(PREFIX_SAMPLE, repname, itemname)
-	}(db.copy())
-
-	exec := Execute{
-		Collection: C_REPOSITORY,
-		Selector:   bson.M{COL_REPNAME: repname},
-		Update:     bson.M{CMD_INC: bson.M{"items": -1, "cooperateitems": -1}, CMD_SET: bson.M{COL_OPTIME: time.Now().String()}},
-		Type:       Exec_Type_Update,
-	}
-
-	go asynExec(exec)
-
-	tmp := m_item{Type: MQ_TYPE_DEL_ITEM, Repository_name: Q[COL_REPNAME], Dataitem_name: Q[COL_ITEM_NAME], Time: time.Now().String()}
-	if msg != nil {
-		go func(msg *Msg, item m_item) {
-			msg.MqJson(MQ_TOPIC_TO_SUB, tmp)
-		}(msg, tmp)
+	if err := db.deleteDataitemFunc(item, msg); err != nil {
+		return rsp.Json(200, ErrParseJson(err))
 	}
 
 	return rsp.Json(200, E(OK))
@@ -957,7 +956,9 @@ func delTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, logi
 	err = db.delTag(Q)
 	if err != nil {
 		if err == mgo.ErrNotFound {
-			return rsp.Json(200, E(OK))
+			if err == mgo.ErrNotFound {
+				return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s %s=%s %s=%s ", COL_REPNAME, repname, COL_ITEM_NAME, itemname, COL_ITEM_TAGS, tagname)))
+			}
 		}
 		return rsp.Json(400, ErrDataBase(err))
 	}

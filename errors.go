@@ -33,6 +33,7 @@ const (
 	ErrorCodeItemOutOfLimit
 	ErrorCodeRepOutOfLimit
 	ErrorCodeItemPriceOutOfLimit
+	ErrorCodeRepExistCooperateItem
 
 	ErrorCodeNoParameter = 1400
 
@@ -56,6 +57,7 @@ func init() {
 	initError(ErrorCodeItemOutOfLimit, "dataitem out of limit 50")
 	initError(ErrorCodeRepOutOfLimit, "repository out of limit")
 	initError(ErrorCodeItemPriceOutOfLimit, "dataitem price out of limit 6")
+	initError(ErrorCodeRepExistCooperateItem, "repository exists cooperate dataitem")
 
 	ErrorNone = E(OK)
 	ErrorUnkown = E(ErrorCodeUnkown)
@@ -151,5 +153,12 @@ func ErrRepOutOfLimit(num int) *Error {
 	return &Error{
 		Code:    ErrorCodeRepOutOfLimit,
 		Message: fmt.Sprintf("%s : %d", E(ErrorCodeRepOutOfLimit).Message, num),
+	}
+}
+
+func ErrRepExistCooperateItem(repname, itemname string) *Error {
+	return &Error{
+		Code:    ErrorCodeRepExistCooperateItem,
+		Message: fmt.Sprintf("repname=%s exist cooperate item %s", repname, itemname),
 	}
 }

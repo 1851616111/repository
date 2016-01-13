@@ -7,6 +7,7 @@ import (
 
 const (
 	C_REPOSITORY            = "repository"
+	C_REPOSITORY_DEL        = "repository_del"
 	C_DATAITEM              = "dataitem"
 	C_DATAITEM_DEL          = "dataitem_del"
 	C_REPOSITORY_PERMISSION = "permission_rep"
@@ -136,6 +137,7 @@ func initDb(session *mgo.Session) {
 }
 
 type m_tag struct {
+	TimeId          string      `json:"tid"`
 	Type            string      `json:"type"`
 	Repository_name interface{} `json:"repname"`
 	Dataitem_name   interface{} `json:"itemname"`
@@ -144,6 +146,7 @@ type m_tag struct {
 }
 
 type m_item struct {
+	TimeId          string      `json:"tid"`
 	Type            string      `json:"type"`
 	Repository_name interface{} `json:"repname"`
 	Dataitem_name   interface{} `json:"itemname"`
@@ -151,6 +154,7 @@ type m_item struct {
 }
 
 type m_rep struct {
+	TimeId          string      `json:"tid"`
 	Type            string      `json:"type"`
 	Repository_name interface{} `json:"repname"`
 	Time            string      `json:"time"`
