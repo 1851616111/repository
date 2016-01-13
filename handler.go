@@ -955,7 +955,10 @@ func delTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, logi
 
 	Q[COL_TAG_NAME] = tagname
 	err = db.delTag(Q)
-	if err != nil && err != mgo.ErrNotFound {
+	if err != nil {
+		if err == mgo.ErrNotFound {
+			return rsp.Json(200, E(OK))
+		}
 		return rsp.Json(400, ErrDataBase(err))
 	}
 
