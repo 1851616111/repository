@@ -1794,10 +1794,10 @@ func Test_delTagHandler(t *testing.T) {
 				login_name:  USERNAME,
 			},
 			expect: expect{
-				code: 200,
+				code: 400,
 				body: Body{Result{
-					Code: 0,
-					Msg:  "OK",
+					Code: 1009,
+					Msg:  nofoundTag(repnames[0], itemnames[0], tagnames[1]),
 				}},
 			},
 		},
@@ -2126,6 +2126,10 @@ func duplicatedItem(repositoryName, itemName string) string {
 
 func duplicatedTag(repositoryName, itemName, tagName string) string {
 	return fmt.Sprintf("database operate : insertDocument :: caused by :: 11000 E11000 duplicate key error index: datahub.tag.$repository_name_1_dataitem_name_1_tag_1  dup key: { : \"%s\", : \"%s\", : \"%s\" }", repositoryName, itemName, tagName)
+}
+
+func nofoundTag(repositoryName, itemName, tagName string) string {
+	return fmt.Sprintf("query repository_name=%s dataitem_name=%s tags=%s no found", repositoryName, itemName, tagName)
 }
 
 type param struct {
