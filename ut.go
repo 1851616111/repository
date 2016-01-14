@@ -464,8 +464,10 @@ func getToken(user, passwd string) string {
 		Log.Errorf("unmarshal token err: %s", err.Error())
 	}
 	if m, ok := i.(map[string]interface{}); ok {
-		if token, ok := m["token"].(string); ok {
-			return token
+		if data, ok := m["data"].(map[string]interface{}); ok {
+			if token, ok := data["token"].(string); ok {
+				return token
+			}
 		}
 	}
 	return ""
