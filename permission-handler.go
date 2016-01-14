@@ -199,7 +199,7 @@ func setItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, p Item_P
 	if result.User_name == "" {
 		return rsp.Json(400, ErrNoParameter("User_name"))
 	}
-	setDataitemPermission(p.Repository_name, p.Dataitem_name, result.User_name)
+	putDataitemPermission(p.Repository_name, p.Dataitem_name, result.User_name)
 
 	return rsp.Json(200, E(OK))
 }

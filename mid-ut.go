@@ -4,7 +4,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-func setDataitemPermission(repname, itemname, username string) {
+func putDataitemPermission(repname, itemname, username string) {
 	selector := bson.M{
 		COL_PERMIT_REPNAME:  repname,
 		COL_PERMIT_ITEMNAME: itemname,

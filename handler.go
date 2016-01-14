@@ -624,7 +624,21 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		users := getItemSubers(repname, itemname, token)
 		if len(users) > 0 {
 			for _, user := range users {
-				setDataitemPermission(repname, itemname, user)
+				putDataitemPermission(repname, itemname, user)
+			}
+		}
+	}
+	if item.Itemaccesstype == ACCESS_PRIVATE && u[COL_ITEM_ACC] == ACCESS_PUBLIC {
+		token := r.Header.Get(AUTHORIZATION)
+		users := getItemSubers(repname, itemname, token)
+		if len(users) > 0 {
+			exec := bson.M{
+				COL_REPNAME:         repname,
+				COL_PERMIT_ITEMNAME: itemname,
+				CMD_IN:              users,
+			}
+			if err := db.delPermit(C_DATAITEM_PERMISSION, exec); err != nil {
+				return rsp.Json(400, ErrDataBase(err))
 			}
 		}
 	}
