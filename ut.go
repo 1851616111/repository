@@ -463,8 +463,12 @@ func getToken(user, passwd string) string {
 	if err := json.Unmarshal(b, &i); err != nil {
 		Log.Errorf("unmarshal token err: %s", err.Error())
 	}
-
-	return i.(map[string]interface{})["token"].(string)
+	if m, ok := i.(map[string]interface{}); ok {
+		if token, ok := m["token"].(string); ok {
+			return token
+		}
+	}
+	return ""
 }
 
 func getMd5(content string) string {
