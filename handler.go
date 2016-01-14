@@ -67,6 +67,7 @@ const (
 	CMD_AND                   = "$and"
 	CMD_CASE_ALL              = "$i"
 	CMD_PULL                  = "$pull"
+	CMD_NOTEQUAL              = "$ne"
 	PREFIX_META               = "meta"
 	PREFIX_SAMPLE             = "sample"
 	MQ_TYPE_ADD_TAG           = "0x00020000"
@@ -82,7 +83,7 @@ var (
 	SEARCH_DATAITEM_COLS = []string{COL_REPNAME, COL_ITEM_NAME, COL_COMMENT}
 )
 
-func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, login_name string, l Limit) (int, string) {
+func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, login_name string, l Quota) (int, string) {
 	defer db.Close()
 	repname := param[PARAM_REP_NAME]
 	if err := cheParam(PARAM_REP_NAME, repname); err != nil {
@@ -141,7 +142,8 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		return rsp.Json(400, ErrDataBase(err))
 	}
 
-	if _, err := updateUser(r, opt); err != nil {
+	token := r.Header.Get(AUTHORIZATION)
+	if _, err := updateUser(login_name, token, opt); err != nil {
 		Log.Errorf("create dataitem update User err: %s", err.Error())
 	}
 	return rsp.Json(200, E(OK))
@@ -213,7 +215,6 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	return rsp.Json(200, E(OK), res)
 }
 
-//curl http://127.0.0.1:8080/repositories/rep123 -X DELETE -H admin:admin
 func delRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string, msg *Msg) (int, string) {
 	defer db.Close()
 	repname := strings.TrimSpace(param["repname"])
@@ -248,6 +249,24 @@ func delRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 
 	db.deleteDataitemsFunc(items, msg)
 
+	var opt interface{}
+	has := db.countNum(C_REPOSITORY, bson.M{COL_CREATE_USER: r.Header.Get("User"), COL_REP_ACC: rep.Repaccesstype})
+	switch rep.Repaccesstype {
+	case ACCESS_PUBLIC:
+		opt = struct {
+			Public int `json:"public"`
+		}{has - 1}
+	case ACCESS_PRIVATE:
+		opt = struct {
+			Private int `json:"private"`
+		}{has - 1}
+	}
+
+	token := r.Header.Get(AUTHORIZATION)
+	if _, err := updateUser(loginName, token, opt); err != nil {
+		Log.Errorf("create dataitem update User err: %s", err.Error())
+	}
+
 	if err := db.delRepository(Q); err != nil {
 		return rsp.Json(200, ErrDataBase(err))
 	}
@@ -258,26 +277,10 @@ func delRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 			msg.MqJson(MQ_TOPIC_TO_SUB, rep)
 		}(msg, tmp)
 	}
-	var opt interface{}
-	has := db.countNum(C_REPOSITORY, bson.M{COL_CREATE_USER: r.Header.Get("User"), COL_REP_ACC: rep.Repaccesstype})
-	switch rep.Repaccesstype {
-	case ACCESS_PUBLIC:
-		opt = struct {
-			Public int `json:"public"`
-		}{has}
-	case ACCESS_PRIVATE:
-		opt = struct {
-			Private int `json:"private"`
-		}{has}
-	}
 
-	if _, err := updateUser(r, opt); err != nil {
-		Log.Errorf("create dataitem update User err: %s", err.Error())
-	}
 	return rsp.Json(200, E(OK))
 }
 
-//curl http://127.0.0.1:8080/repositories/NBA -d "{\"repaccesstype\":\"public\",\"comment\":\"中国移动北京终端详情\", \"label\":{\"sys\":{\"supply_style\":\"flow\",\"refresh\":\"3天\"}}}" -H user:admin -X PUT
 func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string) (int, string) {
 	defer db.Close()
 	repname := param["repname"]
@@ -306,9 +309,12 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		return rsp.Json(400, ErrParseJson(err))
 	}
 
-	selector := bson.M{COL_REPNAME: repname}
-
 	u := bson.M{}
+
+	if rep.Comment != "" {
+		u[COL_COMMENT] = rep.Comment
+	}
+
 	if rep.Repaccesstype != "" {
 		if rep.Repaccesstype != ACCESS_PRIVATE && rep.Repaccesstype != ACCESS_PUBLIC {
 			return rsp.Json(400, ErrInvalidParameter("repaccesstype"))
@@ -316,13 +322,43 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		u[COL_REP_ACC] = rep.Repaccesstype
 	}
 
-	if rep.Comment != "" {
-		u[COL_COMMENT] = rep.Comment
+	if u[COL_REP_ACC] != "" {
+		token := r.Header.Get(AUTHORIZATION)
+		quota := getUserQuota(token, loginName)
+		have := db.countNum(C_REPOSITORY, bson.M{COL_CREATE_USER: loginName, COL_REP_ACC: u[COL_ITEM_ACC]})
+		if repo.Repaccesstype == ACCESS_PUBLIC && u[COL_REP_ACC] == ACCESS_PRIVATE {
+			if quota.Rep_Private <= have {
+				return rsp.Json(400, ErrRepOutOfLimit(quota.Rep_Private))
+			}
+			users := getSubscribers(Subscripters_By_Rep, repname, "", token)
+			if len(users) > 0 {
+				for _, user := range users {
+					putRepositoryPermission(repname, user, PERMISSION_READ)
+				}
+			}
+		}
+
+		if repo.Repaccesstype == ACCESS_PRIVATE && u[COL_REP_ACC] == ACCESS_PUBLIC {
+			if quota.Rep_Public <= have {
+				return rsp.Json(400, ErrRepOutOfLimit(quota.Rep_Private))
+			}
+			exec := bson.M{
+				COL_REPNAME:      repname,
+				"opt_permission": bson.M{CMD_NOTEQUAL: COL_PERMIT_WRITE},
+			}
+			if err := db.delPermit(C_REPOSITORY_PERMISSION, exec); err != nil {
+				return rsp.Json(400, ErrDataBase(err))
+			}
+		}
+
 	}
 
 	if len(u) > 0 {
+		selector := bson.M{COL_REPNAME: repname}
 		u[COL_OPTIME] = time.Now().String()
-		update := bson.M{"$set": u}
+		update := bson.M{
+			CMD_SET: u,
+		}
 		exec := Execute{
 			Collection: C_REPOSITORY,
 			Selector:   selector,
@@ -621,7 +657,7 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 
 	if item.Itemaccesstype == ACCESS_PUBLIC && u[COL_ITEM_ACC] == ACCESS_PRIVATE {
 		token := r.Header.Get(AUTHORIZATION)
-		users := getItemSubers(repname, itemname, token)
+		users := getSubscribers(Subscripters_By_Item, repname, itemname, token)
 		if len(users) > 0 {
 			for _, user := range users {
 				putDataitemPermission(repname, itemname, user)
@@ -630,7 +666,7 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	}
 	if item.Itemaccesstype == ACCESS_PRIVATE && u[COL_ITEM_ACC] == ACCESS_PUBLIC {
 		token := r.Header.Get(AUTHORIZATION)
-		users := getItemSubers(repname, itemname, token)
+		users := getSubscribers(Subscripters_By_Item, repname, itemname, token)
 		if len(users) > 0 {
 			exec := bson.M{
 				COL_REPNAME:         repname,

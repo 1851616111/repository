@@ -25,46 +25,25 @@ func setRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 		Log.Error("read request body err", err)
 	}
 
-	r_p := new(Rep_Permission)
+	result := new(Rep_Permission)
 	if len(body) == 0 {
 		return rsp.Json(400, ErrNoParameter(""))
 	}
-	if err := json.Unmarshal(body, &r_p); err != nil {
+	if err := json.Unmarshal(body, &result); err != nil {
 		return rsp.Json(400, ErrParseJson(err))
 	}
 
-	if r_p.User_name == "" {
+	if result.User_name == "" {
 		return rsp.Json(400, ErrNoParameter("username"))
 	}
 
-	if r_p.Opt_permission != PERMISSION_READ && r_p.Opt_permission != PERMISSION_WRITE {
+	if result.Opt_permission != PERMISSION_READ && result.Opt_permission != PERMISSION_WRITE {
 		return rsp.Json(400, ErrInvalidParameter("opt_permission"))
 	}
-	r_p.Repository_name = p.Repository_name
 
-	selector := bson.M{COL_PERMIT_REPNAME: p.Repository_name, COL_PERMIT_USER: r_p.User_name}
-
-	execs := []Execute{
-		{
-			Collection: C_REPOSITORY_PERMISSION,
-			Selector:   selector,
-			Update:     r_p,
-			Type:       Exec_Type_Upsert,
-		},
-	}
-	if r_p.Opt_permission == PERMISSION_WRITE {
-		exec := Execute{
-			Collection: C_REPOSITORY,
-			Selector:   bson.M{COL_REPNAME: p.Repository_name},
-			Update:     bson.M{CMD_ADDTOSET: bson.M{COL_REP_COOPERATOR: r_p.User_name}},
-			Type:       Exec_Type_Update,
-		}
-		execs = append(execs, exec)
-	}
-	go asynExec(execs...)
+	putRepositoryPermission(p.Repository_name, result.User_name, result.Opt_permission)
 
 	return rsp.Json(200, E(OK))
-
 }
 
 func getRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p Rep_Permission) (int, string) {
