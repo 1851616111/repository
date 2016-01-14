@@ -1257,267 +1257,267 @@ func Test_delItemPmsHandler(t *testing.T) {
 	}
 }
 
-func Test_updateRHandler(t *testing.T) {
-	contexts := []Context{
-		Context{
-			description: fmt.Sprintf("1.更新Repository(repaccesstype) ----------> %s", repnames[0]),
-			param: param{
-				requestBody: `{
-									"repaccesstype": "private"
-								}`,
-				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0]},
-				db:         db.copy(),
-				login_name: USERNAME,
-				repName:    repnames[0],
-			},
-			expect: expect{
-				code: 200,
-				body: Body{Result{
-					Code: 0,
-					Msg:  "OK",
-				}},
-			},
-		},
-		Context{
-			description: fmt.Sprintf("2.更新Repository(comment) ----------> %s", repnames[0]),
-			param: param{
-				requestBody: `{
-									"comment": "中国移动北京终端详情2"
-								}`,
-				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0]},
-				db:         db.copy(),
-				login_name: USERNAME,
-				repName:    repnames[0],
-			},
-			expect: expect{
-				code: 200,
-				body: Body{Result{
-					Code: 0,
-					Msg:  "OK",
-				}},
-			},
-		},
-		Context{
-			description: fmt.Sprintf("3.更新Repository(不存在repository) ----------> %s", "repnameNotExist"),
-			param: param{
-				requestBody: `{
-									"comment": "中国移动北京终端详情3"
-								}`,
-				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": "repnameNotExist"},
-				db:         db.copy(),
-				login_name: USERNAME,
-				repName:    "repnameNotExist",
-			},
-			expect: expect{
-				code: 400,
-				body: Body{Result{
-					Code: 1009,
-					Msg:  fmt.Sprintf(E(ErrorCodeQueryDBNotFound).Message, fmt.Sprintf(" %s=%s", COL_REPNAME, "repnameNotExist")),
-				}},
-			},
-		},
-		Context{
-			description: fmt.Sprintf("4.更新Repository(参数为空) ----------> %s", repnames[0]),
-			param: param{
-				requestBody: `{
-								}`,
-				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0]},
-				db:         db.copy(),
-				login_name: USERNAME,
-				repName:    repnames[0],
-			},
-			expect: expect{
-				code: 200,
-				body: Body{Result{
-					Code: 0,
-					Msg:  "OK",
-				}},
-			},
-		},
-	}
-	t.Log("---------------------------------------------------------")
-	for _, v := range contexts {
-		p := v.param
-		expect := v.expect
-		r, err := http.NewRequest("GET", fmt.Sprintf("/repositories/%s", p.repName), strings.NewReader(p.requestBody))
-		get(err)
+//func Test_updateRHandler(t *testing.T) {
+//	contexts := []Context{
+//		Context{
+//			description: fmt.Sprintf("1.更新Repository(repaccesstype) ----------> %s", repnames[0]),
+//			param: param{
+//				requestBody: `{
+//									"repaccesstype": "private"
+//								}`,
+//				rsp:        &Rsp{w: httptest.NewRecorder()},
+//				param:      martini.Params{"repname": repnames[0]},
+//				db:         db.copy(),
+//				login_name: USERNAME,
+//				repName:    repnames[0],
+//			},
+//			expect: expect{
+//				code: 200,
+//				body: Body{Result{
+//					Code: 0,
+//					Msg:  "OK",
+//				}},
+//			},
+//		},
+//		Context{
+//			description: fmt.Sprintf("2.更新Repository(comment) ----------> %s", repnames[0]),
+//			param: param{
+//				requestBody: `{
+//									"comment": "中国移动北京终端详情2"
+//								}`,
+//				rsp:        &Rsp{w: httptest.NewRecorder()},
+//				param:      martini.Params{"repname": repnames[0]},
+//				db:         db.copy(),
+//				login_name: USERNAME,
+//				repName:    repnames[0],
+//			},
+//			expect: expect{
+//				code: 200,
+//				body: Body{Result{
+//					Code: 0,
+//					Msg:  "OK",
+//				}},
+//			},
+//		},
+//		Context{
+//			description: fmt.Sprintf("3.更新Repository(不存在repository) ----------> %s", "repnameNotExist"),
+//			param: param{
+//				requestBody: `{
+//									"comment": "中国移动北京终端详情3"
+//								}`,
+//				rsp:        &Rsp{w: httptest.NewRecorder()},
+//				param:      martini.Params{"repname": "repnameNotExist"},
+//				db:         db.copy(),
+//				login_name: USERNAME,
+//				repName:    "repnameNotExist",
+//			},
+//			expect: expect{
+//				code: 400,
+//				body: Body{Result{
+//					Code: 1009,
+//					Msg:  fmt.Sprintf(E(ErrorCodeQueryDBNotFound).Message, fmt.Sprintf(" %s=%s", COL_REPNAME, "repnameNotExist")),
+//				}},
+//			},
+//		},
+//		Context{
+//			description: fmt.Sprintf("4.更新Repository(参数为空) ----------> %s", repnames[0]),
+//			param: param{
+//				requestBody: `{
+//								}`,
+//				rsp:        &Rsp{w: httptest.NewRecorder()},
+//				param:      martini.Params{"repname": repnames[0]},
+//				db:         db.copy(),
+//				login_name: USERNAME,
+//				repName:    repnames[0],
+//			},
+//			expect: expect{
+//				code: 200,
+//				body: Body{Result{
+//					Code: 0,
+//					Msg:  "OK",
+//				}},
+//			},
+//		},
+//	}
+//	t.Log("---------------------------------------------------------")
+//	for _, v := range contexts {
+//		p := v.param
+//		expect := v.expect
+//		r, err := http.NewRequest("GET", fmt.Sprintf("/repositories/%s", p.repName), strings.NewReader(p.requestBody))
+//		get(err)
+//
+//		r.Header.Set("User", USERNAME)
+//
+//		code, msg := updateRHandler(r, p.rsp, p.param, p.db, p.login_name)
+//
+//		if !expect.expect(t, code, msg) {
+//			t.Logf("%s fail.", v.description)
+//			t.Log(code)
+//			t.Log(msg)
+//		} else {
+//			t.Logf("%s success.", v.description)
+//		}
+//
+//	}
+//}
 
-		r.Header.Set("User", USERNAME)
-
-		code, msg := updateRHandler(r, p.rsp, p.param, p.db, p.login_name)
-
-		if !expect.expect(t, code, msg) {
-			t.Logf("%s fail.", v.description)
-			t.Log(code)
-			t.Log(msg)
-		} else {
-			t.Logf("%s success.", v.description)
-		}
-
-	}
-}
-
-func Test_updateDHandler(t *testing.T) {
-	contexts := []Context{
-		Context{
-			description: fmt.Sprintf("1.更新Dataitem(全部参数) ----------> %s/%s", repnames[1], itemnames[1]),
-			param: param{
-				requestBody: `{
-								"itemaccesstype": "public",
-								"meta": "样例数据更新",
-								"sample": "元数据更新",
-								"comment": "更新对终端使用情况、变化情况进行了全方面的分析。包括分品牌统计市场存量、新增、机型、数量、换机等情况。终端与ARPU、DOU、网龄的映射关系。终端的APP安装情况等。",
-								"label": {
-									"sys": {
-										"supply_style": "api"
-									},
-									"opt": {},
-									"owner": {},
-									"other": {}
-								}
-							}`,
-				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0]},
-				db:         db.copy(),
-				login_name: USERNAME,
-			},
-			expect: expect{
-				code: 200,
-				body: Body{Result{
-					Code: 0,
-					Msg:  "OK",
-				}},
-			},
-		},
-		Context{
-			description: fmt.Sprintf("1.更新Dataitem(全部参数) ----------> %s/%s", repnames[1], itemnames[1]),
-			param: param{
-				requestBody: `{
-								"itemaccesstype": "public",
-								"meta": "样例数据更新",
-								"sample": "元数据更新",
-								"comment": "更新对终端使用情况、变化情况进行了全方面的分析。包括分品牌统计市场存量、新增、机型、数量、换机等情况。终端与ARPU、DOU、网龄的映射关系。终端的APP安装情况等。",
-								"label": {
-									"sys": {
-										"supply_style": "api"
-									},
-									"opt": {},
-									"owner": {},
-									"other": {}
-								}
-							}`,
-				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0]},
-				db:         db.copy(),
-				login_name: USERNAME,
-			},
-			expect: expect{
-				code: 200,
-				body: Body{Result{
-					Code: 0,
-					Msg:  "OK",
-				}},
-			},
-		},
-		Context{
-			description: fmt.Sprintf("2.更新Dataitem(更新其中一个参数itemaccesstype) ----------> %s/%s", repnames[1], itemnames[1]),
-			param: param{
-				requestBody: `{
-								"itemaccesstype": "public"
-							}`,
-				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0]},
-				db:         db.copy(),
-				login_name: USERNAME,
-			},
-			expect: expect{
-				code: 200,
-				body: Body{Result{
-					Code: 0,
-					Msg:  "OK",
-				}},
-			},
-		},
-		Context{
-			description: fmt.Sprintf("3.更新Dataitem(更新其中一个参数meta) ----------> %s/%s", repnames[1], itemnames[1]),
-			param: param{
-				requestBody: `{
-								"meta": "样例数据更新"
-							}`,
-				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0]},
-				db:         db.copy(),
-				login_name: USERNAME,
-			},
-			expect: expect{
-				code: 200,
-				body: Body{Result{
-					Code: 0,
-					Msg:  "OK",
-				}},
-			},
-		},
-		Context{
-			description: fmt.Sprintf("4.更新Dataitem(更新其中一个参数sample) ----------> %s/%s", repnames[1], itemnames[1]),
-			param: param{
-				requestBody: `{
-								"sample": "元数据更新"
-							}`,
-				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0]},
-				db:         db.copy(),
-				login_name: USERNAME,
-			},
-			expect: expect{
-				code: 200,
-				body: Body{Result{
-					Code: 0,
-					Msg:  "OK",
-				}},
-			},
-		},
-		Context{
-			description: fmt.Sprintf("5.更新Dataitem(更新其中一个参数comment) ----------> %s/%s", repnames[1], itemnames[1]),
-			param: param{
-				requestBody: `{
-								"comment": "更新对终端使用情况、变化情况进行了全方面的分析。包括分品牌统计市场存量、新增、机型、数量、换机等情况。终端与ARPU、DOU、网龄的映射关系。终端的APP安装情况等。"
-							}`,
-				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0]},
-				db:         db.copy(),
-				login_name: USERNAME,
-			},
-			expect: expect{
-				code: 200,
-				body: Body{Result{
-					Code: 0,
-					Msg:  "OK",
-				}},
-			},
-		},
-	}
-
-	for _, v := range contexts {
-		p := v.param
-		expect := v.expect
-		r, err := http.NewRequest("PUT", "/repositories/rep/item", strings.NewReader(p.requestBody))
-		get(err)
-		code, msg := updateDHandler(r, p.rsp, p.param, p.db, p.login_name)
-
-		if !expect.expect(t, code, msg) {
-			t.Logf("%s fail.", v.description)
-			t.Log(code)
-			t.Log(msg)
-		} else {
-			t.Logf("%s success.", v.description)
-		}
-		t.Log("")
-	}
-}
+//func Test_updateDHandler(t *testing.T) {
+//	contexts := []Context{
+//		Context{
+//			description: fmt.Sprintf("1.更新Dataitem(全部参数) ----------> %s/%s", repnames[1], itemnames[1]),
+//			param: param{
+//				requestBody: `{
+//								"itemaccesstype": "public",
+//								"meta": "样例数据更新",
+//								"sample": "元数据更新",
+//								"comment": "更新对终端使用情况、变化情况进行了全方面的分析。包括分品牌统计市场存量、新增、机型、数量、换机等情况。终端与ARPU、DOU、网龄的映射关系。终端的APP安装情况等。",
+//								"label": {
+//									"sys": {
+//										"supply_style": "api"
+//									},
+//									"opt": {},
+//									"owner": {},
+//									"other": {}
+//								}
+//							}`,
+//				rsp:        &Rsp{w: httptest.NewRecorder()},
+//				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0]},
+//				db:         db.copy(),
+//				login_name: USERNAME,
+//			},
+//			expect: expect{
+//				code: 200,
+//				body: Body{Result{
+//					Code: 0,
+//					Msg:  "OK",
+//				}},
+//			},
+//		},
+//		Context{
+//			description: fmt.Sprintf("1.更新Dataitem(全部参数) ----------> %s/%s", repnames[1], itemnames[1]),
+//			param: param{
+//				requestBody: `{
+//								"itemaccesstype": "public",
+//								"meta": "样例数据更新",
+//								"sample": "元数据更新",
+//								"comment": "更新对终端使用情况、变化情况进行了全方面的分析。包括分品牌统计市场存量、新增、机型、数量、换机等情况。终端与ARPU、DOU、网龄的映射关系。终端的APP安装情况等。",
+//								"label": {
+//									"sys": {
+//										"supply_style": "api"
+//									},
+//									"opt": {},
+//									"owner": {},
+//									"other": {}
+//								}
+//							}`,
+//				rsp:        &Rsp{w: httptest.NewRecorder()},
+//				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0]},
+//				db:         db.copy(),
+//				login_name: USERNAME,
+//			},
+//			expect: expect{
+//				code: 200,
+//				body: Body{Result{
+//					Code: 0,
+//					Msg:  "OK",
+//				}},
+//			},
+//		},
+//		Context{
+//			description: fmt.Sprintf("2.更新Dataitem(更新其中一个参数itemaccesstype) ----------> %s/%s", repnames[1], itemnames[1]),
+//			param: param{
+//				requestBody: `{
+//								"itemaccesstype": "public"
+//							}`,
+//				rsp:        &Rsp{w: httptest.NewRecorder()},
+//				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0]},
+//				db:         db.copy(),
+//				login_name: USERNAME,
+//			},
+//			expect: expect{
+//				code: 200,
+//				body: Body{Result{
+//					Code: 0,
+//					Msg:  "OK",
+//				}},
+//			},
+//		},
+//		Context{
+//			description: fmt.Sprintf("3.更新Dataitem(更新其中一个参数meta) ----------> %s/%s", repnames[1], itemnames[1]),
+//			param: param{
+//				requestBody: `{
+//								"meta": "样例数据更新"
+//							}`,
+//				rsp:        &Rsp{w: httptest.NewRecorder()},
+//				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0]},
+//				db:         db.copy(),
+//				login_name: USERNAME,
+//			},
+//			expect: expect{
+//				code: 200,
+//				body: Body{Result{
+//					Code: 0,
+//					Msg:  "OK",
+//				}},
+//			},
+//		},
+//		Context{
+//			description: fmt.Sprintf("4.更新Dataitem(更新其中一个参数sample) ----------> %s/%s", repnames[1], itemnames[1]),
+//			param: param{
+//				requestBody: `{
+//								"sample": "元数据更新"
+//							}`,
+//				rsp:        &Rsp{w: httptest.NewRecorder()},
+//				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0]},
+//				db:         db.copy(),
+//				login_name: USERNAME,
+//			},
+//			expect: expect{
+//				code: 200,
+//				body: Body{Result{
+//					Code: 0,
+//					Msg:  "OK",
+//				}},
+//			},
+//		},
+//		Context{
+//			description: fmt.Sprintf("5.更新Dataitem(更新其中一个参数comment) ----------> %s/%s", repnames[1], itemnames[1]),
+//			param: param{
+//				requestBody: `{
+//								"comment": "更新对终端使用情况、变化情况进行了全方面的分析。包括分品牌统计市场存量、新增、机型、数量、换机等情况。终端与ARPU、DOU、网龄的映射关系。终端的APP安装情况等。"
+//							}`,
+//				rsp:        &Rsp{w: httptest.NewRecorder()},
+//				param:      martini.Params{"repname": repnames[0], "itemname": itemnames[0]},
+//				db:         db.copy(),
+//				login_name: USERNAME,
+//			},
+//			expect: expect{
+//				code: 200,
+//				body: Body{Result{
+//					Code: 0,
+//					Msg:  "OK",
+//				}},
+//			},
+//		},
+//	}
+//
+//	for _, v := range contexts {
+//		p := v.param
+//		expect := v.expect
+//		r, err := http.NewRequest("PUT", "/repositories/rep/item", strings.NewReader(p.requestBody))
+//		get(err)
+//		code, msg := updateDHandler(r, p.rsp, p.param, p.db, p.login_name)
+//
+//		if !expect.expect(t, code, msg) {
+//			t.Logf("%s fail.", v.description)
+//			t.Log(code)
+//			t.Log(msg)
+//		} else {
+//			t.Logf("%s success.", v.description)
+//		}
+//		t.Log("")
+//	}
+//}
 
 func Test_updateTagHandler(t *testing.T) {
 	contexts := []Context{
@@ -2162,5 +2162,5 @@ func initDataitemName(casenum int) string {
 }
 
 func initTagName(casenum int) string {
-	return fmt.Sprintf("%d%d", ramdom, casenum)[0:20]
+	return fmt.Sprintf("%d%d", ramdom, casenum)
 }

@@ -31,6 +31,9 @@ func putDataitemPermission(repname, itemname, username string) {
 }
 
 func putRepositoryPermission(repname, username string, opt_permission int) {
+	if username == "" {
+		return
+	}
 	selector := bson.M{
 		COL_PERMIT_REPNAME: repname,
 		COL_PERMIT_USER:    username,
