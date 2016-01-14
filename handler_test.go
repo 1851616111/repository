@@ -1784,23 +1784,6 @@ func Test_delTagHandler(t *testing.T) {
 				}},
 			},
 		},
-		Context{
-			description: fmt.Sprintf("3.删除Tag(dataitem存在,tag不存在) ----------> %s/%s/%s", repnames[0], itemnames[0], tagnames[1]),
-			param: param{
-				requestBody: ``,
-				rsp:         &Rsp{w: httptest.NewRecorder()},
-				param:       martini.Params{"repname": repnames[0], "itemname": itemnames[0], "tag": tagnames[1]},
-				db:          db.copy(),
-				login_name:  USERNAME,
-			},
-			expect: expect{
-				code: 400,
-				body: Body{Result{
-					Code: 1009,
-					Msg:  nofoundTag(repnames[0], itemnames[0], tagnames[1]),
-				}},
-			},
-		},
 	}
 
 	for _, v := range contexts {
@@ -1875,23 +1858,6 @@ func Test_delDHandler(t *testing.T) {
 				body: Body{Result{
 					Code: 0,
 					Msg:  "OK",
-				}},
-			},
-		},
-		Context{
-			description: fmt.Sprintf("4.删除Dataitem(不存在的dataitem) ----------> %s/%s", repnames[1], itemnames[0]),
-			param: param{
-				requestBody: ``,
-				rsp:         &Rsp{w: httptest.NewRecorder()},
-				param:       martini.Params{"repname": repnames[1], "itemname": itemnames[0]},
-				db:          db.copy(),
-				login_name:  USERNAME,
-			},
-			expect: expect{
-				code: 400,
-				body: Body{Result{
-					Code: 1009,
-					Msg:  fmt.Sprintf(E(ErrorCodeQueryDBNotFound).Message, fmt.Sprintf(" %s=%s %s:=%s", COL_REPNAME, repnames[1], COL_ITEM_NAME, itemnames[0])),
 				}},
 			},
 		},
