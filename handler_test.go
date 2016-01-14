@@ -81,7 +81,7 @@ func Test_createRHandler(t *testing.T) {
 				rsp:        &Rsp{w: httptest.NewRecorder()},
 				param:      martini.Params{"repname": repnames[0]},
 				db:         db.copy(),
-				limit:      Limit{Rep_Private: 100, Rep_Public: 100},
+				limit:      Quota{Rep_Private: 100, Rep_Public: 100},
 				login_name: USERNAME,
 			},
 			expect: expect{
@@ -116,7 +116,7 @@ func Test_createRHandler(t *testing.T) {
 				rsp:        &Rsp{w: httptest.NewRecorder()},
 				param:      martini.Params{"repname": repnames[0]},
 				db:         db.copy(),
-				limit:      Limit{Rep_Private: 100, Rep_Public: 100},
+				limit:      Quota{Rep_Private: 100, Rep_Public: 100},
 				login_name: USERNAME,
 			},
 			expect: expect{
@@ -136,7 +136,7 @@ func Test_createRHandler(t *testing.T) {
 				rsp:        &Rsp{w: httptest.NewRecorder()},
 				param:      martini.Params{"repname": repnames[2]},
 				db:         db.copy(),
-				limit:      Limit{Rep_Private: 100, Rep_Public: 100},
+				limit:      Quota{Rep_Private: 100, Rep_Public: 100},
 				login_name: USERNAME,
 			},
 			expect: expect{
@@ -156,7 +156,7 @@ func Test_createRHandler(t *testing.T) {
 				rsp:        &Rsp{w: httptest.NewRecorder()},
 				param:      martini.Params{"repname": repnames[3]},
 				db:         db.copy(),
-				limit:      Limit{Rep_Private: 100, Rep_Public: 100},
+				limit:      Quota{Rep_Private: 100, Rep_Public: 100},
 				login_name: USERNAME,
 			},
 			expect: expect{
@@ -189,7 +189,7 @@ func Test_createRHandler(t *testing.T) {
 				rsp:        &Rsp{w: httptest.NewRecorder()},
 				param:      martini.Params{"repname": repnames[4]},
 				db:         db.copy(),
-				limit:      Limit{Rep_Private: 100, Rep_Public: 100},
+				limit:      Quota{Rep_Private: 100, Rep_Public: 100},
 				login_name: USERNAME,
 			},
 			expect: expect{
@@ -216,7 +216,7 @@ func Test_createRHandler(t *testing.T) {
 				rsp:        &Rsp{w: httptest.NewRecorder()},
 				param:      martini.Params{"repname": repnames[5]},
 				db:         db.copy(),
-				limit:      Limit{Rep_Private: 100, Rep_Public: 100},
+				limit:      Quota{Rep_Private: 100, Rep_Public: 100},
 				login_name: USERNAME,
 			},
 			expect: expect{
@@ -234,7 +234,7 @@ func Test_createRHandler(t *testing.T) {
 				rsp:         &Rsp{w: httptest.NewRecorder()},
 				param:       martini.Params{"repname": repnames[6]},
 				db:          db.copy(),
-				limit:       Limit{Rep_Private: 100, Rep_Public: 100},
+				limit:       Quota{Rep_Private: 100, Rep_Public: 100},
 				login_name:  USERNAME,
 			},
 			expect: expect{
@@ -2135,7 +2135,7 @@ type param struct {
 	param       martini.Params
 	db          *DB
 	login_name  string
-	limit       Limit
+	limit       Quota
 	repName     string
 }
 
