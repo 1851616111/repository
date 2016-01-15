@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 )
 
 const (
@@ -153,7 +152,6 @@ func delRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 
 	go func(db *DB, e bson.M) {
 		defer db.Close()
-		time.Sleep(time.Second)
 		db.delPermit(C_REPOSITORY_PERMISSION, exec)
 	}(db.copy(), exec)
 

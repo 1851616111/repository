@@ -49,7 +49,7 @@ func (q *Queue) serve(db *DB) {
 				inserts = append(inserts, exec)
 			}
 
-		case <-time.After(time.Second):
+		case <-time.After(time.Millisecond * 500):
 			updates.serve(db, Exec_Type_Update)
 			upserts.serve(db, Exec_Type_Upsert)
 			inserts.serve(db, Exec_Type_Insert)
