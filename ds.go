@@ -34,7 +34,7 @@ type repository struct {
 	CooperateItems  int         `json:"cooperateitems"`
 	Label           interface{} `json:"label"`
 	Ct              time.Time   `json:"-"`
-	st              time.Time
+	St              time.Time   `bson:"st,omitempty", json:"-"`
 	Cooperate       interface{} `bson:"cooperators", json:"-"`
 }
 

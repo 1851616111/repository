@@ -83,6 +83,47 @@ var (
 	SEARCH_DATAITEM_COLS = []string{COL_REPNAME, COL_ITEM_NAME, COL_COMMENT}
 )
 
+type delete struct {
+	Rep   repository	`json:"repository"`
+	Items []dataItem	`json:"dataitems"`
+}
+
+func getDetetedHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
+	copy := db.copy()
+	defer copy.Close()
+
+	loginName := r.Header.Get("User")
+	if loginName == "" {
+		return rsp.Json(401, E(ErrorCodeNoLogin))
+	}
+
+	dels := []delete{}
+	rep := repository{}
+	items := []dataItem{}
+	var err error
+	Q := bson.M{COL_CREATE_USER: loginName}
+
+	repIter := copy.DB(DB_NAME).C(C_REPOSITORY_DEL).Find(Q).Iter()
+	defer repIter.Close()
+	for repIter.Next(&rep) {
+		Q := bson.M{
+			COL_CREATE_USER: loginName,
+			COL_REPNAME:     rep.Repository_name,
+		}
+		if items, err = db.getdeletedDataitems(Q); err != nil {
+			Log.Infof("get delete dataitem err %s", err.Error())
+		}
+
+		delete := delete{
+			Rep:   rep,
+			Items: items,
+		}
+
+		dels = append(dels, delete)
+	}
+
+	return rsp.Json(200, E(OK), dels)
+}
 func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, login_name string, l Quota) (int, string) {
 	defer db.Close()
 	repname := param[PARAM_REP_NAME]
@@ -211,63 +252,6 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 		}
 		res.Dataitems = items
 	}
-
-	return rsp.Json(200, E(OK), res)
-}
-
-func getRByIdHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
-	defer db.Close()
-	repname := strings.TrimSpace(param["repname"])
-	if repname == "" {
-		return rsp.Json(400, ErrNoParameter("repname"))
-	}
-	id := strings.TrimSpace(param["id"])
-	if id == "" {
-		return rsp.Json(400, ErrNoParameter("id"))
-	}
-
-	page_index, page_size := PAGE_INDEX, PAGE_SIZE
-	if p := strings.TrimSpace(r.FormValue("page")); p != "" {
-		if page_index, _ = strconv.Atoi(p); page_index <= 0 {
-			return rsp.Json(400, ErrInvalidParameter("page"))
-		}
-	}
-	if p := strings.TrimSpace(r.FormValue("size")); p != "" {
-		if page_size, _ = strconv.Atoi(p); page_size < -1 {
-			return rsp.Json(400, ErrInvalidParameter("size"))
-		}
-	}
-
-	user := r.Header.Get("User")
-	Q := bson.M{COL_REPNAME: repname}
-	rep, err := db.getRepository(Q)
-	if err != nil && err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s", COL_REPNAME, repname)))
-	}
-	if rep.Create_user != user {
-		return rsp.Json(400, E(ErrorCodePermissionDenied))
-	}
-	rep.Optime = buildTime(rep.Optime)
-
-	var res struct {
-		repository
-		Dataitems []string `json:"dataitems,omitempty"`
-	}
-	res.repository = rep
-
-	items := []string{}
-	ds := []dataItem{}
-	Q = bson.M{COL_REPNAME: repname}
-
-	if user != "" && ifCooperate(rep.Cooperate, user) {
-		Q[COL_CREATE_USER] = user
-	}
-	ds, err = db.getDataitems(page_index, page_size, Q)
-	get(err)
-	for _, v := range ds {
-		items = append(items, v.Dataitem_name)
-	}
-	res.Dataitems = items
 
 	return rsp.Json(200, E(OK), res)
 }
@@ -1093,127 +1077,6 @@ func delTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, logi
 
 //curl http://127.0.0.1:8089/repositories/mobile/app
 func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
-	defer db.Close()
-	repname := param["repname"]
-	if repname == "" {
-		return rsp.Json(400, ErrNoParameter("repname"))
-	}
-	itemname := param["itemname"]
-	if itemname == "" {
-		return rsp.Json(400, ErrNoParameter("itemname"))
-	}
-
-	page_index, page_size := PAGE_INDEX, PAGE_SIZE
-	if p := strings.TrimSpace(r.FormValue("page")); p != "" {
-		if page_index, _ = strconv.Atoi(p); page_index <= 0 {
-			return rsp.Json(400, ErrInvalidParameter("page"))
-		}
-	}
-	if p := strings.TrimSpace(r.FormValue("size")); p != "" {
-		if page_size, _ = strconv.Atoi(p); page_size < -1 {
-			return rsp.Json(400, ErrInvalidParameter("size"))
-		}
-	}
-
-	abstract := false
-	if p := strings.TrimSpace(r.FormValue("abstract")); p == "1" {
-		abstract = true
-	}
-
-	Q := bson.M{COL_REPNAME: repname}
-	rep, err := db.getRepository(Q)
-	if err != nil && err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s", COL_REPNAME, repname)))
-	}
-
-	user := r.Header.Get("User")
-	if user != "" {
-		if user != rep.Create_user && !ifCooperate(rep.Cooperate, user) { //既不是创建者,也不是协作人, 只是其他人
-			if rep.Repaccesstype == ACCESS_PRIVATE {
-				Q := bson.M{COL_PERMIT_REPNAME: rep.Repository_name, COL_PERMIT_USER: user}
-				if !db.hasPermission(C_REPOSITORY_PERMISSION, Q) { //私有rep, 查看是否在白名单中
-					return rsp.Json(400, E(ErrorCodePermissionDenied))
-				}
-			}
-		}
-	} else {
-		if rep.Repaccesstype == ACCESS_PRIVATE {
-			return rsp.Json(400, E(ErrorCodePermissionDenied))
-		}
-	}
-
-	Q = bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname}
-	item, err := db.getDataitem(Q, abstract)
-	if err != nil && err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s,%s=%s ", COL_REPNAME, repname, COL_ITEM_NAME, itemname)))
-	}
-
-	if user != "" && ifCooperate(rep.Cooperate, user) && item.Create_user != user {
-		return rsp.Json(400, E(ErrorCodePermissionDenied)) //虽然是协作者,但是这个item不是自己创建的
-	}
-
-	item.Optime = buildTime(item.Optime)
-
-	var res struct {
-		dataItem
-		Tags          []tag  `json:"taglist"`
-		Permisson     bool   `json:"permission"`
-		Stat          string `json:"pricestate"`
-		StatCooperate string `json:"cooperatestate"`
-	}
-
-	priceStat := getPriceStat(item.Price)
-	cooperateStat := getCooperateStat(item, user)
-
-	if abstract == true {
-		res.dataItem = item
-		res.Stat = priceStat
-		res.StatCooperate = cooperateStat
-		return rsp.Json(200, E(OK), res)
-	}
-
-	switch item.Itemaccesstype {
-	case ACCESS_PUBLIC:
-		res.Permisson = true
-	case ACCESS_PRIVATE:
-		Q = bson.M{COL_PERMIT_ITEMNAME: itemname, COL_PERMIT_USER: user}
-		res.Permisson = db.hasPermission(C_DATAITEM_PERMISSION, Q)
-	}
-
-	b_m, err := db.getFile(PREFIX_META, repname, itemname)
-	if err != nil {
-		if err != mgo.ErrNotFound {
-			Log.Error("get dataitem meta err :", err)
-		}
-		item.Meta = ""
-	} else {
-		item.Meta = strings.TrimSpace(string(b_m))
-	}
-
-	b_s, err := db.getFile(PREFIX_SAMPLE, repname, itemname)
-	if err != nil {
-		if err != mgo.ErrNotFound {
-			Log.Error("get dataitem sample err :", err)
-		}
-		item.Sample = ""
-	} else {
-		item.Sample = strings.TrimSpace(string(b_s))
-	}
-
-	Q = bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname}
-	tags, err := db.getTags(page_index, page_size, Q)
-	get(err)
-	buildTagsTime(tags)
-
-	res.dataItem = item
-	res.Tags = tags
-	res.Stat = priceStat
-	res.StatCooperate = cooperateStat
-
-	return rsp.Json(200, E(OK), res)
-}
-
-func getDByIdHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	defer db.Close()
 	repname := param["repname"]
 	if repname == "" {

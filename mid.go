@@ -30,6 +30,7 @@ func (db *DB) delRepository(exec bson.M) error {
 		Log.Error("del repository %#v err %s", exec, err.Error())
 		return err
 	}
+	result.St = time.Now()
 
 	e := Execute{
 		Collection: C_REPOSITORY_DEL,
@@ -61,6 +62,12 @@ func (db *DB) getDataitems(pageIndex, pageSize int, query bson.M) ([]dataItem, e
 	} else {
 		err = db.DB(DB_NAME).C(C_DATAITEM).Find(query).Sort("-ct").Skip((pageIndex - 1) * pageSize).Limit(pageSize).All(&res)
 	}
+	return res, err
+}
+
+func (db *DB) getdeletedDataitems(query bson.M) ([]dataItem, error) {
+	res := []dataItem{}
+	err := db.DB(DB_NAME).C(C_DATAITEM_DEL).Find(query).Sort("-ct").All(&res)
 	return res, err
 }
 

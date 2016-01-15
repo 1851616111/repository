@@ -52,13 +52,11 @@ func main() {
 	m.Group("/repositories", func(r martini.Router) {
 		r.Get("", getRsHandler)
 
+		r.Get("/deleted", getDetetedHandler)
 		r.Get("/:repname", getRHandler)
 		r.Get("/:repname/:itemname", getDHandler)
 		r.Get("/:repname/:itemname/subpermission", getDWithPermissionHandler)
 		r.Get("/:repname/:itemname/:tag", getTagHandler)
-
-		r.Get("/:repname/:id/deleted", getRByIdHandler)
-		r.Get("/:repname/:itemname/:id/deleted", getDByIdHandler)
 
 		r.Post("/:repname", auth, getQuota, createRHandler)
 		r.Post("/:repname/:itemname", auth, createDHandler)
