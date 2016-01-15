@@ -682,6 +682,7 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	return rsp.Json(200, E(OK))
 }
 
+//curl http://127.0.0.1:8080/repositories/rep123/bear23 -X DELETE -H admin:admin
 func delDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string, msg *Msg) (int, string) {
 	defer db.Close()
 	repname := param["repname"]

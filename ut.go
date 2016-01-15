@@ -459,6 +459,7 @@ func getToken(user, passwd string) string {
 		Log.Errorf("get token err: %s", err.Error())
 	}
 
+	Log.Info("---------> token", string(b))
 	var i interface{}
 	if err := json.Unmarshal(b, &i); err != nil {
 		Log.Errorf("unmarshal token err: %s", err.Error())

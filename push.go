@@ -111,6 +111,7 @@ type meta_item struct {
 	ItemAccessType string ` json:"itemaccesstype" column:"itemaccesstype"`
 	SuppleStyle    string ` json:"supplestyle" column:"supplestyle"`
 	SelectLabel    string ` json:"selectlabel" column:"selectlabel"`
+	Rank           int    ` json:"rank" column:"rank"`
 }
 
 type payLoad struct {
@@ -118,7 +119,7 @@ type payLoad struct {
 	Date    string      `json:"date"`
 	Columns columns     `json:"columns"`
 	Table   string      `json:"table"`
-	Data    interface{} `json:"data"`
+	Data    interface{} `json:"result"`
 }
 
 type columns []column

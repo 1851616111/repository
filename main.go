@@ -29,7 +29,7 @@ func init() {
 }
 
 func main() {
-
+	correctQuota(&db)
 	initMq()
 
 	go q_c.serve(&db)
