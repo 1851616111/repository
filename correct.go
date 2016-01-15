@@ -47,7 +47,7 @@ func correctQuota(db *DB) {
 	for _, passwd := range Passwords {
 		if t := getToken(Username, passwd); len(t) == 32 {
 			token = t
-			continue
+			break
 		}
 	}
 	if len(token) != 32 {
