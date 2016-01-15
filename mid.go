@@ -107,9 +107,6 @@ func (db *DB) getTags(pageIndex, pageSize int, query bson.M) ([]tag, error) {
 	} else {
 		err = db.DB(DB_NAME).C(C_TAG).Find(query).Sort("-optime").Skip((pageIndex - 1) * pageSize).Limit(pageSize).All(&res)
 	}
-	Log.Info("----------------------", pageIndex, pageSize, query)
-	Log.Info("----------------------")
-	Log.Infof("----------------------%#v", res)
 	return res, err
 }
 
