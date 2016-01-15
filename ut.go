@@ -452,13 +452,14 @@ func HttpPostJson(postUrl string, body []byte, credential ...string) ([]byte, er
 
 func getToken(user, passwd string) string {
 	passwdMd5 := getMd5(passwd)
-	token := fmt.Sprintf("Basic %s", string(base64Encode([]byte(fmt.Sprintf("%s:%s", user, passwdMd5)))))
+	basic := fmt.Sprintf("Basic %s", string(base64Encode([]byte(fmt.Sprintf("%s:%s", user, passwdMd5)))))
 	URL := fmt.Sprintf("http://%s:%s", API_SERVER, API_PORT)
-	b, err := httpGet(URL, AUTHORIZATION, token)
+	b, err := httpGet(URL, AUTHORIZATION, basic)
 	if err != nil {
 		Log.Errorf("get token err: %s", err.Error())
 	}
-
+	Log.Info("---------> basic", basic)
+	Log.Info("---------> URL", URL)
 	Log.Info("---------> token", string(b))
 	var i interface{}
 	if err := json.Unmarshal(b, &i); err != nil {
