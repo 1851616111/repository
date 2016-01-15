@@ -1,7 +1,7 @@
 app=datahub_repository
 
 #pkill -f server
-export API_SERVER=54.223.58.0
+export API_SERVER=10.1.235.98
 export API_PORT=8888
 
 export goservice_port=8088

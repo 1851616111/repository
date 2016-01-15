@@ -57,6 +57,9 @@ func main() {
 		r.Get("/:repname/:itemname/subpermission", getDWithPermissionHandler)
 		r.Get("/:repname/:itemname/:tag", getTagHandler)
 
+		r.Get("/:repname/:id/deleted", getRByIdHandler)
+		r.Get("/:repname/:itemname/:id/deleted", getDByIdHandler)
+
 		r.Post("/:repname", auth, getQuota, createRHandler)
 		r.Post("/:repname/:itemname", auth, createDHandler)
 		r.Post("/:repname/:itemname/:tag", auth, createTagHandler)

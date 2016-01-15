@@ -215,6 +215,63 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	return rsp.Json(200, E(OK), res)
 }
 
+func getRByIdHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
+	defer db.Close()
+	repname := strings.TrimSpace(param["repname"])
+	if repname == "" {
+		return rsp.Json(400, ErrNoParameter("repname"))
+	}
+	id := strings.TrimSpace(param["id"])
+	if id == "" {
+		return rsp.Json(400, ErrNoParameter("id"))
+	}
+
+	page_index, page_size := PAGE_INDEX, PAGE_SIZE
+	if p := strings.TrimSpace(r.FormValue("page")); p != "" {
+		if page_index, _ = strconv.Atoi(p); page_index <= 0 {
+			return rsp.Json(400, ErrInvalidParameter("page"))
+		}
+	}
+	if p := strings.TrimSpace(r.FormValue("size")); p != "" {
+		if page_size, _ = strconv.Atoi(p); page_size < -1 {
+			return rsp.Json(400, ErrInvalidParameter("size"))
+		}
+	}
+
+	user := r.Header.Get("User")
+	Q := bson.M{COL_REPNAME: repname}
+	rep, err := db.getRepository(Q)
+	if err != nil && err == mgo.ErrNotFound {
+		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s", COL_REPNAME, repname)))
+	}
+	if rep.Create_user != user {
+		return rsp.Json(400, E(ErrorCodePermissionDenied))
+	}
+	rep.Optime = buildTime(rep.Optime)
+
+	var res struct {
+		repository
+		Dataitems []string `json:"dataitems,omitempty"`
+	}
+	res.repository = rep
+
+	items := []string{}
+	ds := []dataItem{}
+	Q = bson.M{COL_REPNAME: repname}
+
+	if user != "" && ifCooperate(rep.Cooperate, user) {
+		Q[COL_CREATE_USER] = user
+	}
+	ds, err = db.getDataitems(page_index, page_size, Q)
+	get(err)
+	for _, v := range ds {
+		items = append(items, v.Dataitem_name)
+	}
+	res.Dataitems = items
+
+	return rsp.Json(200, E(OK), res)
+}
+
 func delRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string, msg *Msg) (int, string) {
 	defer db.Close()
 	repname := strings.TrimSpace(param["repname"])
@@ -269,13 +326,6 @@ func delRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 
 	if err := db.delRepository(Q); err != nil {
 		return rsp.Json(200, ErrDataBase(err))
-	}
-
-	tmp := m_rep{TimeId: fmt.Sprintf("%d", rep.Ct.Unix()), Type: MQ_TYPE_DEL_REP, Repository_name: Q[COL_REPNAME], Time: time.Now().String()}
-	if msg != nil {
-		go func(msg *Msg, rep m_rep) {
-			msg.MqJson(MQ_TOPIC_TO_SUB, rep)
-		}(msg, tmp)
 	}
 
 	return rsp.Json(200, E(OK))
@@ -443,23 +493,19 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 			return rsp.Json(400, ErrDataBase(err))
 		}
 	}
-
 	l := []names{}
-	if loginName != "" {
-		for _, v := range rep {
-			status := ""
-			if cooperates, ok := v.Cooperate.([]interface{}); ok {
-				if len(cooperates) > 0 {
-					if contains(cooperates, loginName) {
-						status = STATUS_COOPERATORRING
-					} else {
-						status = STATUS_COOPERATOR
-					}
+	for _, v := range rep {
+		status := ""
+		if cooperates, ok := v.Cooperate.([]interface{}); ok {
+			if len(cooperates) > 0 {
+				if contains(cooperates, loginName) {
+					status = STATUS_COOPERATORRING
+				} else {
+					status = STATUS_COOPERATOR
 				}
 			}
-
-			l = append(l, names{Repository_name: v.Repository_name, Cooperate_status: status})
 		}
+		l = append(l, names{Repository_name: v.Repository_name, Cooperate_status: status})
 	}
 
 	return rsp.Json(200, E(OK), l)
@@ -1167,8 +1213,7 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	return rsp.Json(200, E(OK), res)
 }
 
-//curl http://127.0.0.1:8089/repositories/mobile/app
-func getdelDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
+func getDByIdHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	defer db.Close()
 	repname := param["repname"]
 	if repname == "" {
