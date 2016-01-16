@@ -73,6 +73,18 @@ func getRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 	if err != nil {
 		return rsp.Json(400, ErrDataBase(err))
 	}
+
+	if list, ok := l.([]Item_Permission); ok {
+		if len(list) == 0 {
+			return rsp.Json(400, ErrQueryNotFound(""))
+		}
+	}
+	if list, ok := l.([]Rep_Permission); ok {
+		if len(list) == 0 {
+			return rsp.Json(400, ErrQueryNotFound(""))
+		}
+	}
+
 	n, _ := db.countPermits(C_REPOSITORY_PERMISSION, Q)
 	res := struct {
 		L     interface{} `json:"permissions"`
