@@ -84,8 +84,8 @@ var (
 )
 
 type delete struct {
-	Rep   repository	`json:"repository"`
-	Items []dataItem	`json:"dataitems"`
+	Rep   repository `json:"repository"`
+	Items []dataItem `json:"dataitems"`
 }
 
 func getDetetedHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {

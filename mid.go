@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"gopkg.in/mgo.v2/bson"
 	"time"
@@ -144,10 +145,16 @@ func (db *DB) getPermits(collection string, query bson.M, page ...[]int) (interf
 		case C_DATAITEM_PERMISSION:
 			l := []Item_Permission{}
 			err = db.DB(DB_NAME).C(collection).Find(query).Sort(COL_PERMIT_USER).Skip((pageIndex - 1) * pageSize).Limit(pageSize).All(&l)
+			if len(l) == 0 {
+				err = errors.New(ErrQueryNotFound("").ErrToString())
+			}
 			list = l
 		case C_REPOSITORY_PERMISSION:
 			l := []Rep_Permission{}
 			err = db.DB(DB_NAME).C(collection).Find(query).Sort(COL_PERMIT_USER).Skip((pageIndex - 1) * pageSize).Limit(pageSize).All(&l)
+			if len(l) == 0 {
+				err = errors.New(ErrQueryNotFound("").ErrToString())
+			}
 			list = l
 		}
 
@@ -156,10 +163,16 @@ func (db *DB) getPermits(collection string, query bson.M, page ...[]int) (interf
 		case C_DATAITEM_PERMISSION:
 			l := []Item_Permission{}
 			err = db.DB(DB_NAME).C(collection).Find(query).All(&l)
+			if len(l) == 0 {
+				err = errors.New(ErrQueryNotFound("").ErrToString())
+			}
 			list = l
 		case C_REPOSITORY_PERMISSION:
 			l := []Rep_Permission{}
 			err = db.DB(DB_NAME).C(collection).Find(query).All(&l)
+			if len(l) == 0 {
+				err = errors.New(ErrQueryNotFound("").ErrToString())
+			}
 			list = l
 		}
 	}
