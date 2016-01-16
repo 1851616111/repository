@@ -1117,7 +1117,7 @@ func Test_getRepPmsHandler(t *testing.T) {
 			expect: expect{
 				code: 400,
 				body: Body{Result{
-					Code: 1008,
+					Code: 1009,
 					Msg:  "query no found",
 				}},
 			},
@@ -1155,7 +1155,7 @@ func Test_getItemPmsHandler(t *testing.T) {
 			expect: expect{
 				code: 400,
 				body: Body{Result{
-					Code: 1008,
+					Code: 1009,
 					Msg:  "query no found",
 				}},
 			},
