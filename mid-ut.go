@@ -104,21 +104,21 @@ func getSubscribers(Type, repname, itemname, token string) []string {
 	url := ""
 	switch Type {
 	case Subscripters_By_Rep:
-		url = fmt.Sprintf("http://%s:%s/subscriptions/subscriptors/%s?phase=1", API_SERVER, API_PORT, repname)
+		url = fmt.Sprintf("http://%s:%s/subscriptions/subscribers/%s?phase=1", API_SERVER, API_PORT, repname)
 	case Subscripters_By_Item:
-		url = fmt.Sprintf("http://%s:%s/subscriptions/subscriptors/%s/%s?phase=1", API_SERVER, API_PORT, repname, itemname)
+		url = fmt.Sprintf("http://%s:%s/subscriptions/subscribers/%s/%s?phase=1", API_SERVER, API_PORT, repname, itemname)
 	}
 
 	b, err := httpGet(url, AUTHORIZATION, token)
 	if err != nil {
 		Log.Error(url)
-		Log.Errorf("get subscriptors err :%s\n", err)
+		Log.Errorf("get subscribers err :%s\n", err)
 	}
 
 	result := new(Result)
 	err = json.Unmarshal(b, result)
 	if err != nil {
-		Log.Errorf("get subscriptors err :%s\n", err)
+		Log.Errorf("get subscribers err :%s\n", err)
 	}
 
 	if result.Data != nil {
