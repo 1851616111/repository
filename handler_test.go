@@ -1118,7 +1118,7 @@ func Test_getRepPmsHandler(t *testing.T) {
 				code: 400,
 				body: Body{Result{
 					Code: 1009,
-					Msg:  "query no found",
+					Msg:  ErrQueryNotFound("").Message,
 				}},
 			},
 		},
@@ -1156,7 +1156,7 @@ func Test_getItemPmsHandler(t *testing.T) {
 				code: 400,
 				body: Body{Result{
 					Code: 1009,
-					Msg:  "query no found",
+					Msg:  ErrQueryNotFound("").Message,
 				}},
 			},
 		},
