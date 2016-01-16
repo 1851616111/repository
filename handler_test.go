@@ -1115,10 +1115,10 @@ func Test_getRepPmsHandler(t *testing.T) {
 				login_name: USERNAME,
 			},
 			expect: expect{
-				code: 200,
+				code: 400,
 				body: Body{Result{
-					Code: 0,
-					Msg:  "OK",
+					Code: 1008,
+					Msg:  "query no found",
 				}},
 			},
 		},
@@ -1153,10 +1153,10 @@ func Test_getItemPmsHandler(t *testing.T) {
 				login_name: USERNAME,
 			},
 			expect: expect{
-				code: 200,
+				code: 400,
 				body: Body{Result{
-					Code: 0,
-					Msg:  "OK",
+					Code: 1008,
+					Msg:  "query no found",
 				}},
 			},
 		},
