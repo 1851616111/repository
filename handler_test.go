@@ -1154,15 +1154,16 @@ func Test_getItemPmsHandler(t *testing.T) {
 				login_name: USERNAME,
 			},
 			expect: expect{
-				code: 400,
+				code: 200,
 				body: Body{Result{
-					Code: 1009,
-					Msg:  ErrQueryNotFound("").Message,
+					Code: 0,
+					Msg:  "OK",
 				}},
 			},
 		},
 	}
 	for _, v := range contexts {
+		time.Sleep(time.Second)
 		p := v.param
 		expect := v.expect
 		r, err := http.NewRequest("GET", "/permission/rep/item", strings.NewReader(p.requestBody))
