@@ -1124,6 +1124,7 @@ func Test_getRepPmsHandler(t *testing.T) {
 		},
 	}
 	for _, v := range contexts {
+		time.Sleep(time.Second)
 		p := v.param
 		expect := v.expect
 		r, err := http.NewRequest("GET", "/permission/rep", strings.NewReader(p.requestBody))
