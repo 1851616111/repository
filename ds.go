@@ -106,6 +106,18 @@ type DB struct {
 func (db *DB) copy() *DB {
 	return &DB{*db.Copy()}
 }
+
+func refreshDB(db *DB, f func(db *DB)) {
+	for {
+		select {
+		case <-time.After(time.Minute):
+			if err := db.Ping(); err != nil {
+				Log.Infof("%s db connect err %s", time.Now().Format("2006-01-02 15:04:05"), err)
+				f(db)
+			}
+		}
+	}
+}
 func connect(db_connection string) *mgo.Session {
 	session, err := mgo.Dial(db_connection)
 	get(err)

@@ -32,6 +32,7 @@ func main() {
 	correctQuota(&db)
 	initMq()
 
+	go refreshDB(&db, func(db *DB) { Log.Info("test") })
 	go q_c.serve(&db)
 	go staticLoop(&db)
 	go pushMetaDataLoop(&db)
