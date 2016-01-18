@@ -2023,43 +2023,43 @@ func Test_delRHandler(t *testing.T) {
 
 	}
 }
-
-func Test_delSelectLabelHandler(t *testing.T) {
-	contexts := []Context{
-		Context{
-			description: fmt.Sprintf("1.【管理员】删除精选栏目--------------> %s", selectlabel),
-			param: param{
-				rsp:   &Rsp{w: httptest.NewRecorder()},
-				param: martini.Params{"labelname": newselectlabel},
-				db:    db.copy(),
-			},
-			expect: expect{
-				code: 200,
-				body: Body{Result{
-					Code: 0,
-					Msg:  "OK",
-				}},
-			},
-		},
-	}
-	for _, v := range contexts {
-		p := v.param
-		expect := v.expect
-		r, err := http.NewRequest("DELETE", "/select_labels/:labelname", strings.NewReader(p.requestBody))
-		get(err)
-		time.Sleep(time.Second)
-		code, msg := delSelectLabelHandler(r, p.rsp, p.param, p.db.copy())
-
-		if !expect.expect(t, code, msg) {
-			t.Logf("%s fail.", v.description)
-			t.Log(code)
-			t.Log(msg)
-		} else {
-			t.Logf("%s success.", v.description)
-		}
-		t.Log("")
-	}
-}
+//
+//func Test_delSelectLabelHandler(t *testing.T) {
+//	contexts := []Context{
+//		Context{
+//			description: fmt.Sprintf("1.【管理员】删除精选栏目--------------> %s", selectlabel),
+//			param: param{
+//				rsp:   &Rsp{w: httptest.NewRecorder()},
+//				param: martini.Params{"labelname": newselectlabel},
+//				db:    db.copy(),
+//			},
+//			expect: expect{
+//				code: 200,
+//				body: Body{Result{
+//					Code: 0,
+//					Msg:  "OK",
+//				}},
+//			},
+//		},
+//	}
+//	for _, v := range contexts {
+//		p := v.param
+//		expect := v.expect
+//		r, err := http.NewRequest("DELETE", "/select_labels/:labelname", strings.NewReader(p.requestBody))
+//		get(err)
+//		time.Sleep(time.Second)
+//		code, msg := delSelectLabelHandler(r, p.rsp, p.param, p.db.copy())
+//
+//		if !expect.expect(t, code, msg) {
+//			t.Logf("%s fail.", v.description)
+//			t.Log(code)
+//			t.Log(msg)
+//		} else {
+//			t.Logf("%s success.", v.description)
+//		}
+//		t.Log("")
+//	}
+//}
 
 func (expect *expect) expect(t *testing.T, resutlCode int, resutlData string) bool {
 	if expect.code != resutlCode {
