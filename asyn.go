@@ -11,7 +11,7 @@ const (
 	Exec_Type_Upsert     = "upsert"
 	Exec_Type_Insert     = "insert"
 	Asyn_Interval_Insert = 50
-	Asyn_Interval_Update = 1000
+	Asyn_Interval_Update = 500
 )
 
 var (
