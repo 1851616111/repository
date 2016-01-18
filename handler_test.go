@@ -2047,6 +2047,7 @@ func Test_delSelectLabelHandler(t *testing.T) {
 		expect := v.expect
 		r, err := http.NewRequest("DELETE", "/select_labels/:labelname", strings.NewReader(p.requestBody))
 		get(err)
+		time.Sleep(time.Second)
 		code, msg := delSelectLabelHandler(r, p.rsp, p.param, p.db.copy())
 
 		if !expect.expect(t, code, msg) {
