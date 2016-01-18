@@ -269,6 +269,7 @@
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/grunt-newer/node_modules/.bin" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/htmlhint/node_modules/shelljs/test/resources/ls/a_dir/.hidden_dir" />
       <root url="file://$PROJECT_DIR$/../datahub_synchro/.settings" />
+      <root url="file://$PROJECT_DIR$/../.idea" />
       <root url="file://$PROJECT_DIR$/../../hashicorp/hcl/.git" />
       <root url="file://$PROJECT_DIR$/../datahub_synchro/.git" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/htmlhint/node_modules/shelljs/test/resources/ls/.hidden_dir" />
