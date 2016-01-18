@@ -10,6 +10,8 @@ const (
 	Exec_Type_Update = "update"
 	Exec_Type_Upsert = "upsert"
 	Exec_Type_Insert = "insert"
+	Asyn_Interval_Insert = 50
+	Asyn_Interval_Update = 1000
 )
 
 var (
@@ -49,11 +51,14 @@ func (q *Queue) serve(db *DB) {
 				inserts = append(inserts, exec)
 			}
 
-		case <-time.After(time.Millisecond * 500):
+		case <-time.After(time.Millisecond * Asyn_Interval_Update):
 			updates.serve(db, Exec_Type_Update)
 			upserts.serve(db, Exec_Type_Upsert)
+
+		case <-time.After(time.Millisecond * Asyn_Interval_Insert):
 			inserts.serve(db, Exec_Type_Insert)
 		}
+
 	}
 }
 
