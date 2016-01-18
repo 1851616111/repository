@@ -6,10 +6,10 @@ import (
 )
 
 const (
-	CHANNE_MAX_ZISE  = 20000
-	Exec_Type_Update = "update"
-	Exec_Type_Upsert = "upsert"
-	Exec_Type_Insert = "insert"
+	CHANNE_MAX_ZISE      = 20000
+	Exec_Type_Update     = "update"
+	Exec_Type_Upsert     = "upsert"
+	Exec_Type_Insert     = "insert"
 	Asyn_Interval_Insert = 50
 	Asyn_Interval_Update = 1000
 )
