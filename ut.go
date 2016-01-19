@@ -614,3 +614,17 @@ func getCooperateStat(d dataItem, loginName string) string {
 	}
 	return ""
 }
+
+func getResult(r Result, key string) []string {
+	arr := []string{}
+	if r.Data != nil {
+		if u, ok := r.Data.(map[string]interface{}); ok {
+			if l, ok := u[key].([]interface{}); ok {
+				for _, v := range l {
+					arr = append(arr, v.(string))
+				}
+			}
+		}
+	}
+	return arr
+}

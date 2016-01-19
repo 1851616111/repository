@@ -121,16 +121,5 @@ func getSubscribers(Type, repname, itemname, token string) []string {
 		Log.Errorf("get subscribers err :%s\n", err)
 	}
 
-	fmt.Printf( "getSubscribers -------------> %#v\n", result)
-	if result.Data != nil {
-		if u, ok := result.Data.(map[string]interface{}); ok {
-			if u["results"] != nil {
-				if l, ok := u["results"].([]string); ok {
-					return l
-				}
-			}
-		}
-	}
-
-	return []string{}
+	return getResult(*result, "results")
 }
