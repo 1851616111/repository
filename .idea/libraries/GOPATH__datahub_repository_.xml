@@ -20,6 +20,7 @@
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/grunt-contrib-imagemin/node_modules/.bin" />
       <root url="file://$PROJECT_DIR$/../../aws/aws-sdk-go/.git" />
       <root url="file://$PROJECT_DIR$/../../jonboulle/clockwork/.git" />
+      <root url="file://$PROJECT_DIR$/../../openshift/.idea" />
       <root url="file://$PROJECT_DIR$/../../../google.golang.org/grpc/interop/server/testdata" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/configstore/node_modules/.bin" />
       <root url="file://$PROJECT_DIR$/../../openshift/origin/assets/node_modules/fsevents/node_modules/tar-pack/node_modules/.bin" />
