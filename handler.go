@@ -701,7 +701,7 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 			exec := bson.M{
 				COL_REPNAME:         repname,
 				COL_PERMIT_ITEMNAME: itemname,
-				CMD_IN:              users,
+				COL_PERMIT_USER:     bson.M{CMD_IN: users},
 			}
 			if err := db.delPermit(C_DATAITEM_PERMISSION, exec); err != nil {
 				return rsp.Json(400, ErrDataBase(err))
