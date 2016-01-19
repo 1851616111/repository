@@ -697,9 +697,9 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		}
 	}
 	if item.Itemaccesstype == ACCESS_PRIVATE && u[COL_ITEM_ACC] == ACCESS_PUBLIC {
-		fmt.Printf(" %s/%s from private  to public \n token:%s\n get users:%s \n", repname, itemname, token, users)
 		token := r.Header.Get(AUTHORIZATION)
 		users := getSubscribers(Subscripters_By_Item, repname, itemname, token)
+		fmt.Printf(" %s/%s from private  to public \n token:%s\n get users:%s \n", repname, itemname, token, users)
 		if len(users) > 0 {
 			exec := bson.M{
 				COL_REPNAME:         repname,
