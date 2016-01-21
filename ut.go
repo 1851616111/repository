@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/miekg/dns"
 	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
 	"net/http"
@@ -458,9 +459,6 @@ func getToken(user, passwd string) string {
 	if err != nil {
 		Log.Errorf("get token err: %s", err.Error())
 	}
-	Log.Info("---------> basic", basic)
-	Log.Info("---------> URL", URL)
-	Log.Info("---------> token", string(b))
 	var i interface{}
 	if err := json.Unmarshal(b, &i); err != nil {
 		Log.Errorf("unmarshal token err: %s", err.Error())
@@ -627,4 +625,38 @@ func getResult(r Result, key string) []string {
 		}
 	}
 	return arr
+}
+
+func dnsExchange(srvName, agentIp, agentPort string) (ip, port string) {
+	srvName = fmt.Sprintf("%s.service.consul", srvName)
+	agentAddr := fmt.Sprintf("%s:%s", agentIp, agentPort)
+
+	c := new(dns.Client)
+
+	m := new(dns.Msg)
+	m.SetQuestion(dns.Fqdn(srvName), dns.TypeSRV)
+	m.RecursionDesired = true
+
+	r, _, err := c.Exchange(m, agentAddr)
+	if r == nil {
+		Log.Fatalf("dns query error: %s\n", err.Error())
+	}
+
+	if r.Rcode != dns.RcodeSuccess {
+		Log.Fatalf("dns query error: %v\n", r.Rcode)
+	}
+
+	if ex := r.Extra; len(ex) > 0 {
+		if tmp, ok := ex[0].(*dns.A); ok {
+			ip = tmp.A.String()
+		}
+	}
+
+	if an := r.Answer; len(an) > 0 {
+		if tmp, ok := an[0].(*dns.SRV); ok {
+			port = fmt.Sprintf("%d", tmp.Port)
+		}
+	}
+
+	return
 }
