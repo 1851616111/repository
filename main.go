@@ -134,13 +134,12 @@ func initDB() DB {
 	ip, port := dnsExchange(Service_Name_Mongo, DISCOVERY_CONSUL_SERVER_ADDR, DISCOVERY_CONSUL_SERVER_PORT)
 	if ip == "" {
 		Log.Error("------> mongo ip", ip)
-		os.Exit(0)
 	}
 
 	if port == "" {
 		Log.Error("------> mongo port", port)
-		os.Exit(0)
 	}
+
 	return DB{*getMgoSession(ip, port)}
 }
 

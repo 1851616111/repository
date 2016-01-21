@@ -639,11 +639,13 @@ func dnsExchange(srvName, agentIp, agentPort string) (ip, port string) {
 
 	r, _, err := c.Exchange(m, agentAddr)
 	if r == nil {
-		Log.Fatalf("dns query error: %s\n", err.Error())
+		Log.Fatalf("1 dns query error: %s\n", err.Error())
+		return
 	}
 
 	if r.Rcode != dns.RcodeSuccess {
-		Log.Fatalf("dns query error: %v\n", r.Rcode)
+		Log.Fatalf("2 dns query error: %v\n", r.Rcode)
+		return
 	}
 
 	if ex := r.Extra; len(ex) > 0 {
