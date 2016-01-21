@@ -7,7 +7,6 @@ import (
 	"github.com/go-martini/martini"
 	"gopkg.in/mgo.v2"
 	"net/http"
-	"os"
 )
 
 var (
@@ -21,8 +20,11 @@ var (
 	DISCOVERY_CONSUL_SERVER_ADDR = Env("CONSUL_SERVER", false)
 	DISCOVERY_CONSUL_SERVER_PORT = Env("CONSUL_DNS_PORT", false)
 
-	MQ_KAFKA_ADDR = Env("MQ_KAFKA_ADDR", false)
-	MQ_KAFKA_PORT = Env("MQ_KAFKA_PORT", false)
+	//	MQ_KAFKA_ADDR = Env("MQ_KAFKA_ADDR", false)
+	//	MQ_KAFKA_PORT = Env("MQ_KAFKA_PORT", false)
+
+	MQ_KAFKA_ADDR = "10.1.235.98"
+	MQ_KAFKA_PORT = "9092"
 
 	db  DB = initDB()
 	q_c Queue
@@ -33,7 +35,6 @@ var (
 func init() {
 	if DISCOVERY_CONSUL_SERVER_ADDR == "" || DISCOVERY_CONSUL_SERVER_PORT == "" {
 		Log.Fatal("can not get env CONSUL_SERVER CONSUL_DNS_PORT")
-		os.Exit(0)
 	}
 	q_c = Queue{queue}
 }

@@ -627,10 +627,10 @@ func getResult(r Result, key string) []string {
 	return arr
 }
 
-func dnsExchange(srvName, agentIp, agentPort string) (ip, port string) {
+func dnsExchange(srvName, agentIp, agentPort string) (string, string) {
 	Name := fmt.Sprintf("%s.service.consul", srvName)
 	agentAddr := fmt.Sprintf("%s:%s", agentIp, agentPort)
-
+	ip, port := "", ""
 	c := new(dns.Client)
 
 	m := new(dns.Msg)
@@ -640,12 +640,12 @@ func dnsExchange(srvName, agentIp, agentPort string) (ip, port string) {
 	r, _, err := c.Exchange(m, agentAddr)
 	if r == nil {
 		Log.Fatalf("1 dns query error: %s\n", err.Error())
-		return
+		return ip, port
 	}
 
 	if r.Rcode != dns.RcodeSuccess {
 		Log.Fatalf("2 dns query error: %v\n", r.Rcode)
-		return
+		return ip, port
 	}
 
 	if ex := r.Extra; len(ex) > 0 {
@@ -659,6 +659,6 @@ func dnsExchange(srvName, agentIp, agentPort string) (ip, port string) {
 			port = fmt.Sprintf("%d", tmp.Port)
 		}
 	}
-
-	return
+	fmt.Printf("dnsExchange get ip = %s , port = %s", ip, port)
+	return ip, port
 }
