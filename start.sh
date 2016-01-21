@@ -7,12 +7,9 @@ export API_PORT=8888
 
 export goservice_port=8088
 
-export MONGO_PORT_27017_TCP_ADDR=10.1.235.98
-export MONGO_PORT_27017_TCP_PORT=27017
-export MONGO_ENV_MYSQL_USER=
-export MONGO_ENV_MYSQL_PASSWORD=
-export MQ_KAFKA_ADDR=10.1.235.98
-export MQ_KAFKA_PORT=9092
+export CONSUL_SERVER=10.1.235.98
+export CONSUL_DNS_PORT=8600
+export Service_Name_Kafka=datahub_kafka
 
 if [ $1 -z ];then
     ./$app

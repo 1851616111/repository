@@ -5,7 +5,6 @@ import (
 	"github.com/asiainfoLDP/datahub_repository/log"
 	"github.com/asiainfoLDP/datahub_repository/mq"
 	"github.com/go-martini/martini"
-	"gopkg.in/mgo.v2"
 	"net/http"
 )
 
@@ -20,13 +19,7 @@ var (
 	DISCOVERY_CONSUL_SERVER_ADDR = Env("CONSUL_SERVER", false)
 	DISCOVERY_CONSUL_SERVER_PORT = Env("CONSUL_DNS_PORT", false)
 
-	//	MQ_KAFKA_ADDR = Env("MQ_KAFKA_ADDR", false)
-	//	MQ_KAFKA_PORT = Env("MQ_KAFKA_PORT", false)
-
-	MQ_KAFKA_ADDR = "10.1.235.98"
-	MQ_KAFKA_PORT = "9092"
-
-	db  DB = initDB()
+	db  DB = initDB(getMgoAddr)
 	q_c Queue
 	msg Msg
 	Log = log.NewLogger("http handler")
@@ -36,18 +29,25 @@ func init() {
 	if DISCOVERY_CONSUL_SERVER_ADDR == "" || DISCOVERY_CONSUL_SERVER_PORT == "" {
 		Log.Fatal("can not get env CONSUL_SERVER CONSUL_DNS_PORT")
 	}
+
+	if Service_Name_Kafka == "" {
+		Log.Fatal("can not get env datahub_repository_mongo")
+	}
 	q_c = Queue{queue}
+
 }
 
 func main() {
-	correctQuota(&db)
-	initMq()
 
-	//	go refreshDB(&db, func(db *DB) {
-	//		ip, port := dnsExchange(Service_Name_Mongo, DISCOVERY_CONSUL_SERVER_ADDR, DISCOVERY_CONSUL_SERVER_PORT)
-	//		db.Session = *getMgoSession(ip, port)
-	//		db.Refresh()
-	//	})
+	correctQuota(&db)
+	initMq(getKFKAddr)
+
+	go refreshDB(&db, func(db *DB) {
+		ip, port := getMgoAddr()
+		DB_URL := fmt.Sprintf(`%s:%s/datahub?maxPoolSize=500`, ip, port)
+		db.Session = *connect(DB_URL)
+		db.Refresh()
+	})
 
 	go q_c.serve(&db)
 	go staticLoop(&db)
@@ -130,29 +130,34 @@ func main() {
 
 }
 
-func initDB() DB {
-	fmt.Println("func initDB() ", Service_Name_Mongo, DISCOVERY_CONSUL_SERVER_ADDR, DISCOVERY_CONSUL_SERVER_PORT)
-	ip, port := dnsExchange(Service_Name_Mongo, DISCOVERY_CONSUL_SERVER_ADDR, DISCOVERY_CONSUL_SERVER_PORT)
+func initDB(f func() (string, string)) DB {
+	ip, port := f()
 	if ip == "" {
-		Log.Error("------> mongo ip", ip)
+		Log.Error("can not init mongo ip")
 	}
 
 	if port == "" {
-		Log.Error("------> mongo port", port)
+		Log.Error("can not init mongo port")
 	}
 
-	return DB{*getMgoSession(ip, port)}
+	DB_URL := fmt.Sprintf(`%s:%s/datahub?maxPoolSize=500`, ip, port)
+	Log.Infof("[Mongo Addr] %s", DB_URL)
+
+	return DB{*connect(DB_URL)}
 }
 
-func initMq() {
-
-	if MQ_KAFKA_ADDR == "" || MQ_KAFKA_PORT == "" {
-		MQ_KAFKA_ADDR = "10.1.235.98"
-		MQ_KAFKA_PORT = "9092"
+func initMq(f func() (string, string)) {
+	ip, port := f()
+	if ip == "" {
+		Log.Error("can not init kafka ip")
 	}
 
-	MQ := fmt.Sprintf("%s:%s", MQ_KAFKA_ADDR, MQ_KAFKA_PORT)
-	Log.Info(MQ)
+	if port == "" {
+		Log.Error("can not init kafka port")
+	}
+
+	MQ := fmt.Sprintf("%s:%s", ip, port)
+	Log.Infof("[Kafka Addr] %s", MQ)
 	m_q, err := mq.NewMQ([]string{MQ})
 	if err != nil {
 		Log.Errorf("initMQ error: %s", err.Error())
@@ -173,8 +178,22 @@ func initMq() {
 
 }
 
-func getMgoSession(mgoAddr, mgoPort string) *mgo.Session {
-	DB_URL := fmt.Sprintf(`%s:%s/datahub?maxPoolSize=500`, mgoAddr, mgoPort)
-	Log.Info(DB_URL)
-	return connect(DB_URL)
+func getMgoAddr() (string, string) {
+	entryList := dnsExchange(Service_Name_Mongo, DISCOVERY_CONSUL_SERVER_ADDR, DISCOVERY_CONSUL_SERVER_PORT)
+
+	if len(entryList) > 0 {
+		return entryList[0].ip, entryList[0].port
+	}
+	return "", ""
+}
+
+func getKFKAddr() (string, string) {
+	entryList := dnsExchange(Service_Name_Kafka, DISCOVERY_CONSUL_SERVER_ADDR, DISCOVERY_CONSUL_SERVER_PORT)
+
+	for _, v := range entryList {
+		if v.port != "2181" {
+			return v.ip, v.port
+		}
+	}
+	return "", ""
 }

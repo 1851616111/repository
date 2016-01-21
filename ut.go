@@ -627,38 +627,48 @@ func getResult(r Result, key string) []string {
 	return arr
 }
 
-func dnsExchange(srvName, agentIp, agentPort string) (string, string) {
+func dnsExchange(srvName, agentIp, agentPort string) []dnsEntry {
 	Name := fmt.Sprintf("%s.service.consul", srvName)
 	agentAddr := fmt.Sprintf("%s:%s", agentIp, agentPort)
-	ip, port := "", ""
+
+	fmt.Println(Name)
+	fmt.Println(agentAddr)
 	c := new(dns.Client)
+	c.Net = "tcp"
 
 	m := new(dns.Msg)
 	m.SetQuestion(dns.Fqdn(Name), dns.TypeSRV)
 	m.RecursionDesired = true
 
+	result := []dnsEntry{}
 	r, _, err := c.Exchange(m, agentAddr)
 	if r == nil {
-		Log.Fatalf("1 dns query error: %s\n", err.Error())
-		return ip, port
+		Log.Fatalf("dns query error: %s\n", err.Error())
+		return result
 	}
 
 	if r.Rcode != dns.RcodeSuccess {
-		Log.Fatalf("2 dns query error: %v\n", r.Rcode)
-		return ip, port
+		Log.Fatalf("dns query error: %v\n", r.Rcode)
+		return result
 	}
 
-	if ex := r.Extra; len(ex) > 0 {
-		if tmp, ok := ex[0].(*dns.A); ok {
-			ip = tmp.A.String()
+	for _, ex := range r.Extra {
+		if tmp, ok := ex.(*dns.A); ok {
+			result = append(result, dnsEntry{ip: tmp.A.String()})
 		}
 	}
 
-	if an := r.Answer; len(an) > 0 {
-		if tmp, ok := an[0].(*dns.SRV); ok {
-			port = fmt.Sprintf("%d", tmp.Port)
+	for i, an := range r.Answer {
+		if tmp, ok := an.(*dns.SRV); ok {
+			port := fmt.Sprintf("%d", tmp.Port)
+			result[i].port = port
 		}
 	}
-	fmt.Printf("dnsExchange get ip = %s , port = %s", ip, port)
-	return ip, port
+
+	return result
+}
+
+type dnsEntry struct {
+	ip   string
+	port string
 }
