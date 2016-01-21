@@ -11,18 +11,18 @@ import (
 )
 
 var (
-	DB_NAMESPACE_MONGO           = "datahub"
-	DB_NAME                      = "datahub"
-	SERVICE_PORT                 = Env("goservice_port", false)
+	DB_NAMESPACE_MONGO = "datahub"
+	DB_NAME            = "datahub"
+	SERVICE_PORT       = Env("goservice_port", false)
 
-	Service_Name_Kafka           = Env("kafka_service_name", false)
-	Service_Name_Mongo           = "datahub_repository_mongo"
+	Service_Name_Kafka = Env("kafka_service_name", false)
+	Service_Name_Mongo = "datahub_repository_mongo"
 
 	DISCOVERY_CONSUL_SERVER_ADDR = Env("CONSUL_SERVER", false)
 	DISCOVERY_CONSUL_SERVER_PORT = Env("CONSUL_DNS_PORT", false)
 
-	MQ_KAFKA_ADDR                  = Env("MQ_KAFKA_ADDR", false)
-	MQ_KAFKA_PORT                  = Env("MQ_KAFKA_PORT", false)
+	MQ_KAFKA_ADDR = Env("MQ_KAFKA_ADDR", false)
+	MQ_KAFKA_PORT = Env("MQ_KAFKA_PORT", false)
 
 	db  DB = initDB()
 	q_c Queue
@@ -42,11 +42,11 @@ func main() {
 	correctQuota(&db)
 	initMq()
 
-	go refreshDB(&db, func(db *DB) {
-		ip, port := dnsExchange(Service_Name_Mongo, DISCOVERY_CONSUL_SERVER_ADDR, DISCOVERY_CONSUL_SERVER_PORT)
-		db.Session = *getMgoSession(ip, port)
-		db.Refresh()
-	})
+	//	go refreshDB(&db, func(db *DB) {
+	//		ip, port := dnsExchange(Service_Name_Mongo, DISCOVERY_CONSUL_SERVER_ADDR, DISCOVERY_CONSUL_SERVER_PORT)
+	//		db.Session = *getMgoSession(ip, port)
+	//		db.Refresh()
+	//	})
 
 	go q_c.serve(&db)
 	go staticLoop(&db)
@@ -130,13 +130,24 @@ func main() {
 }
 
 func initDB() DB {
-	return DB{*getMgoSession(dnsExchange(Service_Name_Mongo, DISCOVERY_CONSUL_SERVER_ADDR, DISCOVERY_CONSUL_SERVER_PORT))}
+	fmt.Println("func initDB() ", Service_Name_Mongo, DISCOVERY_CONSUL_SERVER_ADDR, DISCOVERY_CONSUL_SERVER_PORT)
+	ip, port := dnsExchange(Service_Name_Mongo, DISCOVERY_CONSUL_SERVER_ADDR, DISCOVERY_CONSUL_SERVER_PORT)
+	if ip == "" {
+		Log.Error("------> mongo ip", ip)
+		os.Exit(0)
+	}
+
+	if port == "" {
+		Log.Error("------> mongo port", port)
+		os.Exit(0)
+	}
+	return DB{*getMgoSession(ip, port)}
 }
 
 func initMq() {
 
 	if MQ_KAFKA_ADDR == "" || MQ_KAFKA_PORT == "" {
-		MQ_KAFKA_ADDR = MQ_KAFKA_ADDR
+		MQ_KAFKA_ADDR = "10.1.235.98"
 		MQ_KAFKA_PORT = "9092"
 	}
 

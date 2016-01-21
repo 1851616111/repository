@@ -628,13 +628,13 @@ func getResult(r Result, key string) []string {
 }
 
 func dnsExchange(srvName, agentIp, agentPort string) (ip, port string) {
-	srvName = fmt.Sprintf("%s.service.consul", srvName)
+	Name := fmt.Sprintf("%s.service.consul", srvName)
 	agentAddr := fmt.Sprintf("%s:%s", agentIp, agentPort)
 
 	c := new(dns.Client)
 
 	m := new(dns.Msg)
-	m.SetQuestion(dns.Fqdn(srvName), dns.TypeSRV)
+	m.SetQuestion(dns.Fqdn(Name), dns.TypeSRV)
 	m.RecursionDesired = true
 
 	r, _, err := c.Exchange(m, agentAddr)
