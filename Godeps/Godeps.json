@@ -36,6 +36,10 @@
 			"Rev": "3e5c38b8b170916b332a5ccb25f921314b98ba01"
 		},
 		{
+			"ImportPath": "github.com/miekg/dns",
+			"Rev": "297a77c2fb5ebf0f261733e3c03f0c3bb9fdd917"
+		},
+		{
 			"ImportPath": "gopkg.in/mgo.v2",
 			"Comment": "r2015.10.05-1-g4d04138",
 			"Rev": "4d04138ffef2791c479c0c8bbffc30b34081b8d9"
