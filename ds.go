@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"
@@ -123,9 +124,33 @@ func refreshDB(db *DB, f func(db *DB)) {
 		}
 	}
 }
-func connect(db_connection string) *mgo.Session {
-	session, err := mgo.Dial(db_connection)
-	get(err)
+func connect() *mgo.Session {
+	ip, port := getMgoAddr()
+	if ip == "" {
+		Log.Error("can not init mongo ip")
+	}
+
+	if port == "" {
+		Log.Error("can not init mongo port")
+	}
+
+	url := fmt.Sprintf(`%s:%s/datahub?maxPoolSize=500`, ip, port)
+	Log.Infof("[Mongo Addr] %s", url)
+
+	var session *mgo.Session
+	var err error
+	try := 0
+	for {
+		session, err = mgo.Dial(url)
+		if err != nil {
+			try++
+			Log.Errorf("dial mgo(%s) err %s, already try %d times", url, err.Error(), try)
+			time.Sleep(time.Second * 10)
+		} else {
+			break
+		}
+	}
+
 	initDb(session)
 	return session
 }

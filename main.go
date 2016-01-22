@@ -19,7 +19,7 @@ var (
 	DISCOVERY_CONSUL_SERVER_ADDR = Env("CONSUL_SERVER", false)
 	DISCOVERY_CONSUL_SERVER_PORT = Env("CONSUL_DNS_PORT", false)
 
-	db  DB = initDB(getMgoAddr)
+	db  DB = DB{*connect()}
 	q_c Queue
 	msg Msg
 	Log = log.NewLogger("http handler")
@@ -43,9 +43,7 @@ func main() {
 	initMq(getKFKAddr)
 
 	go refreshDB(&db, func(db *DB) {
-		ip, port := getMgoAddr()
-		DB_URL := fmt.Sprintf(`%s:%s/datahub?maxPoolSize=500`, ip, port)
-		db.Session = *connect(DB_URL)
+		db.Session = *connect()
 		db.Refresh()
 	})
 
@@ -128,22 +126,6 @@ func main() {
 	Log.Infof("service listen on %s", SERVICE_PORT)
 	Log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", SERVICE_PORT), nil))
 
-}
-
-func initDB(f func() (string, string)) DB {
-	ip, port := f()
-	if ip == "" {
-		Log.Error("can not init mongo ip")
-	}
-
-	if port == "" {
-		Log.Error("can not init mongo port")
-	}
-
-	DB_URL := fmt.Sprintf(`%s:%s/datahub?maxPoolSize=500`, ip, port)
-	Log.Infof("[Mongo Addr] %s", DB_URL)
-
-	return DB{*connect(DB_URL)}
 }
 
 func initMq(f func() (string, string)) {
