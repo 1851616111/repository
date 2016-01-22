@@ -38,7 +38,6 @@ func correctQuota(db *DB) {
 					Log.Errorf("-----ERR %s", err.Error())
 				}
 				Log.Error("------------> res%#v", res)
-
 			}
 		}
 	}

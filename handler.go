@@ -24,6 +24,7 @@ const (
 	COL_ITEM_ACC              = "itemaccesstype"
 	COL_ITEM_TAGS             = "tags"
 	COL_COMMENT               = "comment"
+	COL_RANK                  = "rank"
 	COL_PRICE                 = "price"
 	COL_CREATE_USER           = "create_user"
 	COL_REP_COOPERATOR        = "cooperators"
@@ -468,11 +469,11 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 	rep := []repository{}
 
 	if page_size == -1 {
-		if err := db.DB(DB_NAME).C(C_REPOSITORY).Find(Q).Sort("-ct").Select(bson.M{COL_REPNAME: "1", COL_CREATE_USER: "1", COL_REP_COOPERATOR: "1"}).All(&rep); err != nil {
+		if err := db.DB(DB_NAME).C(C_REPOSITORY).Find(Q).Sort("-rank").Select(bson.M{COL_REPNAME: "1", COL_CREATE_USER: "1", COL_REP_COOPERATOR: "1"}).All(&rep); err != nil {
 			return rsp.Json(400, ErrDataBase(err))
 		}
 	} else {
-		err := db.DB(DB_NAME).C(C_REPOSITORY).Find(Q).Sort("-ct").Select(bson.M{COL_REPNAME: "1", COL_CREATE_USER: "1", COL_REP_COOPERATOR: "1"}).Skip((page_index - 1) * page_size).Limit(page_size).All(&rep)
+		err := db.DB(DB_NAME).C(C_REPOSITORY).Find(Q).Sort("-rank").Select(bson.M{COL_REPNAME: "1", COL_CREATE_USER: "1", COL_REP_COOPERATOR: "1"}).Skip((page_index - 1) * page_size).Limit(page_size).All(&rep)
 		if err != nil {
 			return rsp.Json(400, ErrDataBase(err))
 		}

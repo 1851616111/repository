@@ -6,13 +6,14 @@ import (
 )
 
 const (
-	MQ_TOPIC_TO_SUB        = "to_subscriptions.json"
-	MQ_TOPIC_TO_REP        = "to_repositories.json"
-	MQ_TOPIC_FROM_STATIS   = "from_statis.json"
-	MQ_KEY_ADD_PERMISSION  = "add_permission"
-	MQ_KEY_ADD_STATIS_RANK = "add_statis_rank"
-	MQ_HANDLER_PERMISSION  = "permission_handler"
-	MQ_KEY                 = "repositories"
+	MQ_TOPIC_TO_SUB             = "to_subscriptions.json"
+	MQ_TOPIC_TO_REP             = "to_repositories.json"
+	MQ_TOPIC_FROM_STATIS        = "from_statis.json"
+	MQ_KEY_ADD_PERMISSION       = "add_permission"
+	MQ_KEY_ADD_STATIS_RANK_REP  = "add_statis_rank_rep"
+	MQ_KEY_ADD_STATIS_RANK_ITEM = "add_statis_rank_item"
+	MQ_HANDLER_PERMISSION       = "permission_handler"
+	MQ_KEY                      = "repositories"
 )
 
 type Msg struct {
@@ -37,21 +38,44 @@ func (listener *MyMesssageListener) OnMessage(topic string, partition int32, off
 
 	switch string(key) {
 	case MQ_KEY_ADD_PERMISSION:
-		m := make(Ms)
+
+		m := make(map[string]interface{})
 		if err := json.Unmarshal(value, &m); err != nil {
 			Log.Errorf("%s received: (%d) message: %s", listener.name, offset, err.Error())
 		}
 		db.mqPermissionHandler(m)
-	case MQ_KEY_ADD_STATIS_RANK:
-		m := make(Ms)
-		if err := json.Unmarshal(value, &m); err != nil {
+	case MQ_KEY_ADD_STATIS_RANK_REP:
+
+		result := []statisRepRank{}
+		if err := json.Unmarshal(value, &result); err != nil {
 			Log.Errorf("%s received: (%d) message: %s", listener.name, offset, err.Error())
 		}
+		mqRankHandler(result)
+
+	case MQ_KEY_ADD_STATIS_RANK_ITEM:
+
+		result := []statisItemRank{}
+		if err := json.Unmarshal(value, &result); err != nil {
+			Log.Errorf("%s received: (%d) message: %s", listener.name, offset, err.Error())
+		}
+		mqRankHandler(result)
 	}
+
 	return true
 }
 
 func (listener *MyMesssageListener) OnError(err error) bool {
 	Log.Debugf("api response listener error: %s", err.Error())
 	return false
+}
+
+type statisRepRank struct {
+	Repository_name string
+	Rank            float32
+}
+
+type statisItemRank struct {
+	Repository_name string
+	Dataitem_name   string
+	Rank            float32
 }

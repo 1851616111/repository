@@ -58,9 +58,9 @@ func (db *DB) getDataitems(pageIndex, pageSize int, query bson.M) ([]dataItem, e
 	res := []dataItem{}
 	var err error
 	if pageSize == SELECT_ALL {
-		err = db.DB(DB_NAME).C(C_DATAITEM).Find(query).Sort("-ct").All(&res)
+		err = db.DB(DB_NAME).C(C_DATAITEM).Find(query).Sort("-rank").All(&res)
 	} else {
-		err = db.DB(DB_NAME).C(C_DATAITEM).Find(query).Sort("-ct").Skip((pageIndex - 1) * pageSize).Limit(pageSize).All(&res)
+		err = db.DB(DB_NAME).C(C_DATAITEM).Find(query).Sort("-rank").Skip((pageIndex - 1) * pageSize).Limit(pageSize).All(&res)
 	}
 	return res, err
 }

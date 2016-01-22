@@ -631,8 +631,6 @@ func dnsExchange(srvName, agentIp, agentPort string) []dnsEntry {
 	Name := fmt.Sprintf("%s.service.consul", srvName)
 	agentAddr := fmt.Sprintf("%s:%s", agentIp, agentPort)
 
-	fmt.Println(Name)
-	fmt.Println(agentAddr)
 	c := new(dns.Client)
 	c.Net = "tcp"
 

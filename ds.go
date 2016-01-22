@@ -2,6 +2,7 @@ package main
 
 import (
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 	"time"
 )
 
@@ -176,14 +177,44 @@ type m_rep struct {
 	Time            string      `json:"time"`
 }
 
-func (db *DB) mqPermissionHandler(m Ms) {
+func (db *DB) mqPermissionHandler(m map[string]interface{}) {
 
 	if m[COL_REPNAME] != nil && m[COL_ITEM_NAME] != nil && m[COL_PERMIT_USER] != nil {
 		copy := db.copy()
-		go func(db *DB, m *Ms) {
+		go func(db *DB, m *map[string]interface{}) {
 			defer db.Close()
 			db.DB(DB_NAME).C(C_DATAITEM_PERMISSION).Insert(m)
 		}(copy, &m)
 	}
 
+}
+
+func mqRankHandler(i interface{}) {
+	execs := []Execute{}
+
+	if list, ok := i.([]statisRepRank); ok {
+		for _, statis := range list {
+			exec := Execute{
+				Collection: C_REPOSITORY,
+				Selector:   bson.M{COL_REPNAME: statis.Repository_name},
+				Update:     bson.M{CMD_SET: bson.M{COL_RANK: statis.Rank}},
+				Type:       Exec_Type_Update,
+			}
+			execs = append(execs, exec)
+		}
+	}
+
+	if list, ok := i.([]statisItemRank); ok {
+		for _, statis := range list {
+			exec := Execute{
+				Collection: C_DATAITEM,
+				Selector:   bson.M{COL_REPNAME: statis.Repository_name, COL_ITEM_NAME: statis.Dataitem_name},
+				Update:     bson.M{CMD_SET: bson.M{COL_RANK: statis.Rank}},
+				Type:       Exec_Type_Update,
+			}
+			execs = append(execs, exec)
+		}
+	}
+
+	go asynExec(execs...)
 }

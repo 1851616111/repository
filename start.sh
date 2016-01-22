@@ -9,7 +9,7 @@ export goservice_port=8088
 
 export CONSUL_SERVER=10.1.235.98
 export CONSUL_DNS_PORT=8600
-export Service_Name_Kafka=datahub_kafka
+export kafka_service_name=datahub_kafka
 
 if [ $1 -z ];then
     ./$app
