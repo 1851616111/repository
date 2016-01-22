@@ -36,6 +36,7 @@ type repository struct {
 	Ct              time.Time   `json:"-"`
 	St              time.Time   `bson:"st,omitempty", json:"-"`
 	Cooperate       interface{} `bson:"cooperators", json:"-"`
+	Rank            float32     `json:"-"`
 }
 
 type Namelist []names
@@ -44,11 +45,13 @@ type names struct {
 	Cooperate_status string `json:"cooperatestate,omitempty"`
 	Dataitem_name    string `json:"itemname,omitempty"`
 }
+
 type search struct {
 	Repository_name string
 	Dataitem_name   string
 	Optime          string
 }
+
 type dataItem struct {
 	Repository_name string      `json:"-"`
 	Dataitem_name   string      `json:"-"`
@@ -63,7 +66,8 @@ type dataItem struct {
 	Label           interface{} `json:"label"`
 	Ct              time.Time   `json:"-"`
 	st              time.Time
-	Cooperate       bool `json:"-"`
+	Cooperate       bool    `json:"-"`
+	Rank            float32 `json:"-"`
 }
 
 type tag struct {

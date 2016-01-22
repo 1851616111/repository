@@ -6,6 +6,7 @@ import (
 	"github.com/asiainfoLDP/datahub_repository/mq"
 	"github.com/go-martini/martini"
 	"net/http"
+	"encoding/json"
 )
 
 var (
@@ -168,7 +169,11 @@ func initMq(f func() (string, string)) {
 
 	myListener := newMyMesssageListener(MQ_HANDLER_PERMISSION)
 
-	_, _, err = msg.SendSyncMessage(MQ_TOPIC_TO_REP, []byte(MQ_KEY_ADD_PERMISSION), []byte("")) // force create the topic
+	r := new(repository)
+	r.Create_user = "panxy3@asiainfo.com"
+	r.Repository_name = "test_rank"
+	b, _ := json.Marshal(r)
+	_, _, err = msg.SendSyncMessage(MQ_TOPIC_TO_REP, []byte(MQ_KEY_ADD_STATIS_RANK), b) // force create the topic
 	get(err)
 
 	err = msg.SetMessageListener(MQ_TOPIC_TO_REP, 0, mq.Offset_Marked, myListener)

@@ -6,11 +6,13 @@ import (
 )
 
 const (
-	MQ_TOPIC_TO_SUB       = "to_subscriptions.json"
-	MQ_TOPIC_TO_REP       = "to_repositories.json"
-	MQ_KEY_ADD_PERMISSION = "add_permission"
-	MQ_HANDLER_PERMISSION = "permission_handler"
-	MQ_KEY                = "repositories"
+	MQ_TOPIC_TO_SUB        = "to_subscriptions.json"
+	MQ_TOPIC_TO_REP        = "to_repositories.json"
+	MQ_TOPIC_FROM_STATIS   = "from_statis.json"
+	MQ_KEY_ADD_PERMISSION  = "add_permission"
+	MQ_KEY_ADD_STATIS_RANK = "add_statis_rank"
+	MQ_HANDLER_PERMISSION  = "permission_handler"
+	MQ_KEY                 = "repositories"
 )
 
 type Msg struct {
@@ -40,6 +42,11 @@ func (listener *MyMesssageListener) OnMessage(topic string, partition int32, off
 			Log.Errorf("%s received: (%d) message: %s", listener.name, offset, err.Error())
 		}
 		db.mqPermissionHandler(m)
+	case MQ_KEY_ADD_STATIS_RANK:
+		m := make(Ms)
+		if err := json.Unmarshal(value, &m); err != nil {
+			Log.Errorf("%s received: (%d) message: %s", listener.name, offset, err.Error())
+		}
 	}
 	return true
 }
