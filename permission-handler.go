@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const (
@@ -41,6 +42,9 @@ func setRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 	}
 
 	putRepositoryPermission(p.Repository_name, result.User_name, result.Opt_permission)
+
+	//todo set to direct insert
+	time.Sleep(time.Millisecond*100)
 
 	return rsp.Json(200, E(OK))
 }
@@ -191,6 +195,9 @@ func setItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, p Item_P
 		return rsp.Json(400, ErrNoParameter("User_name"))
 	}
 	putDataitemPermission(p.Repository_name, p.Dataitem_name, result.User_name)
+
+	//todo set to direct insert
+	time.Sleep(time.Millisecond*100)
 
 	return rsp.Json(200, E(OK))
 }
