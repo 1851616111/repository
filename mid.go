@@ -138,7 +138,7 @@ func (db *DB) getPermits(collection string, query bson.M, page ...[]int) (interf
 	var err error
 	var list interface{}
 
-	if len(page) > 0 && len(page[0]) == 2 {
+	if len(page) > 0 && len(page[0]) == 2 && page[0][1] != -1{
 		pageIndex := page[0][0]
 		pageSize := page[0][1]
 		switch collection {
