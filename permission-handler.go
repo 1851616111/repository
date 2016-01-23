@@ -70,7 +70,7 @@ func getRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 		Q[COL_PERMIT_USER] = user
 	}
 	if cooperator := strings.TrimSpace(r.FormValue("cooperator")); cooperator != "" {
-		Q[COL_PERMIT_WRITE] = PERMISSION_WRITE
+		Q["opt_permission"] = PERMISSION_WRITE
 	}
 
 	l, err := db.getPermits(C_REPOSITORY_PERMISSION, Q, []int{page_index, page_size})
