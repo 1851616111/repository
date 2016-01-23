@@ -26,13 +26,13 @@ var (
 )
 
 func init() {
-	if DISCOVERY_CONSUL_SERVER_ADDR == "" || DISCOVERY_CONSUL_SERVER_PORT == "" {
-		Log.Fatal("can not get env CONSUL_SERVER CONSUL_DNS_PORT")
-	}
+	//	if DISCOVERY_CONSUL_SERVER_ADDR == "" || DISCOVERY_CONSUL_SERVER_PORT == "" {
+	//		Log.Fatal("can not get env CONSUL_SERVER CONSUL_DNS_PORT")
+	//	}
 
-	if Service_Name_Kafka == "" {
-		Log.Fatal("can not get env datahub_repository_mongo")
-	}
+	//	if Service_Name_Kafka == "" {
+	//		Log.Fatal("can not get env datahub_repository_mongo")
+	//	}
 	q_c = Queue{queue}
 
 }

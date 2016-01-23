@@ -385,7 +385,6 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 				return rsp.Json(400, ErrDataBase(err))
 			}
 		}
-
 	}
 
 	if len(u) > 0 {

@@ -141,6 +141,8 @@ func connect() *mgo.Session {
 	var err error
 	try := 0
 	for {
+		ip, port = getMgoAddr()
+		url = fmt.Sprintf(`%s:%s/datahub?maxPoolSize=500`, ip, port)
 		session, err = mgo.Dial(url)
 		if err != nil {
 			try++

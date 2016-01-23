@@ -112,6 +112,7 @@ func getSubscribers(Type, repname, itemname, token string) []string {
 	b, err := httpGet(url, AUTHORIZATION, token)
 	if err != nil {
 		Log.Errorf("get subscribers err :%s\n", err)
+		return []string{}
 	}
 
 	result := new(Result)
