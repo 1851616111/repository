@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"fmt"
 )
 
 const (
@@ -73,6 +74,7 @@ func getRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 		Q["opt_permission"] = PERMISSION_WRITE
 	}
 
+	fmt.Printf("1---------> query %#v", Q)
 	l, err := db.getPermits(C_REPOSITORY_PERMISSION, Q, []int{page_index, page_size})
 	if err != nil {
 		return rsp.Json(400, ErrDataBase(err))
@@ -84,6 +86,7 @@ func getRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 		}
 	}
 
+	fmt.Printf("2---------> query %#v", Q)
 	n, _ := db.countPermits(C_REPOSITORY_PERMISSION, Q)
 	res := struct {
 		L     interface{} `json:"permissions"`

@@ -116,7 +116,7 @@ func (db *DB) copy() *DB {
 func refreshDB(db *DB, f func(db *DB)) {
 	for {
 		select {
-		case <-time.After(time.Minute):
+		case <-time.After(time.Second * 5):
 			if err := db.Ping(); err != nil {
 				Log.Infof("%s db connect err %s", time.Now().Format("2006-01-02 15:04:05"), err)
 				f(db)

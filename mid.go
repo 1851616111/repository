@@ -134,6 +134,7 @@ func (db *DB) getSelect(query bson.M) (Select, error) {
 }
 
 func (db *DB) getPermits(collection string, query bson.M, page ...[]int) (interface{}, error) {
+	fmt.Printf("Debug getPermits collection=%#v, query=%#v, page=%#v", page )
 	var err error
 	var list interface{}
 
@@ -167,6 +168,8 @@ func (db *DB) getPermits(collection string, query bson.M, page ...[]int) (interf
 	if err != nil {
 		return list, err
 	}
+
+	fmt.Printf("Debug getPermits get result %#v", list)
 	return list, nil
 }
 
