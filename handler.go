@@ -379,7 +379,7 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 			}
 			exec := bson.M{
 				COL_REPNAME:      repname,
-				"opt_permission": bson.M{CMD_NOTEQUAL: COL_PERMIT_WRITE},
+				"opt_permission": bson.M{CMD_NOTEQUAL: PERMISSION_WRITE},
 			}
 			if err := db.delPermit(C_REPOSITORY_PERMISSION, exec); err != nil {
 				return rsp.Json(400, ErrDataBase(err))
