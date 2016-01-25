@@ -134,11 +134,11 @@ func (db *DB) getSelect(query bson.M) (Select, error) {
 }
 
 func (db *DB) getPermits(collection string, query bson.M, page ...[]int) (interface{}, error) {
-	fmt.Printf("Debug getPermits collection=%#v, query=%#v, page=%#v", page )
+	fmt.Printf("Debug getPermits collection=%#v, query=%#v, page=%#v", page)
 	var err error
 	var list interface{}
 
-	if len(page) > 0 && len(page[0]) == 2 && page[0][1] != -1{
+	if len(page) > 0 && len(page[0]) == 2 && page[0][1] != -1 {
 		pageIndex := page[0][0]
 		pageSize := page[0][1]
 		switch collection {

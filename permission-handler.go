@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"fmt"
 )
 
 const (
@@ -74,7 +73,6 @@ func getRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 		Q["opt_permission"] = PERMISSION_WRITE
 	}
 
-	fmt.Printf("1---------> query %#v", Q)
 	l, err := db.getPermits(C_REPOSITORY_PERMISSION, Q, []int{page_index, page_size})
 	if err != nil {
 		return rsp.Json(400, ErrDataBase(err))
@@ -86,7 +84,6 @@ func getRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 		}
 	}
 
-	fmt.Printf("2---------> query %#v", Q)
 	n, _ := db.countPermits(C_REPOSITORY_PERMISSION, Q)
 	res := struct {
 		L     interface{} `json:"permissions"`
@@ -151,16 +148,24 @@ func delRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 
 	cmdCondiction := bson.M{CMD_IN: users}
 
-	exec := bson.M{COL_REPNAME: p.Repository_name}
+	selector := bson.M{COL_REPNAME: p.Repository_name}
 	if deleteAll != DELETE_PERMISSION_USR_ALL {
-		exec[COL_PERMIT_USER] = cmdCondiction
+		selector[COL_PERMIT_USER] = cmdCondiction
 	}
 
 	result := Rep_Permission{}
 	execs := []Execute{}
-	iter := db.DB(DB_NAME).C(C_REPOSITORY_PERMISSION).Find(exec).Iter()
+	iter := db.DB(DB_NAME).C(C_REPOSITORY_PERMISSION).Find(selector).Iter()
 	for iter.Next(&result) {
 		exec := Execute{
+			Collection: C_REPOSITORY_PERMISSION,
+			Selector:   selector,
+			Update:     bson.M{CMD_SET: bson.M{"opt_permission": 0}},
+			Type:       Exec_Type_Update,
+		}
+		execs = append(execs, exec)
+
+		exec = Execute{
 			Collection: C_REPOSITORY,
 			Selector:   bson.M{COL_REPNAME: result.Repository_name},
 			Update:     bson.M{CMD_PULL: bson.M{COL_REP_COOPERATOR: result.User_name}},
@@ -170,11 +175,6 @@ func delRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 	}
 
 	go asynExec(execs...)
-
-	go func(db *DB, e bson.M) {
-		defer db.Close()
-		db.delPermit(C_REPOSITORY_PERMISSION, exec)
-	}(db.copy(), exec)
 
 	return rsp.Json(200, E(OK))
 }
