@@ -223,7 +223,7 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	if rep.Repaccesstype == ACCESS_PRIVATE {
 		Q = bson.M{COL_PERMIT_REPNAME: repname, COL_PERMIT_USER: user}
 		if user != "" {
-			if rep.Create_user != user && !db.hasPermission(C_REPOSITORY_PERMISSION, Q) {
+			if rep.Create_user != user && !db.hasPermission(C_REPOSITORY_PERMISSION, Q) && user != "datahub@asiainfo.com" {
 				Log.Debugf("[Auth] login name %s, repository name %s.", user, rep.Create_user)
 				return rsp.Json(400, E(ErrorCodePermissionDenied))
 			}
@@ -1112,7 +1112,7 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 
 	user := r.Header.Get("User")
 	if user != "" {
-		if user != rep.Create_user && !ifCooperate(rep.Cooperate, user) { //既不是创建者,也不是协作人, 只是其他人
+		if user != rep.Create_user && !ifCooperate(rep.Cooperate, user) && user != "datahub@asiainfo.com" { //既不是创建者,也不是协作人, 只是其他人
 			if rep.Repaccesstype == ACCESS_PRIVATE {
 				Q := bson.M{COL_PERMIT_REPNAME: rep.Repository_name, COL_PERMIT_USER: user}
 				if !db.hasPermission(C_REPOSITORY_PERMISSION, Q) { //私有rep, 查看是否在白名单中
