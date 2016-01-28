@@ -54,7 +54,7 @@ func (db *DB) getRStatis() {
 	}
 
 	go asynExec(execs...)
-	Log.Error("statis repository over")
+	Log.Info("statis repository over")
 }
 
 func staticLoop(db *DB) {

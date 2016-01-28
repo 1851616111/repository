@@ -113,17 +113,20 @@ func (db *DB) copy() *DB {
 	return &DB{*db.Copy()}
 }
 
-func refreshDB(db *DB, f func(db *DB)) {
+func refreshDB() {
+
 	for {
 		select {
 		case <-time.After(time.Second * 5):
 			if err := db.Ping(); err != nil {
 				Log.Infof("%s db connect err %s", time.Now().Format("2006-01-02 15:04:05"), err)
-				f(db)
+				db = DB{*connect()}
+				db.Refresh()
 			}
 		}
 	}
 }
+
 func connect() *mgo.Session {
 	ip, port := getMgoAddr()
 	if ip == "" {
@@ -204,14 +207,16 @@ type m_rep struct {
 	Time            string      `json:"time"`
 }
 
-func (db *DB) mqPermissionHandler(m map[string]interface{}) {
+func mqPermissionHandler(m map[string]interface{}) {
 
 	if m[COL_REPNAME] != nil && m[COL_ITEM_NAME] != nil && m[COL_PERMIT_USER] != nil {
-		copy := db.copy()
-		go func(db *DB, m *map[string]interface{}) {
-			defer db.Close()
-			db.DB(DB_NAME).C(C_DATAITEM_PERMISSION).Insert(m)
-		}(copy, &m)
+		exec := Execute{
+			Collection: C_DATAITEM_PERMISSION,
+			Update:     m,
+			Type:       Exec_Type_Insert,
+		}
+
+		go asynExec(exec)
 	}
 
 }

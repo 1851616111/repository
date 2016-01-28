@@ -43,7 +43,10 @@ func (listener *MyMesssageListener) OnMessage(topic string, partition int32, off
 		if err := json.Unmarshal(value, &m); err != nil {
 			Log.Errorf("%s received: (%d) message: %s", listener.name, offset, err.Error())
 		}
-		db.mqPermissionHandler(m)
+		Log.Info("-------------------------------\n")
+		Log.Info("[Debug get permission msg %#v\n]", m)
+		Log.Info("-------------------------------\n")
+		mqPermissionHandler(m)
 	case MQ_KEY_ADD_STATIS_RANK_REP:
 
 		result := []statisRepRank{}

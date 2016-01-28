@@ -42,10 +42,7 @@ func main() {
 	correctQuota(&db)
 	initMq(getKFKAddr)
 
-	go refreshDB(&db, func(db *DB) {
-		db.Session = *connect()
-		db.Refresh()
-	})
+	go refreshDB()
 
 	go q_c.serve(&db)
 	go staticLoop(&db)
