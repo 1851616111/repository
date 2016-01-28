@@ -640,13 +640,14 @@ func dnsExchange(srvName, agentIp, agentPort string) []dnsEntry {
 
 	result := []dnsEntry{}
 	r, _, err := c.Exchange(m, agentAddr)
+
 	if r == nil {
-		Log.Fatalf("dns query error: %s\n", err.Error())
+		Log.Fatalf("dns query %s error: %s\n", srvName, err.Error())
 		return result
 	}
 
 	if r.Rcode != dns.RcodeSuccess {
-		Log.Fatalf("dns query error: %v\n", r.Rcode)
+		Log.Fatalf("dns query %s error: %v\n", srvName, r.Rcode)
 		return result
 	}
 
