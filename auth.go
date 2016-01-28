@@ -110,11 +110,13 @@ func chkRepPermission(w http.ResponseWriter, r *http.Request, param martini.Para
 		return
 	}
 
-	if rep, _ := db.getRepository(bson.M{COL_REPNAME: repName}); rep.Create_user != user {
+	rep, _ := db.getRepository(bson.M{COL_REPNAME: repName})
+	if rep.Create_user != user {
 		http.Error(w, E(ErrorCodePermissionDenied).ErrToString(), 401)
 		return
 	}
 	c.Map(Rep_Permission{Repository_name: repName})
+	c.Map(rep.Repaccesstype)
 }
 
 func chkItemPermission(w http.ResponseWriter, r *http.Request, param martini.Params, c martini.Context, db *DB) {

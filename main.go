@@ -152,6 +152,7 @@ func getMgoAddr() (string, string) {
 		return entryList[0].ip, entryList[0].port
 	}
 	return "", ""
+	//return "10.1.235.98", "27017"
 }
 
 func getKFKAddr() (string, string) {
@@ -163,4 +164,5 @@ func getKFKAddr() (string, string) {
 		}
 	}
 	return "", ""
+	//return "10.1.235.98", "9092"
 }
