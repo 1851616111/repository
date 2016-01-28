@@ -87,7 +87,7 @@ func getUserQuota(token, loginName string) Quota {
 		if pri, exist := u[Quota_Rep_Pri]; exist {
 			q.Rep_Private, _ = strconv.Atoi(pri.(string))
 		}
-		Log.Infof("user quota %#v\n", q)
+		Log.Infof("user %s quota %#v\n", loginName, q)
 
 		if q.Rep_Public == VIP_SERVICE_ADMIN_PUB {
 			q.Rep_Public = 100000
@@ -96,7 +96,7 @@ func getUserQuota(token, loginName string) Quota {
 			q.Rep_Private = 100000
 		}
 	}
-	Log.Infof("[DEBUG] get user quota %#v\n", q)
+	Log.Infof("[DEBUG] get user %s quota %#v\n", loginName, q)
 	return q
 }
 
