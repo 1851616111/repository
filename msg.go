@@ -36,40 +36,34 @@ func newMyMesssageListener(name string) *MyMesssageListener {
 
 func (listener *MyMesssageListener) OnMessage(topic string, partition int32, offset int64, key, value []byte) bool {
 
-	switch string(key) {
-	case MQ_KEY_ADD_PERMISSION:
+	if len(value) > 0 {
+		Log.Infof("[DEBUG]------------- get msg %s ------------------>\n", string(value))
 
-		m := make(map[string]interface{})
-		if err := json.Unmarshal(value, &m); err != nil {
-			Log.Errorf("%s received: (%d) message: %s", listener.name, offset, err.Error())
+		switch string(key) {
+		case MQ_KEY_ADD_PERMISSION:
+			m := make(map[string]interface{})
+			if err := json.Unmarshal(value, &m); err != nil {
+				Log.Errorf("%s received: (%d) message: %s", listener.name, offset, err.Error())
+			}
+			mqPermissionHandler(m)
+
+		case MQ_KEY_ADD_STATIS_RANK_REP:
+
+			result := []statisRepRank{}
+			if err := json.Unmarshal(value, &result); err != nil {
+				Log.Errorf("%s received: (%d) message: %s", listener.name, offset, err.Error())
+			}
+			mqRankHandler(result)
+
+		case MQ_KEY_ADD_STATIS_RANK_ITEM:
+
+			result := []statisItemRank{}
+			if err := json.Unmarshal(value, &result); err != nil {
+				Log.Errorf("%s received: (%d) message: %s", listener.name, offset, err.Error())
+			}
+			mqRankHandler(result)
 		}
-		Log.Info("-------------------------------\n")
-		Log.Infof("[Debug] get permission msg %#v\n", m)
-		Log.Info("-------------------------------\n")
-		mqPermissionHandler(m)
-	case MQ_KEY_ADD_STATIS_RANK_REP:
-
-		result := []statisRepRank{}
-		if err := json.Unmarshal(value, &result); err != nil {
-			Log.Errorf("%s received: (%d) message: %s", listener.name, offset, err.Error())
-		}
-		Log.Info("-------------------------------\n")
-		Log.Infof("[Debug] get statis rep %#v\n", result)
-		Log.Info("-------------------------------\n")
-		mqRankHandler(result)
-
-	case MQ_KEY_ADD_STATIS_RANK_ITEM:
-
-		result := []statisItemRank{}
-		if err := json.Unmarshal(value, &result); err != nil {
-			Log.Errorf("%s received: (%d) message: %s", listener.name, offset, err.Error())
-		}
-		Log.Info("-------------------------------\n")
-		Log.Infof("[Debug] get statis item %#v\n", result)
-		Log.Info("-------------------------------\n")
-		mqRankHandler(result)
 	}
-
 	return true
 }
 
