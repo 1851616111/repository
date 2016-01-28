@@ -1120,7 +1120,7 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	if user != "" {
 		if rep.Repaccesstype == ACCESS_PRIVATE {
 			if user != rep.Create_user && user != item.Create_user && user != "datahub@asiainfo.com" { //如果是rep的创建者或者是item的创建者,或者是管理员"datahub@asiainfo.com",可以查看私有
-				Q := bson.M{COL_PERMIT_REPNAME: rep.Repository_name, COL_PERMIT_USER: user}	   //如果不是,这需要查看是否在白名单中
+				Q := bson.M{COL_PERMIT_REPNAME: rep.Repository_name, COL_PERMIT_USER: user} //如果不是,这需要查看是否在白名单中
 				if !db.hasPermission(C_REPOSITORY_PERMISSION, Q) {
 					return rsp.Json(400, E(ErrorCodePermissionDenied))
 				}

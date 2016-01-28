@@ -44,7 +44,7 @@ func (listener *MyMesssageListener) OnMessage(topic string, partition int32, off
 			Log.Errorf("%s received: (%d) message: %s", listener.name, offset, err.Error())
 		}
 		Log.Info("-------------------------------\n")
-		Log.Info("[Debug get permission msg %#v\n]", m)
+		Log.Info("[Debug] get permission msg %#v\n", m)
 		Log.Info("-------------------------------\n")
 		mqPermissionHandler(m)
 	case MQ_KEY_ADD_STATIS_RANK_REP:
@@ -53,6 +53,9 @@ func (listener *MyMesssageListener) OnMessage(topic string, partition int32, off
 		if err := json.Unmarshal(value, &result); err != nil {
 			Log.Errorf("%s received: (%d) message: %s", listener.name, offset, err.Error())
 		}
+		Log.Info("-------------------------------\n")
+		Log.Info("[Debug] get statis rep %#v\n", result)
+		Log.Info("-------------------------------\n")
 		mqRankHandler(result)
 
 	case MQ_KEY_ADD_STATIS_RANK_ITEM:
@@ -61,6 +64,9 @@ func (listener *MyMesssageListener) OnMessage(topic string, partition int32, off
 		if err := json.Unmarshal(value, &result); err != nil {
 			Log.Errorf("%s received: (%d) message: %s", listener.name, offset, err.Error())
 		}
+		Log.Info("-------------------------------\n")
+		Log.Info("[Debug] get statis item %#v\n", result)
+		Log.Info("-------------------------------\n")
 		mqRankHandler(result)
 	}
 

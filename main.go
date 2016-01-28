@@ -13,29 +13,17 @@ var (
 	DB_NAME            = "datahub"
 	SERVICE_PORT       = Env("goservice_port", false)
 
-	Service_Name_Kafka = Env("kafka_service_name", false)
-	Service_Name_Mongo = "datahub_repository_mongo"
+	Service_Name_Kafka = Env("kafka_service_name", true)
+	Service_Name_Mongo = Env("mongo_service_name", true)
 
-	DISCOVERY_CONSUL_SERVER_ADDR = Env("CONSUL_SERVER", false)
-	DISCOVERY_CONSUL_SERVER_PORT = Env("CONSUL_DNS_PORT", false)
+	DISCOVERY_CONSUL_SERVER_ADDR = Env("CONSUL_SERVER", true)
+	DISCOVERY_CONSUL_SERVER_PORT = Env("CONSUL_DNS_PORT", true)
 
-	db  DB = DB{*connect()}
-	q_c Queue
+	db  DB    = DB{*connect()}
+	q_c Queue = Queue{queue}
 	msg Msg
 	Log = log.NewLogger("http handler")
 )
-
-func init() {
-	//	if DISCOVERY_CONSUL_SERVER_ADDR == "" || DISCOVERY_CONSUL_SERVER_PORT == "" {
-	//		Log.Fatal("can not get env CONSUL_SERVER CONSUL_DNS_PORT")
-	//	}
-
-	//	if Service_Name_Kafka == "" {
-	//		Log.Fatal("can not get env datahub_repository_mongo")
-	//	}
-	q_c = Queue{queue}
-
-}
 
 func main() {
 
@@ -158,21 +146,21 @@ func initMq(f func() (string, string)) {
 }
 
 func getMgoAddr() (string, string) {
-	//entryList := dnsExchange(Service_Name_Mongo, DISCOVERY_CONSUL_SERVER_ADDR, DISCOVERY_CONSUL_SERVER_PORT)
+	entryList := dnsExchange(Service_Name_Mongo, DISCOVERY_CONSUL_SERVER_ADDR, DISCOVERY_CONSUL_SERVER_PORT)
 
-	//if len(entryList) > 0 {
-	//	return entryList[0].ip, entryList[0].port
-	//}
-	return "10.1.235.98", "27017"
+	if len(entryList) > 0 {
+		return entryList[0].ip, entryList[0].port
+	}
+	return "", ""
 }
 
 func getKFKAddr() (string, string) {
-	//entryList := dnsExchange(Service_Name_Kafka, DISCOVERY_CONSUL_SERVER_ADDR, DISCOVERY_CONSUL_SERVER_PORT)
-	//
-	//for _, v := range entryList {
-	//	if v.port != "2181" {
-	//		return v.ip, v.port
-	//	}
-	//}
-	return "10.1.235.98", "9092"
+	entryList := dnsExchange(Service_Name_Kafka, DISCOVERY_CONSUL_SERVER_ADDR, DISCOVERY_CONSUL_SERVER_PORT)
+
+	for _, v := range entryList {
+		if v.port != "2181" {
+			return v.ip, v.port
+		}
+	}
+	return "", ""
 }
