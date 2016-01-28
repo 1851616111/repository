@@ -96,7 +96,7 @@ func getUserQuota(token, loginName string) Quota {
 			q.Rep_Private = 100000
 		}
 	}
-
+	Log.Infof("[DEBUG] get user quota %#v\n", q)
 	return q
 }
 

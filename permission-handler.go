@@ -174,6 +174,7 @@ func delRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 		execs = append(execs, exec)
 	}
 
+	Log.Infof("%#v\n", execs)
 	go asynExec(execs...)
 
 	return rsp.Json(200, E(OK))
