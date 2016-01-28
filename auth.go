@@ -109,13 +109,14 @@ func chkRepPermission(w http.ResponseWriter, r *http.Request, param martini.Para
 		http.Error(w, ErrNoParameter("repname").ErrToString(), 401)
 		return
 	}
+	delUser := strings.TrimSpace(param["username"])
 
 	rep, _ := db.getRepository(bson.M{COL_REPNAME: repName})
 	if rep.Create_user != user {
 		http.Error(w, E(ErrorCodePermissionDenied).ErrToString(), 401)
 		return
 	}
-	c.Map(Rep_Permission{Repository_name: repName})
+	c.Map(Rep_Permission{Repository_name: repName, User_name: delUser})
 	c.Map(rep.Repaccesstype)
 }
 

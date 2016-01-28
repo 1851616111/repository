@@ -137,55 +137,65 @@ func getItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, 
 	return rsp.Json(200, E(OK), res)
 }
 
-func delRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p Rep_Permission, RepAccessType string) (int, string) {
+func delRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p Rep_Permission) (int, string) {
 	defer db.Close()
 	r.ParseForm()
-	users := r.Form["username"]
 	deleteAll := strings.TrimSpace(r.FormValue("delall"))
-	deleteCooperate := strings.TrimSpace(r.FormValue("cooperate"))
-	if len(users) == 0 && deleteAll == "" {
-		return rsp.Json(400, E(ErrorCodeNoParameter))
-	}
-
-	cmdCondiction := bson.M{CMD_IN: users}
 
 	selector := bson.M{COL_REPNAME: p.Repository_name}
 	if deleteAll != DELETE_PERMISSION_USR_ALL {
-		selector[COL_PERMIT_USER] = cmdCondiction
+		selector[COL_PERMIT_USER] = p.User_name
+	}
+
+	db.DB(DB_NAME).C(COL_PERMIT_REPNAME).RemoveAll(selector)
+
+	return rsp.Json(200, E(OK))
+}
+
+func delRepCoptPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p Rep_Permission, RepAccessType string) (int, string) {
+	defer db.Close()
+	r.ParseForm()
+	deleteAll := strings.TrimSpace(r.FormValue("delall"))
+	repName := p.Repository_name
+
+	selector := bson.M{COL_REPNAME: repName}
+	if deleteAll != DELETE_PERMISSION_USR_ALL {
+		selector[COL_PERMIT_USER] = p.User_name
 	}
 
 	result := Rep_Permission{}
 	execs := []Execute{}
-	iter := db.DB(DB_NAME).C(C_REPOSITORY_PERMISSION).Find(selector).Iter()
 	toDelUsers := []string{}
+
+	iter := db.DB(DB_NAME).C(C_REPOSITORY_PERMISSION).Find(selector).Iter()
 	for iter.Next(&result) {
-		if deleteCooperate != "" {
-			switch RepAccessType {
-			case ACCESS_PRIVATE:
-				exec := Execute{
+
+		switch RepAccessType {
+		case ACCESS_PRIVATE:
+
+			execs = []Execute{
+				Execute{
 					Collection: C_REPOSITORY_PERMISSION,
-					Selector:   selector,
+					Selector:   bson.M{COL_REPNAME: repName, COL_PERMIT_USER: result.User_name},
 					Update:     bson.M{CMD_SET: bson.M{"opt_permission": 0}},
 					Type:       Exec_Type_Update,
-				}
-				execs = append(execs, exec)
-			case ACCESS_PUBLIC:
-				toDelUsers = append(toDelUsers, result.User_name)
+				},
+				Execute{
+					Collection: C_REPOSITORY,
+					Selector:   bson.M{COL_REPNAME: repName},
+					Update:     bson.M{CMD_PULL: bson.M{COL_REP_COOPERATOR: result.User_name}},
+					Type:       Exec_Type_Update,
+				},
 			}
-		}
 
-		exec := Execute{
-			Collection: C_REPOSITORY,
-			Selector:   bson.M{COL_REPNAME: result.Repository_name},
-			Update:     bson.M{CMD_PULL: bson.M{COL_REP_COOPERATOR: result.User_name}},
-			Type:       Exec_Type_Update,
+		case ACCESS_PUBLIC:
+			toDelUsers = append(toDelUsers, result.User_name)
 		}
-		execs = append(execs, exec)
 	}
 
 	if RepAccessType == ACCESS_PUBLIC && len(toDelUsers) > 0 {
 		delete := bson.M{
-			COL_REPNAME:     p.Repository_name,
+			COL_REPNAME:     repName,
 			COL_PERMIT_USER: bson.M{CMD_IN: toDelUsers},
 		}
 		db.DB(DB_NAME).C(C_REPOSITORY_PERMISSION).Remove(delete)

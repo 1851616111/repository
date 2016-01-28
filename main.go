@@ -102,8 +102,9 @@ func main() {
 		r.Put("/:repname", chkRepPermission, setRepPmsHandler)
 		r.Put("/:repname/:itemname", chkItemPermission, setItemPmsHandler)
 
-		r.Delete("/:repname", chkRepPermission, delRepPmsHandler)
-		r.Delete("/:repname/:itemname", chkItemPermission, delItemPmsHandler)
+		r.Delete("/repository/:repname/whitelist/:username", chkRepPermission, delRepPmsHandler)
+		r.Delete("/repository/:repname/cooperator/:username", chkRepPermission, delRepCoptPmsHandler)
+		r.Delete("/repository/:repname/dataitem/:itemname", chkItemPermission, delItemPmsHandler)
 	})
 
 	http.Handle("/", m)
@@ -146,23 +147,23 @@ func initMq(f func() (string, string)) {
 }
 
 func getMgoAddr() (string, string) {
-	entryList := dnsExchange(Service_Name_Mongo, DISCOVERY_CONSUL_SERVER_ADDR, DISCOVERY_CONSUL_SERVER_PORT)
-
-	if len(entryList) > 0 {
-		return entryList[0].ip, entryList[0].port
-	}
-	return "", ""
-	//return "10.1.235.98", "27017"
+	//entryList := dnsExchange(Service_Name_Mongo, DISCOVERY_CONSUL_SERVER_ADDR, DISCOVERY_CONSUL_SERVER_PORT)
+	//
+	//if len(entryList) > 0 {
+	//	return entryList[0].ip, entryList[0].port
+	//}
+	//return "", ""
+	return "10.1.235.98", "27017"
 }
 
 func getKFKAddr() (string, string) {
-	entryList := dnsExchange(Service_Name_Kafka, DISCOVERY_CONSUL_SERVER_ADDR, DISCOVERY_CONSUL_SERVER_PORT)
-
-	for _, v := range entryList {
-		if v.port != "2181" {
-			return v.ip, v.port
-		}
-	}
-	return "", ""
-	//return "10.1.235.98", "9092"
+	//entryList := dnsExchange(Service_Name_Kafka, DISCOVERY_CONSUL_SERVER_ADDR, DISCOVERY_CONSUL_SERVER_PORT)
+	//
+	//for _, v := range entryList {
+	//	if v.port != "2181" {
+	//		return v.ip, v.port
+	//	}
+	//}
+	//return "", ""
+	return "10.1.235.98", "9092"
 }
