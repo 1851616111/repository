@@ -158,21 +158,21 @@ func initMq(f func() (string, string)) {
 }
 
 func getMgoAddr() (string, string) {
-	entryList := dnsExchange(Service_Name_Mongo, DISCOVERY_CONSUL_SERVER_ADDR, DISCOVERY_CONSUL_SERVER_PORT)
+	//entryList := dnsExchange(Service_Name_Mongo, DISCOVERY_CONSUL_SERVER_ADDR, DISCOVERY_CONSUL_SERVER_PORT)
 
-	if len(entryList) > 0 {
-		return entryList[0].ip, entryList[0].port
-	}
-	return "", ""
+	//if len(entryList) > 0 {
+	//	return entryList[0].ip, entryList[0].port
+	//}
+	return "10.1.235.98", "27017"
 }
 
 func getKFKAddr() (string, string) {
-	entryList := dnsExchange(Service_Name_Kafka, DISCOVERY_CONSUL_SERVER_ADDR, DISCOVERY_CONSUL_SERVER_PORT)
-
-	for _, v := range entryList {
-		if v.port != "2181" {
-			return v.ip, v.port
-		}
-	}
-	return "", ""
+	//entryList := dnsExchange(Service_Name_Kafka, DISCOVERY_CONSUL_SERVER_ADDR, DISCOVERY_CONSUL_SERVER_PORT)
+	//
+	//for _, v := range entryList {
+	//	if v.port != "2181" {
+	//		return v.ip, v.port
+	//	}
+	//}
+	return "10.1.235.98", "9092"
 }
