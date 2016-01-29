@@ -174,7 +174,7 @@ func delRepCoptPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *D
 		switch RepAccessType {
 		case ACCESS_PRIVATE:
 
-			execs = []Execute{
+			exs := []Execute{
 				Execute{
 					Collection: C_REPOSITORY_PERMISSION,
 					Selector:   bson.M{COL_REPNAME: repName, COL_PERMIT_USER: result.User_name},
@@ -188,7 +188,7 @@ func delRepCoptPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *D
 					Type:       Exec_Type_Update,
 				},
 			}
-
+			execs = append(execs, exs...)
 		case ACCESS_PUBLIC:
 			toDelUsers = append(toDelUsers, result.User_name)
 		}
