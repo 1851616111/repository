@@ -102,9 +102,9 @@ func main() {
 		r.Put("/:repname", chkRepPermission, setRepPmsHandler)
 		r.Put("/:repname/:itemname", chkItemPermission, setItemPmsHandler)
 
-		r.Delete("/repository/:repname/whitelist/:username", chkRepPermission, delRepPmsHandler)
-		r.Delete("/repository/:repname/cooperator/:username", chkRepPermission, delRepCoptPmsHandler)
-		r.Delete("/repository/:repname/dataitem/:itemname", chkItemPermission, delItemPmsHandler)
+		r.Delete("/:repname/whitelist/:username", chkRepPermission, delRepPmsHandler)
+		r.Delete("/:repname/cooperator/:username", chkRepPermission, delRepCoptPmsHandler)
+		r.Delete("/:repname/dataitem/:itemname", chkItemPermission, delItemPmsHandler)
 	})
 
 	http.Handle("/", m)
