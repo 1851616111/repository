@@ -147,7 +147,8 @@ func delRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 		selector[COL_PERMIT_USER] = p.User_name
 	}
 
-	db.DB(DB_NAME).C(COL_PERMIT_REPNAME).RemoveAll(selector)
+	Log.Infof(" %#v\n", selector)
+	db.DB(DB_NAME).C(C_REPOSITORY_PERMISSION).RemoveAll(selector)
 
 	return rsp.Json(200, E(OK))
 }
