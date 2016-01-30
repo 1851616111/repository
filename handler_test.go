@@ -27,6 +27,7 @@ var (
 	selectlabel    string
 	newselectlabel string
 	token          string
+	db             DB = DB{*connect()}
 )
 
 func init() {
@@ -42,8 +43,6 @@ func init() {
 
 	selectlabel = fmt.Sprintf("精选栏目_%d", ramdom)
 	newselectlabel = fmt.Sprintf("精选栏目_new_%d", ramdom)
-
-	db := initDB()
 
 	go q_c.serve(&db)
 
