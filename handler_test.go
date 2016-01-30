@@ -1182,43 +1182,43 @@ func Test_getItemPmsHandler(t *testing.T) {
 	}
 }
 
-func Test_delRepPmsHandler(t *testing.T) {
-	contexts := []Context{
-		Context{
-			description: fmt.Sprintf("1.【rep拥有者】将某用户（非自己）从rep白名单中删除 ----------> %s", repnames[0]),
-			param: param{
-				rsp:        &Rsp{w: httptest.NewRecorder()},
-				param:      martini.Params{"repname": repnames[0]},
-				db:         db.copy(),
-				login_name: USERNAME,
-			},
-			expect: expect{
-				code: 200,
-				body: Body{Result{
-					Code: 0,
-					Msg:  "OK",
-				}},
-			},
-		},
-	}
-	for _, v := range contexts {
-		p := v.param
-		expect := v.expect
-		r, err := http.NewRequest("DELETE", fmt.Sprintf("/permission/%s?username=chai@asiainfo.com", repnames[0]), strings.NewReader(p.requestBody))
-		get(err)
-		Rep_Permission := Rep_Permission{Repository_name: repnames[0]}
-		code, msg := delRepPmsHandler(r, p.rsp, p.param, p.db, Rep_Permission)
-
-		if !expect.expect(t, code, msg) {
-			t.Logf("%s fail.", v.description)
-			t.Log(code)
-			t.Log(msg)
-		} else {
-			t.Logf("%s success.", v.description)
-		}
-		t.Log("")
-	}
-}
+//func Test_delRepPmsHandler(t *testing.T) {
+//	contexts := []Context{
+//		Context{
+//			description: fmt.Sprintf("1.【rep拥有者】将某用户（非自己）从rep白名单中删除 ----------> %s", repnames[0]),
+//			param: param{
+//				rsp:        &Rsp{w: httptest.NewRecorder()},
+//				param:      martini.Params{"repname": repnames[0]},
+//				db:         db.copy(),
+//				login_name: USERNAME,
+//			},
+//			expect: expect{
+//				code: 200,
+//				body: Body{Result{
+//					Code: 0,
+//					Msg:  "OK",
+//				}},
+//			},
+//		},
+////	}
+////	for _, v := range contexts {
+////		p := v.param
+////		expect := v.expect
+////		r, err := http.NewRequest("DELETE", fmt.Sprintf("/permission/%s?username=chai@asiainfo.com", repnames[0]), strings.NewReader(p.requestBody))
+////		get(err)
+////		Rep_Permission := Rep_Permission{Repository_name: repnames[0]}
+////		code, msg := delRepPmsHandler(r, p.rsp, p.param, p.db, Rep_Permission)
+////
+////		if !expect.expect(t, code, msg) {
+////			t.Logf("%s fail.", v.description)
+////			t.Log(code)
+////			t.Log(msg)
+////		} else {
+////			t.Logf("%s success.", v.description)
+//		}
+//		t.Log("")
+//	}
+//}
 
 func Test_delItemPmsHandler(t *testing.T) {
 	contexts := []Context{
