@@ -8,7 +8,7 @@ import (
 const (
 	MQ_TOPIC_TO_SUB             = "to_subscriptions.json"
 	MQ_TOPIC_TO_REP             = "to_repositories.json"
-	MQ_TOPIC_FROM_STATIS        = "from_statis.json"
+	MQ_TOPIC_TO_STATIS          = "statistics"
 	MQ_KEY_ADD_PERMISSION       = "add_permission"
 	MQ_KEY_ADD_STATIS_RANK_REP  = "add_statis_rank_rep"
 	MQ_KEY_ADD_STATIS_RANK_ITEM = "add_statis_rank_item"

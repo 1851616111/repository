@@ -542,8 +542,12 @@ func getLabelValue(label interface{}, key string) interface{} {
 		if l, ok := label.(map[string]interface{}); ok {
 			return l[keys[0]].(map[string]interface{})[keys[1]].(string)
 		}
-		if l, ok := label.(bson.M); ok {
-			return l[keys[0]].(bson.M)[keys[1]].(string)
+		if bm, ok := label.(bson.M); ok {
+			if bm, ok := bm[keys[0]].(bson.M); ok {
+				if s, ok := bm[keys[1]].(string); ok {
+					return s
+				}
+			}
 		}
 	}
 	return nil

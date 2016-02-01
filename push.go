@@ -65,15 +65,17 @@ func pushMetaData(src *DB, dst *Msg) {
 				ItemAccessType: v.Itemaccesstype,
 			}
 
-			suppleStyle, selectLabel := getLabelValue(v.Label, fmt.Sprintf("sys.%s", COL_ITEM_SYPPLY_STYLE)), getLabelValue(v.Label, fmt.Sprintf("sys.%s", COL_SELECT_LABEL))
-			if suppleStyle != nil {
-				if s, ok := suppleStyle.(string); ok {
-					meta.SuppleStyle = s
+			if v.Label != nil {
+				suppleStyle, selectLabel := getLabelValue(v.Label, fmt.Sprintf("sys.%s", COL_ITEM_SYPPLY_STYLE)), getLabelValue(v.Label, fmt.Sprintf("sys.%s", "select_labels"))
+				if suppleStyle != nil {
+					if s, ok := suppleStyle.(string); ok {
+						meta.SuppleStyle = s
+					}
 				}
-			}
-			if selectLabel != nil {
-				if s, ok := selectLabel.(string); ok {
-					meta.SelectLabel = s
+				if selectLabel != nil {
+					if s, ok := selectLabel.(string); ok {
+						meta.SelectLabel = s
+					}
 				}
 			}
 
@@ -88,7 +90,7 @@ func pushMetaData(src *DB, dst *Msg) {
 			Data:    data,
 		}
 
-		dst.MqJson(MQ_TOPIC_TO_REP, pld)
+		dst.MqJson(MQ_TOPIC_TO_STATIS, pld)
 
 	}(&items, dst)
 
