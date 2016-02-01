@@ -127,6 +127,7 @@ type payLoad struct {
 type columns []column
 
 type column struct {
-	ColumName string `json:"column_name"`
-	ColumType string `json:"column_type"`
+	ColumName   string `json:"column_name"`
+	ColumType   string `json:"column_type"`
+	ColumLength int    `json:"column_length"`
 }

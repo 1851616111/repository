@@ -567,6 +567,11 @@ func getColumns(target interface{}) columns {
 			ColumName: t.Field(i).Tag.Get(DEFINE_TAG_NAME),
 			ColumType: t.Field(i).Type.Name(),
 		}
+
+		if col.ColumType == "string" {
+			col.ColumLength = 1000
+		}
+
 		cols = append(cols, col)
 	}
 
