@@ -104,7 +104,7 @@ func main() {
 
 		r.Delete("/:repname/whitelist/:username", chkRepPermission, delRepPmsHandler)
 		r.Delete("/:repname/cooperator/:username", chkRepPermission, delRepCoptPmsHandler)
-		r.Delete("/:repname/dataitem/:itemname", chkItemPermission, delItemPmsHandler)
+		r.Delete("/:repname/:itemname", chkItemPermission, delItemPmsHandler)
 	})
 
 	http.Handle("/", m)
