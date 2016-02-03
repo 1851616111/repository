@@ -455,10 +455,12 @@ func getToken(user, passwd string) string {
 	passwdMd5 := getMd5(passwd)
 	basic := fmt.Sprintf("Basic %s", string(base64Encode([]byte(fmt.Sprintf("%s:%s", user, passwdMd5)))))
 	URL := fmt.Sprintf("http://%s:%s", API_SERVER, API_PORT)
+	Log.Infof("[Debug] http://%s basic %s", URL, basic)
 	b, err := httpGet(URL, AUTHORIZATION, basic)
 	Log.Infof("[DEBUG] get token %s", string(b))
 	if err != nil {
 		Log.Errorf("get token err: %s", err.Error())
+		return ""
 	}
 	var i interface{}
 	if err := json.Unmarshal(b, &i); err != nil {
