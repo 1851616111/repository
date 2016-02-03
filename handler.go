@@ -369,9 +369,16 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	if u[COL_REP_ACC] != "" {
 		token := r.Header.Get(AUTHORIZATION)
 		quota := getUserQuota(token, loginName)
-		have := db.countNum(C_REPOSITORY, bson.M{COL_CREATE_USER: loginName, COL_REP_ACC: u[COL_ITEM_ACC]})
+		have_pub := db.countNum(C_REPOSITORY, bson.M{COL_CREATE_USER: loginName, COL_REP_ACC: ACCESS_PUBLIC})
+		have_pri := db.countNum(C_REPOSITORY, bson.M{COL_CREATE_USER: loginName, COL_REP_ACC: ACCESS_PRIVATE})
+
+		var opt = struct {
+			Public  int `json:"public"`
+			Private int `json:"private"`
+		}{}
+
 		if repo.Repaccesstype == ACCESS_PUBLIC && u[COL_REP_ACC] == ACCESS_PRIVATE {
-			if quota.Rep_Private <= have {
+			if quota.Rep_Private <= have_pri {
 				return rsp.Json(400, ErrRepOutOfLimit(quota.Rep_Private))
 			}
 			users := getSubscribers(Subscripters_By_Rep, repname, "", token)
@@ -380,10 +387,12 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 					putRepositoryPermission(repname, user, PERMISSION_READ)
 				}
 			}
+			opt.Public = have_pub - 1
+			opt.Private = have_pri + 1
 		}
 
 		if repo.Repaccesstype == ACCESS_PRIVATE && u[COL_REP_ACC] == ACCESS_PUBLIC {
-			if quota.Rep_Public <= have {
+			if quota.Rep_Public <= have_pub {
 				return rsp.Json(400, ErrRepOutOfLimit(quota.Rep_Private))
 			}
 			exec := bson.M{
@@ -393,18 +402,9 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 			if err := db.delPermit(C_REPOSITORY_PERMISSION, exec); err != nil {
 				return rsp.Json(400, ErrDataBase(err))
 			}
-		}
 
-		var opt interface{}
-		switch u[COL_REP_ACC] {
-		case ACCESS_PUBLIC:
-			opt = struct {
-				Public int `json:"public"`
-			}{have + 1}
-		case ACCESS_PRIVATE:
-			opt = struct {
-				Private int `json:"private"`
-			}{have + 1}
+			opt.Public = have_pub + 1
+			opt.Private = have_pri - 1
 		}
 
 		if _, err := updateUser(loginName, token, opt); err != nil {
