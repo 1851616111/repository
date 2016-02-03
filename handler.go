@@ -394,6 +394,22 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 				return rsp.Json(400, ErrDataBase(err))
 			}
 		}
+
+		var opt interface{}
+		switch u[COL_REP_ACC] {
+		case ACCESS_PUBLIC:
+			opt = struct {
+				Public int `json:"public"`
+			}{have + 1}
+		case ACCESS_PRIVATE:
+			opt = struct {
+				Private int `json:"private"`
+			}{have + 1}
+		}
+
+		if _, err := updateUser(loginName, token, opt); err != nil {
+			Log.Errorf("update repository User err: %s", err.Error())
+		}
 	}
 
 	if len(u) > 0 {
