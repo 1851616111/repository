@@ -456,7 +456,7 @@ func getToken(user, passwd string) string {
 	basic := fmt.Sprintf("Basic %s", string(base64Encode([]byte(fmt.Sprintf("%s:%s", user, passwdMd5)))))
 	URL := fmt.Sprintf("http://%s:%s", API_SERVER, API_PORT)
 	b, err := httpGet(URL, AUTHORIZATION, basic)
-	Log.Infof("[DEBUG] get token %s",string(b))
+	Log.Infof("[DEBUG] get token %s", string(b))
 	if err != nil {
 		Log.Errorf("get token err: %s", err.Error())
 	}
@@ -592,6 +592,8 @@ func cheParam(paramName, paramValue string) *Error {
 		paramLengthLimit = LIMIT_REP_LENGTH
 	case PARAM_TAG_NAME:
 		paramLengthLimit = LIMIT_TAG_LENGTH
+	case PARAM_COMMENT_NAME:
+		paramLengthLimit = LIMIT_COMMENT_LENGTH
 	}
 
 	if len(paramValue) > paramLengthLimit {

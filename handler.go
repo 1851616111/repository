@@ -45,12 +45,14 @@ const (
 	PAGE_SIZE                 = 6
 	PAGE_SIZE_SEARCH          = 10
 	PAGE_SIZE_SELECT          = 10
-	LIMIT_TAG_LENGTH          = 20
-	LIMIT_ITEM_LENGTH         = 200
-	LIMIT_REP_LENGTH          = 200
+	LIMIT_TAG_LENGTH          = 50
+	LIMIT_ITEM_LENGTH         = 50
+	LIMIT_REP_LENGTH          = 50
+	LIMIT_COMMENT_LENGTH      = 200
 	PARAM_TAG_NAME            = "tag"
 	PARAM_ITEM_NAME           = "itemname"
 	PARAM_REP_NAME            = "repname"
+	PARAM_COMMENT_NAME        = "comment"
 	COL_ITEM_SYPPLY_STYLE     = "supply_style"
 	LABEL_NED_CHECK           = COL_ITEM_SYPPLY_STYLE
 	SUPPLY_STYLE_API          = "api"
@@ -144,6 +146,10 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	}
 	if err := json.Unmarshal(body, &rep); err != nil {
 		return rsp.Json(400, ErrParseJson(err))
+	}
+
+	if err := cheParam(PARAM_COMMENT_NAME, rep.Comment); err != nil {
+		return rsp.Json(400, err)
 	}
 
 	now := time.Now()
@@ -347,6 +353,9 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	u := bson.M{}
 
 	if rep.Comment != "" {
+		if err := cheParam(PARAM_COMMENT_NAME, rep.Comment); err != nil {
+			return rsp.Json(400, err)
+		}
 		u[COL_COMMENT] = rep.Comment
 	}
 
@@ -535,6 +544,10 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		return rsp.Json(400, ErrParseJson(err))
 	}
 
+	if err := cheParam(PARAM_COMMENT_NAME, d.Comment); err != nil {
+		return rsp.Json(400, err)
+	}
+
 	d.Repository_name = repname
 	d.Dataitem_name = itemname
 	d.Create_user = loginName
@@ -660,7 +673,12 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		}
 	}
 
-	u[COL_COMMENT] = d.Comment
+	if d.Comment != "" {
+		if err := cheParam(PARAM_COMMENT_NAME, d.Comment); err != nil {
+			return rsp.Json(400, err)
+		}
+		u[COL_COMMENT] = d.Comment
+	}
 
 	if len(u) > 0 {
 		now := time.Now().String()
