@@ -197,7 +197,7 @@ func delRepCoptPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *D
 
 	go asynExec(execs...)
 
-	time.Sleep(time.Millisecond * 100)
+	time.Sleep(time.Millisecond * 500)
 	return rsp.Json(200, E(OK))
 }
 
