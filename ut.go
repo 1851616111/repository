@@ -582,7 +582,8 @@ func getColumns(target interface{}) columns {
 }
 
 func cheParam(paramName, paramValue string) *Error {
-	if strings.TrimSpace(paramValue) == "" {
+
+	if strings.TrimSpace(paramValue) == "" && paramName != PARAM_COMMENT_NAME {
 		return ErrNoParameter(paramName)
 	}
 
