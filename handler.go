@@ -185,6 +185,7 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	rep.Items = 0
 	rep.CooperateItems = 0
 	rep.chkLabel()
+	rep.Cooperate = []string{}
 
 	if err := db.DB(DB_NAME).C(C_REPOSITORY).Insert(rep); err != nil {
 		return rsp.Json(400, ErrDataBase(err))
