@@ -153,6 +153,12 @@ func delRepCoptPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *D
 	repName := p.Repository_name
 
 	selector := bson.M{COL_REPNAME: repName}
+	rep := repository{}
+	db.DB(DB_NAME).C(C_REPOSITORY).Find(selector).One(&rep)
+	if rep.CooperateItems > 0 {
+		return rsp.Json(400, E(ErrorCodeRepExistCooperateItem))
+	}
+
 	if deleteAll != DELETE_PERMISSION_USR_ALL {
 		selector[COL_PERMIT_USER] = p.User_name
 	}
