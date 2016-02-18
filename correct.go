@@ -5,11 +5,6 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-var (
-	Username = "datahub@asiainfo.com"
-	Password = "DBXLDPdatahub"
-)
-
 func correctQuota(db *DB) {
 	copy := db.copy()
 	defer copy.Close()

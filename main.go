@@ -18,6 +18,8 @@ var (
 
 	DISCOVERY_CONSUL_SERVER_ADDR = Env("CONSUL_SERVER", true)
 	DISCOVERY_CONSUL_SERVER_PORT = Env("CONSUL_DNS_PORT", true)
+	Username                     = Env("ADMIN_API_USERNAME", true)
+	Password                     = Env("ADMIN_API_USERNAME_PASSWORD", true)
 
 	db  DB    = DB{*connect()}
 	q_c Queue = Queue{queue}
@@ -27,6 +29,7 @@ var (
 
 func main() {
 
+	checkAdmin()
 	correctQuota(&db)
 	initMq(getKFKAddr)
 
@@ -166,4 +169,10 @@ func getKFKAddr() (string, string) {
 	}
 	return "", ""
 	//return "10.1.235.98", "9092"
+}
+
+func checkAdmin() {
+	if len(Username) == 0 || len(Password) == 0 {
+		Log.Fatal("can not get admin user identity")
+	}
 }
