@@ -19,7 +19,7 @@ var (
 	DISCOVERY_CONSUL_SERVER_ADDR = Env("CONSUL_SERVER", true)
 	DISCOVERY_CONSUL_SERVER_PORT = Env("CONSUL_DNS_PORT", true)
 	Username                     = Env("ADMIN_API_USERNAME", true)
-	Password                     = Env("ADMIN_API_USERNAME_PASSWORD", true)
+	Password                     = Env("ADMIN_API_USER_PASSWORD", true)
 
 	db  DB    = DB{*connect()}
 	q_c Queue = Queue{queue}
