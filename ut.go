@@ -292,10 +292,10 @@ func getPriceStat(prices interface{}) string {
 			return DATAITEM_PRICE_STATE_LITMIT_TRY
 		}
 
-		switch  {
-		case v.Money == 0 :
+		switch {
+		case v.Money == 0:
 			money_0_num++
-		case v.Money > 0 :
+		case v.Money > 0:
 			money_not_0_num++
 		}
 

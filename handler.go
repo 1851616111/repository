@@ -1191,12 +1191,16 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 		return rsp.Json(200, E(OK), res)
 	}
 
-	switch item.Itemaccesstype {
-	case ACCESS_PUBLIC:
+	if item.Create_user == user {
 		res.Permisson = true
-	case ACCESS_PRIVATE:
-		Q = bson.M{COL_PERMIT_ITEMNAME: itemname, COL_PERMIT_USER: user}
-		res.Permisson = db.hasPermission(C_DATAITEM_PERMISSION, Q)
+	} else {
+		switch item.Itemaccesstype {
+		case ACCESS_PUBLIC:
+			res.Permisson = true
+		case ACCESS_PRIVATE:
+			Q = bson.M{COL_PERMIT_ITEMNAME: itemname, COL_PERMIT_USER: user}
+			res.Permisson = db.hasPermission(C_DATAITEM_PERMISSION, Q)
+		}
 	}
 
 	b_m, err := db.getFile(PREFIX_META, repname, itemname)
