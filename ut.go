@@ -21,14 +21,14 @@ import (
 )
 
 const (
-	TimeFormat             = "2006-01-02 15:04:05"
-	TimeFormatDay          = "2006-01-02"
-	DATAITEM_PRICE_EXPIRE  = 30
-	DATAITEM_PRICE_MAX     = 6
-	DEFINE_TAG_NAME        = "column"
-	PRICE_STATE_FREE       = "免费"
-	PRICE_STATE_FREE_LIMIT = "限量免费"
-	PRICE_STATE_NOT_FREE   = "付费"
+	TimeFormat                      = "2006-01-02 15:04:05"
+	TimeFormatDay                   = "2006-01-02"
+	DATAITEM_PRICE_EXPIRE           = 30
+	DATAITEM_PRICE_MAX              = 6
+	DEFINE_TAG_NAME                 = "column"
+	DATAITEM_PRICE_STATE_FREE       = "免费"
+	DATAITEM_PRICE_STATE_LITMIT_TRY = "限量试用"
+	DATAITEM_PRICE_STATE_NOT_FREE   = "付费"
 )
 
 var (
@@ -286,16 +286,26 @@ func getPriceStat(prices interface{}) string {
 		return ""
 	}
 
+	money_0_num, money_not_0_num := 0, 0
 	for _, v := range pricePlans {
-		if v.Money == 0 {
-			if v.Limit > 0 {
-				return PRICE_STATE_FREE_LIMIT
-			} else {
-				return PRICE_STATE_FREE
-			}
-		} else {
-			return PRICE_STATE_NOT_FREE
+		if v.Money == 0 && v.Units != 0 {
+			return DATAITEM_PRICE_STATE_LITMIT_TRY
 		}
+
+		switch  {
+		case v.Money == 0 :
+			money_0_num++
+		case v.Money > 0 :
+			money_not_0_num++
+		}
+
+	}
+
+	if money_not_0_num == len(pricePlans) {
+		return DATAITEM_PRICE_STATE_NOT_FREE
+	}
+	if money_0_num == len(pricePlans) {
+		return DATAITEM_PRICE_STATE_FREE
 	}
 
 	return ""

@@ -125,7 +125,7 @@ type MqResponse struct {
 	//partition int32
 	//offset    int64
 	//key       string
-	
+
 	Proto         string
 	StatusCode    int
 	StatusMessage string

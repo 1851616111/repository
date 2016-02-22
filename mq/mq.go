@@ -3,8 +3,8 @@ package mq
 import (
 	"errors"
 	"fmt"
-	"sync"
 	"github.com/Shopify/sarama"
+	"sync"
 )
 
 const (
@@ -29,8 +29,8 @@ type MessageQueue interface {
 type MassageListener interface {
 	// return whether or not the offset will be marked in server
 	OnMessage(topic string, partition int32, offset int64, key, value []byte) bool
-	
-	// return whether or not to stop listenning 
+
+	// return whether or not to stop listenning
 	OnError(error) bool
 }
 
@@ -240,7 +240,7 @@ func (mq *KafukaMQ) createMessageConsumer(topic string, partition int32, offset 
 	}
 
 	pom, err := mq.offsetManager.ManagePartition(topic, partition)
-	for err != nil {		
+	for err != nil {
 		return nil, fmt.Errorf("ManagePartition, error: %s", err.Error())
 	}
 
@@ -263,7 +263,7 @@ func (mq *KafukaMQ) createMessageConsumer(topic string, partition int32, offset 
 	}
 
 	pc, err := mq.consumer.ConsumePartition(topic, partition, offset)
-	for err != nil {		
+	for err != nil {
 		pom.Close()
 		return nil, fmt.Errorf("ConsumePartition, error: %s", err.Error())
 	}
