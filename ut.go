@@ -287,18 +287,21 @@ func getPriceStat(prices interface{}) string {
 	}
 
 	money_0_num, money_not_0_num := 0, 0
+	limitTryNum := 0
 	for _, v := range pricePlans {
-		if v.Money == 0 && v.Units != 0 {
-			return DATAITEM_PRICE_STATE_LITMIT_TRY
-		}
-
 		switch {
 		case v.Money == 0:
 			money_0_num++
+			if v.Units > 0 {
+				limitTryNum++
+			}
 		case v.Money > 0:
 			money_not_0_num++
 		}
+	}
 
+	if limitTryNum > 0 && money_not_0_num > 0 {
+		return DATAITEM_PRICE_STATE_LITMIT_TRY
 	}
 
 	if money_not_0_num == len(pricePlans) {
