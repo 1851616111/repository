@@ -142,6 +142,9 @@ func initMq(f func() (string, string)) {
 	_, _, err = msg.SendSyncMessage(MQ_TOPIC_TO_REP, []byte(MQ_KEY_ADD_STATIS_RANK_REP), []byte("")) // force create the topic
 	get(err)
 
+	_, _, err = msg.SendSyncMessage(MQ_TOPIC_TO_REP, []byte(MQ_KEY_ADD_STATIS_RANK_ITEM), []byte("")) // force create the topic
+	get(err)
+
 	err = msg.SetMessageListener(MQ_TOPIC_TO_REP, 0, mq.Offset_Marked, myListener)
 	if err != nil {
 		Log.Info("SetMessageListener error: ", err)
