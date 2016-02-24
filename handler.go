@@ -45,7 +45,7 @@ const (
 	PAGE_SIZE                 = 6
 	PAGE_SIZE_SEARCH          = 10
 	PAGE_SIZE_SELECT          = 10
-	LIMIT_TAG_LENGTH          = 52
+	LIMIT_TAG_LENGTH          = 100
 	LIMIT_ITEM_LENGTH         = 100
 	LIMIT_REP_LENGTH          = 52
 	LIMIT_COMMENT_LENGTH      = 600
