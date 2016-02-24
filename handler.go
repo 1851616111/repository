@@ -731,7 +731,7 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	}
 
 	if item.Itemaccesstype == ACCESS_PRIVATE && u[COL_ITEM_ACC] == ACCESS_PUBLIC {
-		if err := db.delPermit(C_REPOSITORY_PERMISSION, selector); err != nil {
+		if err := db.delPermit(C_DATAITEM_PERMISSION, selector); err != nil {
 			return rsp.Json(400, ErrDataBase(err))
 		}
 	}
