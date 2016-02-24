@@ -729,18 +729,10 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 			}
 		}
 	}
+
 	if item.Itemaccesstype == ACCESS_PRIVATE && u[COL_ITEM_ACC] == ACCESS_PUBLIC {
-		token := r.Header.Get(AUTHORIZATION)
-		users := getSubscribers(Subscripters_By_Item, repname, itemname, token)
-		if len(users) > 0 {
-			exec := bson.M{
-				COL_REPNAME:         repname,
-				COL_PERMIT_ITEMNAME: itemname,
-				COL_PERMIT_USER:     bson.M{CMD_IN: users},
-			}
-			if err := db.delPermit(C_DATAITEM_PERMISSION, exec); err != nil {
-				return rsp.Json(400, ErrDataBase(err))
-			}
+		if err := db.delPermit(C_REPOSITORY_PERMISSION, selector); err != nil {
+			return rsp.Json(400, ErrDataBase(err))
 		}
 	}
 

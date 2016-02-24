@@ -2,8 +2,8 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/asiainfoLDP/datahub_repository/mq"
 	"fmt"
+	"github.com/asiainfoLDP/datahub_repository/mq"
 )
 
 const (
