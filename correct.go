@@ -28,11 +28,10 @@ func correctQuota(db *DB) {
 				username, accesstype, count := mm["create_user"], mm["accesstype"], m["count"]
 				context := fmt.Sprintf(`{"%s":%d}`, accesstype, count)
 				url := fmt.Sprintf("http://%s:%s/quota/%s/repository/use", API_SERVER, API_PORT, username)
-				res, err := HttpPostJson(url, []byte(context), AUTHORIZATION, token)
+				_, err := HttpPostJson(url, []byte(context), AUTHORIZATION, token)
 				if err != nil {
-					Log.Errorf("-----ERR %s", err.Error())
+					Log.Errorf("update user quota err %s", err.Error())
 				}
-				Log.Error("------------> res%#v", res)
 			}
 		}
 	}

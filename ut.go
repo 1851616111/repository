@@ -482,7 +482,7 @@ func getToken(user, passwd string) string {
 	if m, ok := i.(map[string]interface{}); ok {
 		if data, ok := m["data"].(map[string]interface{}); ok {
 			if token, ok := data["token"].(string); ok {
-				return token
+				return "Token " + token
 			}
 		}
 	}
