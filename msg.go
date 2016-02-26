@@ -38,8 +38,7 @@ func newMyMesssageListener(name string) *MyMesssageListener {
 func (listener *MyMesssageListener) OnMessage(topic string, partition int32, offset int64, key, value []byte) bool {
 
 	if len(value) > 0 {
-		//Log.("[DEBUG]------------- get msg %s ------------------>\n", string(value))
-		fmt.Printf("[DEBUG]------------- get msg %s ------------------>\n", string(value))
+		fmt.Printf("[DEBUG]------------- get msg key(%s) %s ------------------>\n", key, string(value))
 		switch string(key) {
 		case MQ_KEY_ADD_PERMISSION:
 			m := make(map[string]interface{})
