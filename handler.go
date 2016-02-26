@@ -241,13 +241,24 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 
 	var res struct {
 		repository
-		Dataitems []string `json:"dataitems,omitempty"`
+		Cooperate_status string   `json:"cooperatestate,omitempty"`
+		Dataitems        []string `json:"dataitems,omitempty"`
 	}
 	res.repository = rep
 
 	if showItems != "" {
 		items := []string{}
 		ds := []dataItem{}
+		if cooperates, ok := rep.Cooperate.([]interface{}); ok {
+			if len(cooperates) > 0 {
+				if contains(cooperates, user) {
+					res.Cooperate_status = STATUS_COOPERATORRING
+				} else {
+					res.Cooperate_status = STATUS_COOPERATOR
+				}
+			}
+		}
+
 		Q := bson.M{COL_REPNAME: repname}
 
 		if user != "" && ifCooperate(rep.Cooperate, user) {
