@@ -690,16 +690,12 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	}
 
 	if d.Meta != "" {
-		Log.Infof("total get dataitem meta %d characters\n", len(d.Meta))
-		Log.Infof("%s\n", d.Meta)
 		if err := db.setFile(PREFIX_META, repname, itemname, []byte(d.Meta)); err != nil {
 			return rsp.Json(400, err)
 		}
 	}
 
 	if d.Sample != "" {
-		Log.Infof("total get dataitem sample %d characters\n", len(d.Sample))
-		Log.Infof("%s\n", d.Sample)
 		if err := db.setFile(PREFIX_SAMPLE, repname, itemname, []byte(d.Sample)); err != nil {
 			return rsp.Json(400, err)
 		}
