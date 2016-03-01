@@ -8,7 +8,7 @@ import (
 
 const (
 	C_FS          = "datahub_fs"
-	MAX_FILE_SIZE = 8192
+	MAX_FILE_SIZE = 800000
 	SELECT_ALL    = -1
 )
 
