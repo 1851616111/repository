@@ -219,6 +219,7 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 
 	user := r.Header.Get("User")
 	showItems := strings.TrimSpace(r.FormValue("items"))
+	relatedItems := strings.TrimSpace(r.FormValue("relatedItems"))
 
 	Q := bson.M{COL_REPNAME: repname}
 	rep, err := db.getRepository(Q)
@@ -246,7 +247,8 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	}
 	res.repository = rep
 
-	if showItems != "" {
+	if showItems != "" || relatedItems != "" {
+
 		items := []string{}
 		ds := []dataItem{}
 		if cooperates, ok := rep.Cooperate.([]interface{}); ok {
@@ -261,9 +263,12 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 
 		Q := bson.M{COL_REPNAME: repname}
 
-		if user != "" && ifCooperate(rep.Cooperate, user) {
-			Q[COL_CREATE_USER] = user
+		if showItems != "" {
+			if user != "" && ifCooperate(rep.Cooperate, user) {
+				Q[COL_CREATE_USER] = user
+			}
 		}
+
 		ds, err = db.getDataitems(page_index, page_size, Q)
 		get(err)
 		for _, v := range ds {
