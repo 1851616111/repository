@@ -224,7 +224,7 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	Q := bson.M{COL_REPNAME: repname}
 	rep, err := db.getRepository(Q)
 	if err != nil && err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s", COL_REPNAME, repname)))
+		return rsp.Json(400, ErrRepositoryNotFound(repname))
 	}
 	rep.Optime = buildTime(rep.Optime)
 
@@ -290,7 +290,7 @@ func delRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 	Q := bson.M{COL_REPNAME: repname}
 	rep, err := db.getRepository(Q)
 	if err != nil && err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s", COL_REPNAME, repname)))
+		return rsp.Json(400, ErrRepositoryNotFound(repname))
 	}
 
 	if rep.Create_user != loginName {
@@ -349,7 +349,7 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	Q := bson.M{COL_REPNAME: repname}
 	repo, err := db.getRepository(Q)
 	if err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s", COL_REPNAME, repname)))
+		return rsp.Json(400, ErrRepositoryNotFound(repname))
 	}
 
 	if repo.Create_user != loginName {
@@ -551,7 +551,7 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	Q := bson.M{COL_REPNAME: repname}
 	rep, err := db.getRepository(Q)
 	if err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("repname : %s", repname)))
+		return rsp.Json(400, ErrRepositoryNotFound(repname))
 	}
 
 	cooperate := ifCooperate(rep.Cooperate, loginName)
@@ -654,7 +654,7 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	Q := bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname}
 	item, err := db.getDataitem(Q)
 	if err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s %s:=%s", COL_REPNAME, repname, COL_ITEM_NAME, itemname)))
+		return rsp.Json(400, ErrDataitemNotFound(itemname))
 	}
 
 	if item.Create_user != loginName {
@@ -771,7 +771,7 @@ func delDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 
 	item, err := db.getDataitem(Q)
 	if err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s %s=%s", COL_REPNAME, repname, COL_ITEM_NAME, itemname)))
+		return rsp.Json(400, ErrDataitemNotFound(itemname))
 	}
 
 	if item.Create_user != loginName {
@@ -837,7 +837,7 @@ func updateSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, d
 
 	selector := bson.M{COL_SELECT_LABEL: labelname}
 	if _, err := db.getSelect(selector); err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("labelname : %s", labelname)))
+		return rsp.Json(400, ErrFieldNotFound("Dataitem Selector", labelname))
 	}
 
 	u := bson.M{}
@@ -877,7 +877,7 @@ func delSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *
 	}
 	Q := bson.M{COL_SELECT_LABEL: labelname}
 	if err := db.delSelect(Q); err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("labelname : %s", labelname)))
+		return rsp.Json(400, ErrFieldNotFound("Dataitem Selector", labelname))
 	}
 	return rsp.Json(200, E(OK))
 }
@@ -910,7 +910,7 @@ func createTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, l
 	Q := bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname}
 	item, err := db.getDataitem(Q)
 	if err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("itemname : %s", itemname)))
+		return rsp.Json(400, ErrDataitemNotFound(itemname))
 	}
 
 	if item.Create_user != loginName {
@@ -983,12 +983,12 @@ func updateTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, l
 	Q_item := bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname}
 	item, err := db.getDataitem(Q_item)
 	if err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("itemname : %s", itemname)))
+		return rsp.Json(400, ErrDataitemNotFound(itemname))
 	}
 
 	Q_tag := bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname, COL_TAG_NAME: tagname}
 	if _, err := db.getTag(Q_tag); err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("tagname : %s", tagname)))
+		return rsp.Json(400, ErrTagNotFound(tagname))
 	}
 
 	if item.Create_user != loginName {
@@ -1055,7 +1055,7 @@ func getTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int
 	Q := bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname, COL_TAG_NAME: tagname}
 	tag, err := db.getTag(Q)
 	if err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("tag : %s", tagname)))
+		return rsp.Json(400, ErrTagNotFound(tagname))
 	}
 	tag.Optime = buildTime(tag.Optime)
 
@@ -1082,7 +1082,7 @@ func delTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, logi
 	var err error
 	Q := bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname}
 	if item, err = db.getDataitem(Q); err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf("itemname : %s", itemname)))
+		return rsp.Json(400, ErrDataitemNotFound(itemname))
 	}
 
 	if item.Create_user != loginName {
@@ -1094,7 +1094,7 @@ func delTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, logi
 	if err != nil {
 		if err == mgo.ErrNotFound {
 			if err == mgo.ErrNotFound {
-				return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s %s=%s %s=%s ", COL_REPNAME, repname, COL_ITEM_NAME, itemname, COL_ITEM_TAGS, tagname)))
+				return rsp.Json(400, ErrTagNotFound(tagname))
 			}
 		}
 		return rsp.Json(400, ErrDataBase(err))
@@ -1150,13 +1150,13 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	Q := bson.M{COL_REPNAME: repname}
 	rep, err := db.getRepository(Q)
 	if err != nil && err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s", COL_REPNAME, repname)))
+		return rsp.Json(400, ErrRepositoryNotFound(repname))
 	}
 
 	Q = bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname}
 	item, err := db.getDataitem(Q, abstract)
 	if err != nil && err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s,%s=%s ", COL_REPNAME, repname, COL_ITEM_NAME, itemname)))
+		return rsp.Json(400, ErrDataitemNotFound(itemname))
 	}
 
 	user := r.Header.Get("User")
@@ -1267,13 +1267,13 @@ func getDWithPermissionHandler(r *http.Request, rsp *Rsp, param martini.Params, 
 	Q := bson.M{COL_REPNAME: repname}
 	rep, err = db.getRepository(Q)
 	if err != nil && err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s", COL_REPNAME, repname)))
+		return rsp.Json(400, ErrRepositoryNotFound(repname))
 	}
 
 	Q = bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname}
 	item, err = db.getDataitem(Q)
 	if err != nil && err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s=%s,%s=%s ", COL_REPNAME, repname, COL_ITEM_NAME, itemname)))
+		return rsp.Json(400, ErrDataitemNotFound(itemname))
 	}
 
 	Q = bson.M{COL_PERMIT_REPNAME: repname, COL_PERMIT_USER: user}
@@ -1315,7 +1315,7 @@ func updateSelectHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB
 	selector := bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname}
 
 	if n, _ := db.DB(DB_NAME).C(C_DATAITEM).Find(selector).Count(); n == 0 {
-		return rsp.Json(400, ErrQueryNotFound(fmt.Sprintf(" %s %s", repname, itemname)))
+		return rsp.Json(400, ErrDataitemNotFound(itemname))
 	}
 
 	u := bson.M{}

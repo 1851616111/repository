@@ -53,7 +53,7 @@ func init() {
 	initError(ErrorCodeInvalidParameters, "invalid parameters")
 	initError(ErrorCodeNoParameter, "no parameter")
 	initError(ErrorCodeDataBase, "database operate")
-	initError(ErrorCodeQueryDBNotFound, "query %s no found")
+	initError(ErrorCodeQueryDBNotFound, "%s %s not found.")
 	initError(ErrorCodeOptFile, "file operation")
 	initError(ErrorCodeItemOutOfLimit, "dataitem out of limit 50")
 	initError(ErrorCodeRepOutOfLimit, "repository out of limit")
@@ -121,10 +121,31 @@ func ErrNoParameter(paramName string) *Error {
 	}
 }
 
-func ErrQueryNotFound(paramName string) *Error {
+func ErrRepositoryNotFound(name string) *Error {
 	return &Error{
 		Code:    ErrorCodeQueryDBNotFound,
-		Message: fmt.Sprintf(E(ErrorCodeQueryDBNotFound).Message, paramName),
+		Message: fmt.Sprintf(E(ErrorCodeQueryDBNotFound).Message, "Repository", name),
+	}
+}
+
+func ErrDataitemNotFound(name string) *Error {
+	return &Error{
+		Code:    ErrorCodeQueryDBNotFound,
+		Message: fmt.Sprintf(E(ErrorCodeQueryDBNotFound).Message, "Dataitem", name),
+	}
+}
+
+func ErrTagNotFound(name string) *Error {
+	return &Error{
+		Code:    ErrorCodeQueryDBNotFound,
+		Message: fmt.Sprintf(E(ErrorCodeQueryDBNotFound).Message, "Tag", name),
+	}
+}
+
+func ErrFieldNotFound(field, name string) *Error {
+	return &Error{
+		Code:    ErrorCodeQueryDBNotFound,
+		Message: fmt.Sprintf(E(ErrorCodeQueryDBNotFound).Message, field, name),
 	}
 }
 

@@ -43,7 +43,7 @@ func delRLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (
 	var err error
 	Q := bson.M{COL_REPNAME: repname}
 	if rep, err = db.getRepository(Q); err != nil && err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(repname))
+		return rsp.Json(400, ErrRepositoryNotFound(repname))
 	}
 
 	code, e := db.optLabels(r, LABEL_ALL, rep, Q, LABEL_OPT_SUB)
@@ -66,7 +66,7 @@ func upsertRLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB
 	var err error
 	Q := bson.M{COL_REPNAME: repname}
 	if rep, err = db.getRepository(Q); err != nil && err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(repname))
+		return rsp.Json(400, ErrRepositoryNotFound(repname))
 	}
 
 	code, e := db.optLabels(r, LABEL_ALL, rep, Q, LABEL_OPT_ADD)
@@ -94,7 +94,7 @@ func upsertDLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB
 	var err error
 	Q := bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname}
 	if item, err = db.getDataitem(Q); err != nil && err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(repname))
+		return rsp.Json(400, ErrDataitemNotFound(itemname))
 	}
 
 	code, e := db.optLabels(r, LABEL_ALL, item, Q, LABEL_OPT_ADD)
@@ -123,7 +123,7 @@ func delDLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (
 	var err error
 	Q := bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname}
 	if item, err = db.getDataitem(Q); err != nil && err == mgo.ErrNotFound {
-		return rsp.Json(400, ErrQueryNotFound(repname))
+		return rsp.Json(400, ErrDataitemNotFound(itemname))
 	}
 
 	code, e := db.optLabels(r, LABEL_ALL, item, Q, LABEL_OPT_SUB)

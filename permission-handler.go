@@ -80,7 +80,7 @@ func getRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 
 	if list, ok := l.([]Rep_Permission); ok {
 		if len(list) == 0 {
-			return rsp.Json(400, ErrQueryNotFound(""))
+			return rsp.Json(400, ErrFieldNotFound("Repository Permission", p.Repository_name))
 		}
 	}
 
@@ -122,7 +122,7 @@ func getItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, 
 
 	if list, ok := l.([]Item_Permission); ok {
 		if len(list) == 0 {
-			return rsp.Json(400, ErrQueryNotFound(""))
+			return rsp.Json(400, ErrFieldNotFound("Dataitem Permission", p.Repository_name))
 		}
 	}
 
