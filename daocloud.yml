@@ -22,4 +22,5 @@ script:
   - cd /daocloud/builder/src/github.com/asiainfoLDP/datahub_repository
   - $GOPATH/bin/godep restore
   - env
-  - ./test.sh
+  #- ./test.sh
+  - go test
