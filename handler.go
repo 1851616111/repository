@@ -885,7 +885,7 @@ func delSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *
 func getSelectLabelsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	defer db.Close()
 
-	l, ll := []Select{Select{LabelName: "全部精选"}}, []Select{}
+	l, ll := []Select{Select{LabelName: "全部精选", Icon:"allselect"}}, []Select{}
 	err := db.DB(DB_NAME).C(C_SELECT).Find(nil).Sort("-order").All(&ll)
 	if err != nil {
 		return rsp.Json(400, ErrDataBase(err))
