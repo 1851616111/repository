@@ -297,8 +297,8 @@ func delRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginN
 		return rsp.Json(400, E(ErrorCodePermissionDenied))
 	}
 
-	if rep.CooperateItems > 0 {
-		return rsp.Json(400, E(ErrorCodeRepExistCooperateItem))
+	if rep.Items > 0 {
+		return rsp.Json(400, E(ErrorCodeRepExistDataitem))
 	}
 
 	items, err := db.getDataitems(0, SELECT_ALL, Q)

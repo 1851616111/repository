@@ -35,6 +35,7 @@ const (
 	ErrorCodeItemPriceOutOfLimit
 	ErrorCodeRepExistCooperateItem
 	ErrorCodeNoLogin
+	ErrorCodeRepExistDataitem
 
 	ErrorCodeNoParameter = 1400
 
@@ -60,6 +61,7 @@ func init() {
 	initError(ErrorCodeItemPriceOutOfLimit, "dataitem price out of limit 6")
 	initError(ErrorCodeRepExistCooperateItem, "repository exists cooperate dataitem")
 	initError(ErrorCodeNoLogin, "no login")
+	initError(ErrorCodeRepExistDataitem, "repository exists dataitem, can not delete")
 
 	ErrorNone = E(OK)
 	ErrorUnkown = E(ErrorCodeUnkown)
