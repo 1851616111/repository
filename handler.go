@@ -220,6 +220,7 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	user := r.Header.Get("User")
 	showItems := strings.TrimSpace(r.FormValue("items"))
 	relatedItems := strings.TrimSpace(r.FormValue("relatedItems"))
+	myRelease := strings.TrimSpace(r.FormValue("myRelease"))
 
 	Q := bson.M{COL_REPNAME: repname}
 	rep, err := db.getRepository(Q)
@@ -243,7 +244,7 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	var res struct {
 		repository
 		Cooperate_status string   `json:"cooperatestate,omitempty"`
-		Dataitems        []string `json:"dataitems,omitempty"`
+		Dataitems        []string `json:"dataitems"`
 	}
 	res.repository = rep
 
@@ -263,7 +264,7 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 
 		Q := bson.M{COL_REPNAME: repname}
 
-		if showItems != "" {
+		if myRelease != "" && showItems != "" {
 			if user != "" && ifCooperate(rep.Cooperate, user) {
 				Q[COL_CREATE_USER] = user
 			}
@@ -885,7 +886,7 @@ func delSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *
 func getSelectLabelsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	defer db.Close()
 
-	l, ll := []Select{Select{LabelName: "全部精选", Icon:"allselect"}}, []Select{}
+	l, ll := []Select{Select{LabelName: "全部精选", Icon: "allselect"}}, []Select{}
 	err := db.DB(DB_NAME).C(C_SELECT).Find(nil).Sort("-order").All(&ll)
 	if err != nil {
 		return rsp.Json(400, ErrDataBase(err))
