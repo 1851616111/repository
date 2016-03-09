@@ -33,6 +33,11 @@ func main() {
 	correctQuota(&db)
 	initMq(getKFKAddr)
 
+	if initDB() == false {
+		Log.Fatal("failed to connect mongodb.")
+		return
+	}
+
 	go refreshDB()
 
 	go q_c.serve(&db)

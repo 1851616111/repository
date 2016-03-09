@@ -113,6 +113,25 @@ func (db *DB) copy() *DB {
 	return &DB{*db.Copy()}
 }
 
+func initDB() bool {
+	var err error
+	for i := 0; i < 3; i++ {
+		ip, port := getMgoAddr()
+		url := fmt.Sprintf(`%s:%s/datahub?maxPoolSize=500`, ip, port)
+		if _, err = mgo.Dial(url); err != nil {
+			time.Sleep(time.Second * 10)
+			continue
+		} else {
+			break
+		}
+	}
+	if err != nil {
+		return  false
+	}
+
+	return true
+}
+
 func refreshDB() {
 
 	for {
