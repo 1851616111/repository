@@ -156,7 +156,7 @@ func ErrDataBase(e error) *Error {
 		return E(OK)
 	} else {
 		return &Error{
-			Code:    ErrorCodeDataBase,
+			Code:    ErrorCodeItemOutOfLimit,
 			Message: fmt.Sprintf("%s : %s", E(ErrorCodeDataBase).Message, e.Error()),
 		}
 	}
