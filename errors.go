@@ -54,7 +54,7 @@ func init() {
 	initError(ErrorCodeInvalidParameters, "invalid parameters")
 	initError(ErrorCodeNoParameter, "no parameter")
 	initError(ErrorCodeDataBase, "database operate")
-	initError(ErrorCodeQueryDBNotFound, "%s %s not found.")
+	initError(ErrorCodeQueryDBNotFound, "%s '%s' not found.")
 	initError(ErrorCodeOptFile, "file operation")
 	initError(ErrorCodeItemOutOfLimit, "dataitem out of limit 50")
 	initError(ErrorCodeRepOutOfLimit, "repository out of limit")
