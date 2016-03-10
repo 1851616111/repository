@@ -157,7 +157,7 @@ func ErrDataBase(e error) *Error {
 	} else {
 		return &Error{
 			Code:    ErrorCodeDataBase,
-			Message: fmt.Sprintf("Dataitem 'XXX' already exists."),
+			Message: fmt.Sprintf("%s : %s", E(ErrorCodeDataBase).Message, e.Error()),
 		}
 	}
 }
