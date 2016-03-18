@@ -1207,7 +1207,7 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 		case ACCESS_PUBLIC:
 			res.Permisson = true
 		case ACCESS_PRIVATE:
-			Q = bson.M{COL_PERMIT_ITEMNAME: itemname, COL_PERMIT_USER: user}
+			Q = bson.M{COL_PERMIT_REPNAME: repname, COL_PERMIT_ITEMNAME: itemname, COL_PERMIT_USER: user}
 			res.Permisson = db.hasPermission(C_DATAITEM_PERMISSION, Q)
 		}
 	}
