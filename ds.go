@@ -126,7 +126,7 @@ func initDB() bool {
 		}
 	}
 	if err != nil {
-		return  false
+		return false
 	}
 
 	return true

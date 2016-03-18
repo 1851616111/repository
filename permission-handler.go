@@ -174,6 +174,7 @@ func delRepCoptPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *D
 	toDelUsers := []string{}
 
 	iter := db.DB(DB_NAME).C(C_REPOSITORY_PERMISSION).Find(selector).Iter()
+	defer iter.Close()
 	for iter.Next(&result) {
 
 		switch RepAccessType {
@@ -206,7 +207,7 @@ func delRepCoptPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *D
 			COL_REPNAME:     repName,
 			COL_PERMIT_USER: bson.M{CMD_IN: toDelUsers},
 		}
-		db.DB(DB_NAME).C(C_REPOSITORY_PERMISSION).Remove(delete)
+		db.DB(DB_NAME).C(C_REPOSITORY_PERMISSION).RemoveAll(delete)
 	}
 
 	go asynExec(execs...)
