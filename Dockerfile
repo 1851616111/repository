@@ -10,6 +10,8 @@ EXPOSE 8089
 
 ENV SERVICE_NAME=datahub_repository
 
-ENTRYPOINT ["/go/src/github.com/asiainfoLDP/datahub_repository/datahub_repository"]
+RUN go build
+
+ENTRYPOINT ["/go/src/github.com/asiainfoLDP/datahub_repository/datahub_repositor"]
 
 
