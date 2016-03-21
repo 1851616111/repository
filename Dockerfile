@@ -12,6 +12,6 @@ ENV SERVICE_NAME=datahub_repository
 
 RUN GO15VENDOREXPERIMENT=1 go build
 
-ENTRYPOINT ["/go/src/github.com/asiainfoLDP/datahub_repository/datahub_repositor"]
+ENTRYPOINT ["/go/src/github.com/asiainfoLDP/datahub_repository/datahub_repository"]
 
 
