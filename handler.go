@@ -250,6 +250,7 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 		repository
 		Cooperate_status string   `json:"cooperatestate,omitempty"`
 		Dataitems        []string `json:"dataitems"`
+		ItemSize         int      `json:"itemsize"`
 	}
 	res.repository = rep
 
@@ -277,6 +278,9 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 
 		ds, err = db.getDataitems(page_index, page_size, Q, sortKey)
 		get(err)
+
+		res.ItemSize = db.countNum(C_DATAITEM, Q)
+
 		for _, v := range ds {
 			items = append(items, v.Dataitem_name)
 		}
