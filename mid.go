@@ -14,6 +14,7 @@ var (
 			"update_time_down": "-optime",
 			"rank_up":          "rank",
 			"rank_down":        "-rank",
+			"1":		    "-rank",
 			"":                 "-rank",
 		}}
 )
@@ -286,7 +287,7 @@ func buildTagsTime(tags []tag) {
 	}
 }
 
-func (db *DB) getPrivateReps(userName string) []string {
+func (db *DB) getPermitedReps(userName string) []string {
 	l := []string{}
 	if userName != "" {
 		p_reps, _ := db.getPermits(C_REPOSITORY_PERMISSION, bson.M{COL_PERMIT_USER: userName})
@@ -297,6 +298,12 @@ func (db *DB) getPrivateReps(userName string) []string {
 				}
 			}
 		}
+
+		my_pri_reps, _ := db.getRepositories(bson.M{COL_REP_ACC: ACCESS_PRIVATE, COL_CREATE_USER: userName})
+		for _, v := range my_pri_reps {
+			l = append(l, v.Repository_name)
+		}
+
 	}
 	return l
 }
@@ -310,6 +317,7 @@ func (db *DB) getPublicReps() []string {
 	}
 	return s
 }
+
 func (db *DB) deleteDataitemsFunc(items []dataItem, msg *Msg) {
 	for i, _ := range items {
 		if err := db.deleteDataitemFunc(items[i], msg); err != nil {

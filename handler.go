@@ -1400,7 +1400,7 @@ func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	Q := bson.M{}
 	l := db.getPublicReps()
 	if username != "" {
-		private := db.getPrivateReps(username)
+		private := db.getPermitedReps(username)
 		l = append(l, private...)
 	}
 
@@ -1486,7 +1486,7 @@ func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	Q := bson.M{}
 	pub := db.getPublicReps()
 	if username != "" {
-		private := db.getPrivateReps(username)
+		private := db.getPermitedReps(username)
 		pub = append(pub, private...)
 	}
 
