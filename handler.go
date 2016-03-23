@@ -222,6 +222,11 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	relatedItems := strings.TrimSpace(r.FormValue("relatedItems"))
 	myRelease := strings.TrimSpace(r.FormValue("myRelease"))
 
+	sortKey, err := getSortKeyByParam("items", showItems)
+	if err != nil {
+		return rsp.Json(400, ErrInvalidParameter(showItems))
+	}
+
 	Q := bson.M{COL_REPNAME: repname}
 	rep, err := db.getRepository(Q)
 	if err != nil && err == mgo.ErrNotFound {
@@ -270,7 +275,7 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 			}
 		}
 
-		ds, err = db.getDataitems(page_index, page_size, Q)
+		ds, err = db.getDataitems(page_index, page_size, Q, sortKey)
 		get(err)
 		for _, v := range ds {
 			items = append(items, v.Dataitem_name)
@@ -1538,14 +1543,6 @@ func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	}{
 		l,
 		length,
-	}
-
-	if length < page_index*page_size && length >= (page_index-1)*page_size {
-		result.Results = l[(page_index-1)*page_size : length]
-	} else if length < page_index*page_size {
-		result.Results = l
-	} else if length >= page_index*page_size {
-		result.Results = l[(page_index-1)*page_size : page_index*page_size]
 	}
 
 	if length < page_index*page_size && length >= (page_index-1)*page_size {
