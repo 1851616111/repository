@@ -142,6 +142,14 @@ func delRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p
 	r.ParseForm()
 	deleteAll := strings.TrimSpace(r.FormValue("delall"))
 
+	if n, _ := db.DB(DB_NAME).C(C_REPOSITORY_PERMISSION).Find(bson.M{
+		COL_REPNAME: 		p.Repository_name,
+		COL_PERMIT_USER: 	p.User_name,
+		"opt_permission": 	1,
+	}).Count(); n == 1 {
+		return rsp.Json(400, ErrUserIsCooperator(p.User_name))
+	}
+
 	selector := bson.M{COL_REPNAME: p.Repository_name}
 	if deleteAll != DELETE_PERMISSION_USR_ALL {
 		selector[COL_PERMIT_USER] = p.User_name
@@ -212,7 +220,7 @@ func delRepCoptPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *D
 
 	go asynExec(execs...)
 
-	time.Sleep(time.Millisecond * 500)
+	time.Sleep(time.Millisecond * 800)
 	return rsp.Json(200, E(OK))
 }
 
