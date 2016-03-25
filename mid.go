@@ -14,7 +14,7 @@ var (
 			"update_time_down": "-optime",
 			"rank_up":          "rank",
 			"rank_down":        "-rank",
-			"1":		    "-rank",
+			"1":                "-rank",
 			"":                 "-rank",
 		}}
 )
