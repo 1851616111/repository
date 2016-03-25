@@ -569,7 +569,7 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		return rsp.Json(400, E(ErrorCodePermissionDenied))
 	}
 
-	if n, _ := db.DB(DB_NAME).C(C_DATAITEM).Find(bson.M{COL_REPNAME: repname}).Count(); n > 50 {
+	if n, _ := db.DB(DB_NAME).C(C_DATAITEM).Find(bson.M{COL_REPNAME: repname}).Count(); n > 200 {
 		return rsp.Json(400, E(ErrorCodeItemOutOfLimit))
 	}
 

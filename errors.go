@@ -56,7 +56,7 @@ func init() {
 	initError(ErrorCodeDataBase, "database operate")
 	initError(ErrorCodeQueryDBNotFound, "%s '%s' not found.")
 	initError(ErrorCodeOptFile, "file operation")
-	initError(ErrorCodeItemOutOfLimit, "dataitem out of limit 50")
+	initError(ErrorCodeItemOutOfLimit, "dataitem out of limit 200")
 	initError(ErrorCodeRepOutOfLimit, "repository out of limit")
 	initError(ErrorCodeItemPriceOutOfLimit, "dataitem price out of limit 6")
 	initError(ErrorCodeRepExistCooperateItem, "repository exists cooperate dataitem")
