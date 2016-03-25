@@ -159,10 +159,10 @@ func delRepPmsHandler(r *http.Request, rsp *Rsp, db *DB, p Rep_Permission) (int,
 
 	selector := bson.M{
 		COL_REPNAME: p.Repository_name,
+		COL_PERMIT_USER: p.User_name,
 	}
-	db.DB(DB_NAME).C(C_DATAITEM_PERMISSION).RemoveAll(selector)
 
-	selector[COL_PERMIT_USER] = p.User_name
+	db.DB(DB_NAME).C(C_DATAITEM_PERMISSION).RemoveAll(selector)
 	db.DB(DB_NAME).C(C_REPOSITORY_PERMISSION).Remove(selector)
 
 	return rsp.Json(200, E(OK))
