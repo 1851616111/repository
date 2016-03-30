@@ -86,11 +86,6 @@ var (
 	SEARCH_DATAITEM_COLS = []string{COL_REPNAME, COL_ITEM_NAME, COL_COMMENT}
 )
 
-type delete struct {
-	Rep   repository `json:"repository"`
-	Items []dataItem `json:"dataitems"`
-}
-
 func getDetetedHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	copy := db.copy()
 	defer copy.Close()
@@ -118,8 +113,8 @@ func getDetetedHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 		}
 
 		delete := delete{
-			Rep:   rep,
-			Items: items,
+			Rep:   newRepProxy(rep),
+			Items: newitemsProxy(items),
 		}
 
 		dels = append(dels, delete)
