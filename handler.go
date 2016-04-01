@@ -408,6 +408,10 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 				return rsp.Json(400, E(ErrorCodeRepExistCooperateItem))
 			}
 
+			if err := db.delRepCooperator(repname); err != nil {
+				return rsp.Json(400, E(ErrorCodeDataBase))
+			}
+
 			users := getSubscribers(Subscripters_By_Rep, repname, "", token)
 			if len(users) > 0 {
 				for _, user := range users {

@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"
 )
@@ -209,6 +210,15 @@ func (db *DB) countPermits(collection string, query bson.M) (int, error) {
 func (db *DB) delPermit(collection string, exec bson.M) (err error) {
 	_, err = db.DB(DB_NAME).C(collection).RemoveAll(exec)
 	return
+}
+
+func (db *DB) delRepCooperator(repName string) error {
+	err := db.delPermit(C_REPOSITORY_PERMISSION, bson.M{COL_REPNAME: repName, "opt_permission": PERMISSION_WRITE})
+	if err != nil && err != mgo.ErrNotFound {
+		return err
+	}
+
+	return nil
 }
 
 func setFileName(prefix, repname, itemname string) string {
