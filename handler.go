@@ -403,6 +403,11 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 			if quota.Rep_Private <= have_pri {
 				return rsp.Json(400, ErrRepOutOfLimit(quota.Rep_Private))
 			}
+
+			if rep.CooperateItems > 0 {
+				return rsp.Json(400, E(ErrorCodeRepExistCooperateItem))
+			}
+
 			users := getSubscribers(Subscripters_By_Rep, repname, "", token)
 			if len(users) > 0 {
 				for _, user := range users {
