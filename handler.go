@@ -404,7 +404,7 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 				return rsp.Json(400, ErrRepOutOfLimit(quota.Rep_Private))
 			}
 
-			if rep.CooperateItems > 0 {
+			if count, _ := db.countCooperator(repname); count > 0 {
 				return rsp.Json(400, E(ErrorCodeRepExistCooperateItem))
 			}
 

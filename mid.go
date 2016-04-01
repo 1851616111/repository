@@ -212,6 +212,10 @@ func (db *DB) delPermit(collection string, exec bson.M) (err error) {
 	return
 }
 
+func (db *DB) countCooperator(repName string) (int, error) {
+	return db.countPermits(C_REPOSITORY_PERMISSION, bson.M{COL_REPNAME: repName, "opt_permission": PERMISSION_WRITE})
+}
+
 func (db *DB) delRepCooperator(repName string) error {
 	err := db.delPermit(C_REPOSITORY_PERMISSION, bson.M{COL_REPNAME: repName, "opt_permission": PERMISSION_WRITE})
 	if err != nil && err != mgo.ErrNotFound {
