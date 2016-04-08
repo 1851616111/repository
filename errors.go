@@ -36,7 +36,7 @@ const (
 	ErrorCodeRepExistCooperateItem
 	ErrorCodeNoLogin
 	ErrorCodeRepExistDataitem
-
+	ErrorCodeUserIsCooperator
 	ErrorCodeNoParameter = 1400
 
 	NumErrors = 1401
@@ -56,12 +56,13 @@ func init() {
 	initError(ErrorCodeDataBase, "database operate")
 	initError(ErrorCodeQueryDBNotFound, "%s '%s' not found.")
 	initError(ErrorCodeOptFile, "file operation")
-	initError(ErrorCodeItemOutOfLimit, "dataitem out of limit 50")
+	initError(ErrorCodeItemOutOfLimit, "dataitem out of limit 200")
 	initError(ErrorCodeRepOutOfLimit, "repository out of limit")
 	initError(ErrorCodeItemPriceOutOfLimit, "dataitem price out of limit 6")
 	initError(ErrorCodeRepExistCooperateItem, "repository exists cooperate dataitem")
 	initError(ErrorCodeNoLogin, "no login")
 	initError(ErrorCodeRepExistDataitem, "repository exists dataitem, can not delete")
+	initError(ErrorCodeUserIsCooperator, " user %s is cooperator, can not delete")
 
 	ErrorNone = E(OK)
 	ErrorUnkown = E(ErrorCodeUnkown)
@@ -148,6 +149,13 @@ func ErrFieldNotFound(field, name string) *Error {
 	return &Error{
 		Code:    ErrorCodeQueryDBNotFound,
 		Message: fmt.Sprintf(E(ErrorCodeQueryDBNotFound).Message, field, name),
+	}
+}
+
+func ErrUserIsCooperator(name string) *Error {
+	return &Error{
+		Code:    ErrorCodeUserIsCooperator,
+		Message: fmt.Sprintf(E(ErrorCodeUserIsCooperator).Message, name),
 	}
 }
 

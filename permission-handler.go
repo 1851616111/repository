@@ -137,18 +137,49 @@ func getItemPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, 
 	return rsp.Json(200, E(OK), res)
 }
 
-func delRepPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, p Rep_Permission) (int, string) {
+func delRepPmsHandler(r *http.Request, rsp *Rsp, db *DB, p Rep_Permission) (int, string) {
 	defer db.Close()
-	r.ParseForm()
-	deleteAll := strings.TrimSpace(r.FormValue("delall"))
 
-	selector := bson.M{COL_REPNAME: p.Repository_name}
-	if deleteAll != DELETE_PERMISSION_USR_ALL {
-		selector[COL_PERMIT_USER] = p.User_name
+	if deleteAll := strings.TrimSpace(r.FormValue("delall")); len(deleteAll) > 0 {
+		if n, _ := db.DB(DB_NAME).C(C_REPOSITORY_PERMISSION).Find(bson.M{
+			COL_REPNAME:      p.Repository_name,
+			COL_PERMIT_USER:  p.User_name,
+			"opt_permission": 1,
+		}).Count(); n == 1 {
+			return rsp.Json(400, ErrUserIsCooperator(p.User_name))
+		}
+
+		selector := bson.M{COL_REPNAME: p.Repository_name}
+
+		db.DB(DB_NAME).C(C_REPOSITORY_PERMISSION).RemoveAll(selector)
+		return rsp.Json(200, E(OK))
 	}
 
-	db.DB(DB_NAME).C(C_REPOSITORY_PERMISSION).RemoveAll(selector)
-	time.Sleep(time.Millisecond * 100)
+	if len(p.User_name) == 0 {
+		return rsp.Json(400, ErrInvalidParameter("username"))
+	}
+
+	n, err := db.DB(DB_NAME).C(C_REPOSITORY_PERMISSION).Find(bson.M{
+		COL_REPNAME:      p.Repository_name,
+		COL_PERMIT_USER:  p.User_name,
+		"opt_permission": 1,
+	}).Count()
+	if err != nil {
+		return rsp.Json(400, ErrDataBase(err))
+	}
+
+	if n == 1 {
+		return rsp.Json(400, ErrUserIsCooperator(p.User_name))
+	}
+
+	selector := bson.M{
+		COL_REPNAME:     p.Repository_name,
+		COL_PERMIT_USER: p.User_name,
+	}
+
+	db.DB(DB_NAME).C(C_DATAITEM_PERMISSION).RemoveAll(selector)
+	db.DB(DB_NAME).C(C_REPOSITORY_PERMISSION).Remove(selector)
+
 	return rsp.Json(200, E(OK))
 }
 
@@ -156,13 +187,16 @@ func delRepCoptPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *D
 	defer db.Close()
 	r.ParseForm()
 	deleteAll := strings.TrimSpace(r.FormValue("delall"))
-	repName := p.Repository_name
 
+	repName := p.Repository_name
 	selector := bson.M{COL_REPNAME: repName}
 	rep := repository{}
 	db.DB(DB_NAME).C(C_REPOSITORY).Find(selector).One(&rep)
-	if rep.CooperateItems > 0 {
-		return rsp.Json(400, E(ErrorCodeRepExistCooperateItem))
+
+	if rep.Create_user != p.User_name {
+		if n, _ := db.DB(DB_NAME).C(C_DATAITEM).Find(bson.M{COL_REPNAME: repName, COL_CREATE_USER: p.User_name}).Count(); n  > 0 {
+			return rsp.Json(400, E(ErrorCodeRepExistCooperateItem))
+		}
 	}
 
 	if deleteAll != DELETE_PERMISSION_USR_ALL {
@@ -212,7 +246,7 @@ func delRepCoptPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *D
 
 	go asynExec(execs...)
 
-	time.Sleep(time.Millisecond * 500)
+	time.Sleep(time.Millisecond * 800)
 	return rsp.Json(200, E(OK))
 }
 

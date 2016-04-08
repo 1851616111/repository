@@ -86,11 +86,6 @@ var (
 	SEARCH_DATAITEM_COLS = []string{COL_REPNAME, COL_ITEM_NAME, COL_COMMENT}
 )
 
-type delete struct {
-	Rep   repository `json:"repository"`
-	Items []dataItem `json:"dataitems"`
-}
-
 func getDetetedHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	copy := db.copy()
 	defer copy.Close()
@@ -118,8 +113,8 @@ func getDetetedHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 		}
 
 		delete := delete{
-			Rep:   rep,
-			Items: items,
+			Rep:   newRepProxy(rep),
+			Items: newitemsProxy(items),
 		}
 
 		dels = append(dels, delete)
@@ -222,6 +217,11 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	relatedItems := strings.TrimSpace(r.FormValue("relatedItems"))
 	myRelease := strings.TrimSpace(r.FormValue("myRelease"))
 
+	sortKey, err := getSortKeyByParam("items", showItems)
+	if err != nil {
+		return rsp.Json(400, ErrInvalidParameter(showItems))
+	}
+
 	Q := bson.M{COL_REPNAME: repname}
 	rep, err := db.getRepository(Q)
 	if err != nil && err == mgo.ErrNotFound {
@@ -245,6 +245,7 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 		repository
 		Cooperate_status string   `json:"cooperatestate,omitempty"`
 		Dataitems        []string `json:"dataitems"`
+		ItemSize         int      `json:"itemsize"`
 	}
 	res.repository = rep
 
@@ -270,8 +271,11 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 			}
 		}
 
-		ds, err = db.getDataitems(page_index, page_size, Q)
+		ds, err = db.getDataitems(page_index, page_size, Q, sortKey)
 		get(err)
+
+		res.ItemSize = db.countNum(C_DATAITEM, Q)
+
 		for _, v := range ds {
 			items = append(items, v.Dataitem_name)
 		}
@@ -399,6 +403,15 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 			if quota.Rep_Private <= have_pri {
 				return rsp.Json(400, ErrRepOutOfLimit(quota.Rep_Private))
 			}
+
+			if count, _ := db.countCooperator(repname); count > 0 {
+				return rsp.Json(400, E(ErrorCodeRepExistCooperateItem))
+			}
+
+			if err := db.delRepCooperator(repname); err != nil {
+				return rsp.Json(400, E(ErrorCodeDataBase))
+			}
+
 			users := getSubscribers(Subscripters_By_Rep, repname, "", token)
 			if len(users) > 0 {
 				for _, user := range users {
@@ -560,7 +573,7 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		return rsp.Json(400, E(ErrorCodePermissionDenied))
 	}
 
-	if n, _ := db.DB(DB_NAME).C(C_DATAITEM).Find(bson.M{COL_REPNAME: repname}).Count(); n > 50 {
+	if n, _ := db.DB(DB_NAME).C(C_DATAITEM).Find(bson.M{COL_REPNAME: repname}).Count(); n > 200 {
 		return rsp.Json(400, E(ErrorCodeItemOutOfLimit))
 	}
 
@@ -1391,7 +1404,7 @@ func getSelectsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	Q := bson.M{}
 	l := db.getPublicReps()
 	if username != "" {
-		private := db.getPrivateReps(username)
+		private := db.getPermitedReps(username)
 		l = append(l, private...)
 	}
 
@@ -1477,7 +1490,7 @@ func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	Q := bson.M{}
 	pub := db.getPublicReps()
 	if username != "" {
-		private := db.getPrivateReps(username)
+		private := db.getPermitedReps(username)
 		pub = append(pub, private...)
 	}
 
@@ -1538,14 +1551,6 @@ func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	}{
 		l,
 		length,
-	}
-
-	if length < page_index*page_size && length >= (page_index-1)*page_size {
-		result.Results = l[(page_index-1)*page_size : length]
-	} else if length < page_index*page_size {
-		result.Results = l
-	} else if length >= page_index*page_size {
-		result.Results = l[(page_index-1)*page_size : page_index*page_size]
 	}
 
 	if length < page_index*page_size && length >= (page_index-1)*page_size {

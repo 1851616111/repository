@@ -1,9 +1,23 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"
+)
+
+var (
+	sorts = map[string]map[string]string{
+		"items": map[string]string{
+			"update_time_up":   "optime",
+			"update_time_down": "-optime",
+			"rank_up":          "rank",
+			"rank_down":        "-rank",
+			"1":                "-rank",
+			"":                 "-rank",
+		}}
 )
 
 const (
@@ -54,15 +68,33 @@ func (db *DB) getDataitem(query bson.M, abstract ...bool) (dataItem, error) {
 	return *res, err
 }
 
-func (db *DB) getDataitems(pageIndex, pageSize int, query bson.M) ([]dataItem, error) {
+func (db *DB) getDataitems(pageIndex, pageSize int, query bson.M, sortBy ...string) ([]dataItem, error) {
+	sort := "-rank"
+	if len(sortBy) > 0 {
+		sort = sortBy[0]
+	}
+
 	res := []dataItem{}
 	var err error
 	if pageSize == SELECT_ALL {
-		err = db.DB(DB_NAME).C(C_DATAITEM).Find(query).Sort("-rank").All(&res)
+		err = db.DB(DB_NAME).C(C_DATAITEM).Find(query).Sort(sort).All(&res)
 	} else {
-		err = db.DB(DB_NAME).C(C_DATAITEM).Find(query).Sort("-rank").Skip((pageIndex - 1) * pageSize).Limit(pageSize).All(&res)
+		err = db.DB(DB_NAME).C(C_DATAITEM).Find(query).Sort(sort).Skip((pageIndex - 1) * pageSize).Limit(pageSize).All(&res)
 	}
 	return res, err
+}
+
+func getSortKeyByParam(paramName, paramValue string) (string, error) {
+	paramSort, ok := sorts[paramName]
+	if !ok {
+		return "", errors.New("no found param " + paramName)
+	}
+	sortString, ok := paramSort[paramValue]
+	if !ok {
+		return "", errors.New("wrong param value")
+	}
+
+	return sortString, nil
 }
 
 func (db *DB) getdeletedDataitems(query bson.M) ([]dataItem, error) {
@@ -180,6 +212,19 @@ func (db *DB) delPermit(collection string, exec bson.M) (err error) {
 	return
 }
 
+func (db *DB) countCooperator(repName string) (int, error) {
+	return db.countPermits(C_REPOSITORY_PERMISSION, bson.M{COL_REPNAME: repName, "opt_permission": PERMISSION_WRITE})
+}
+
+func (db *DB) delRepCooperator(repName string) error {
+	err := db.delPermit(C_REPOSITORY_PERMISSION, bson.M{COL_REPNAME: repName, "opt_permission": PERMISSION_WRITE})
+	if err != nil && err != mgo.ErrNotFound {
+		return err
+	}
+
+	return nil
+}
+
 func setFileName(prefix, repname, itemname string) string {
 	return fmt.Sprintf("%s_%s_%s", prefix, repname, itemname)
 }
@@ -256,7 +301,7 @@ func buildTagsTime(tags []tag) {
 	}
 }
 
-func (db *DB) getPrivateReps(userName string) []string {
+func (db *DB) getPermitedReps(userName string) []string {
 	l := []string{}
 	if userName != "" {
 		p_reps, _ := db.getPermits(C_REPOSITORY_PERMISSION, bson.M{COL_PERMIT_USER: userName})
@@ -267,6 +312,12 @@ func (db *DB) getPrivateReps(userName string) []string {
 				}
 			}
 		}
+
+		my_pri_reps, _ := db.getRepositories(bson.M{COL_REP_ACC: ACCESS_PRIVATE, COL_CREATE_USER: userName})
+		for _, v := range my_pri_reps {
+			l = append(l, v.Repository_name)
+		}
+
 	}
 	return l
 }
@@ -280,6 +331,7 @@ func (db *DB) getPublicReps() []string {
 	}
 	return s
 }
+
 func (db *DB) deleteDataitemsFunc(items []dataItem, msg *Msg) {
 	for i, _ := range items {
 		if err := db.deleteDataitemFunc(items[i], msg); err != nil {
