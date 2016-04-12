@@ -405,7 +405,7 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 			}
 
 			if count, _ := db.countCooperator(repname); count > 0 {
-				return rsp.Json(400, E(ErrorCodeRepExistCooperateItem))
+				return rsp.Json(400, E(ErrorCodeRepExistCooperate))
 			}
 
 			if err := db.delRepCooperator(repname); err != nil {

@@ -37,6 +37,7 @@ const (
 	ErrorCodeNoLogin
 	ErrorCodeRepExistDataitem
 	ErrorCodeUserIsCooperator
+	ErrorCodeRepExistCooperate
 	ErrorCodeNoParameter = 1400
 
 	NumErrors = 1401
@@ -63,6 +64,7 @@ func init() {
 	initError(ErrorCodeNoLogin, "no login")
 	initError(ErrorCodeRepExistDataitem, "repository exists dataitem, can not delete")
 	initError(ErrorCodeUserIsCooperator, " user %s is cooperator, can not delete")
+	initError(ErrorCodeRepExistCooperate, "repository exists cooperate")
 
 	ErrorNone = E(OK)
 	ErrorUnkown = E(ErrorCodeUnkown)
