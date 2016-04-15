@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 	"gopkg.in/mgo.v2/bson"
+	"time"
 )
 
 func correctQuota(db *DB) {
-	copy := db.copy()
-	defer copy.Close()
+
 	aggregate := []bson.M{
 		{
 			"$group": bson.M{
@@ -36,15 +36,26 @@ func correctQuota(db *DB) {
 		}
 	}
 
+	fn := func(db *DB, token string) {
+		copy := db.copy()
+		defer copy.Close()
+
+		result := Ms{}
+		pipe := copy.DB(DB_NAME).C(C_REPOSITORY).Pipe(aggregate)
+		iter := pipe.Iter()
+		for iter.Next(&result) {
+			correct(result, token)
+		}
+		if err := iter.Close(); err != nil {
+			Log.Errorf("-----ERR %s", err.Error())
+		}
+	}
+
 	token := getToken(Username, Password)
 	Log.Infof("init token ok. token: %s", token)
-	result := Ms{}
-	pipe := copy.DB(DB_NAME).C(C_REPOSITORY).Pipe(aggregate)
-	iter := pipe.Iter()
-	for iter.Next(&result) {
-		correct(result, token)
-	}
-	if err := iter.Close(); err != nil {
-		Log.Errorf("-----ERR %s", err.Error())
+
+	for {
+		fn(db, token)
+		time.Sleep(time.Minute * 60)
 	}
 }

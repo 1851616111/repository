@@ -30,7 +30,7 @@ var (
 func main() {
 
 	checkAdmin()
-	correctQuota(&db)
+	go correctQuota(&db)
 	initMq(getKFKAddr)
 
 	if initDB() == false {

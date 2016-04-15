@@ -194,7 +194,7 @@ func delRepCoptPmsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *D
 	db.DB(DB_NAME).C(C_REPOSITORY).Find(selector).One(&rep)
 
 	if rep.Create_user != p.User_name {
-		if n, _ := db.DB(DB_NAME).C(C_DATAITEM).Find(bson.M{COL_REPNAME: repName, COL_CREATE_USER: p.User_name}).Count(); n  > 0 {
+		if n, _ := db.DB(DB_NAME).C(C_DATAITEM).Find(bson.M{COL_REPNAME: repName, COL_CREATE_USER: p.User_name}).Count(); n > 0 {
 			return rsp.Json(400, E(ErrorCodeRepExistCooperateItem))
 		}
 	}
