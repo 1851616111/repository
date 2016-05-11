@@ -103,6 +103,7 @@ type Select struct {
 	NewLabelName string `json:"newLabelName,omitempty" bson:"-"`
 	Order        int    `json:"order,omitempty"`
 	Icon         string `json:"icon,omitempty"`
+	Icon_Hover   string `json:"icon_hover,omitempty"`
 }
 
 type DB struct {

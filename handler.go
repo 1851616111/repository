@@ -37,6 +37,7 @@ const (
 	COL_SELECT_LABEL          = "labelname"
 	COL_SELECT_ORDER          = "order"
 	COL_SELECT_ICON           = "icon"
+	COL_SELECT_ICON_Hover     = "icon_hover"
 	COL_PERMIT_USER           = "user_name"
 	COL_PERMIT_REPNAME        = "repository_name"
 	COL_PERMIT_ITEMNAME       = "dataitem_name"
@@ -863,6 +864,9 @@ func updateSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, d
 	}
 	if s.Icon != "" {
 		u[COL_SELECT_ICON] = s.Icon
+	}
+	if s.Icon_Hover != "" {
+		u[COL_SELECT_ICON_Hover] = s.Icon_Hover
 	}
 
 	if len(u) == 0 {
