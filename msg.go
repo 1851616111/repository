@@ -73,12 +73,12 @@ func (listener *MyMesssageListener) OnError(err error) bool {
 }
 
 type statisRepRank struct {
-	Repository_name string `json:"repname"`
+	Repository_name string  `json:"repname"`
 	Rank            float64 `json:"rank"`
 }
 
 type statisItemRank struct {
-	Repository_name string `json:"repname"`
-	Dataitem_name   string `json:"itemname"`
+	Repository_name string  `json:"repname"`
+	Dataitem_name   string  `json:"itemname"`
 	Rank            float64 `json:"rank"`
 }

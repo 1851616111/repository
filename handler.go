@@ -37,7 +37,8 @@ const (
 	COL_SELECT_LABEL          = "labelname"
 	COL_SELECT_ORDER          = "order"
 	COL_SELECT_ICON           = "icon"
-	COL_SELECT_ICON_Hover     = "icon_hover"
+	COL_SELECT_ICON_WEB       = "icon_web"
+	COL_SELECT_ICON_WEB_HOVER = "icon_web_hover"
 	COL_PERMIT_USER           = "user_name"
 	COL_PERMIT_REPNAME        = "repository_name"
 	COL_PERMIT_ITEMNAME       = "dataitem_name"
@@ -862,11 +863,14 @@ func updateSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, d
 	if s.Order > 0 {
 		u[COL_SELECT_ORDER] = s.Order
 	}
-	if s.Icon != "" {
-		u[COL_SELECT_ICON] = s.Icon
+	if s.Icon_Phone != "" {
+		u[COL_SELECT_ICON] = s.Icon_Phone
 	}
-	if s.Icon_Hover != "" {
-		u[COL_SELECT_ICON_Hover] = s.Icon_Hover
+	if s.Icon_Web != "" {
+		u[COL_SELECT_ICON_WEB] = s.Icon_Web
+	}
+	if s.Icon_Web_Hover != "" {
+		u[COL_SELECT_ICON_WEB_HOVER] = s.Icon_Web_Hover
 	}
 
 	if len(u) == 0 {
@@ -903,7 +907,7 @@ func delSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, db *
 func getSelectLabelsHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	defer db.Close()
 
-	l, ll := []Select{Select{LabelName: "全部精选", Icon: "allselect"}}, []Select{}
+	l, ll := []Select{Select{LabelName: "全部精选", Icon_Phone: "allselect"}}, []Select{}
 	err := db.DB(DB_NAME).C(C_SELECT).Find(nil).Sort("-order").All(&ll)
 	if err != nil {
 		return rsp.Json(400, ErrDataBase(err))

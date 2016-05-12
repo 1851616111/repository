@@ -99,11 +99,12 @@ type Dim_Table struct {
 }
 
 type Select struct {
-	LabelName    string `json:"labelname,omitempty"`
-	NewLabelName string `json:"newLabelName,omitempty" bson:"-"`
-	Order        int    `json:"order,omitempty"`
-	Icon         string `json:"icon,omitempty"`
-	Icon_Hover   string `json:"icon_hover,omitempty"`
+	LabelName      string `json:"labelname,omitempty"`
+	NewLabelName   string `json:"newLabelName,omitempty" bson:"-"`
+	Order          int    `json:"order,omitempty"`
+	Icon_Phone     string `json:"icon,omitempty"`
+	Icon_Web       string `json:"icon_web,omitempty"`
+	Icon_Web_Hover string `json:"icon_web_hover,omitempty"`
 }
 
 type DB struct {
