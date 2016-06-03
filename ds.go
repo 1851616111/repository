@@ -102,9 +102,9 @@ type Select struct {
 	LabelName      string `json:"labelname,omitempty"`
 	NewLabelName   string `json:"newLabelName,omitempty" bson:"-"`
 	Order          int    `json:"order,omitempty"`
-	Icon_Phone     string `json:"icon,omitempty"`
-	Icon_Web       string `json:"icon_web,omitempty"`
-	Icon_Web_Hover string `json:"icon_web_hover,omitempty"`
+	Icon_Phone     string `json:"icon,omitempty" bson:"icon"`
+	Icon_Web       string `json:"icon_web,omitempty" bson:"icon_web"`
+	Icon_Web_Hover string `json:"icon_web_hover,omitempty" bson:"icon_web_hover"`
 }
 
 type DB struct {
