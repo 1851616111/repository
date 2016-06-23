@@ -524,13 +524,17 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 	}
 
 	rep := []repository{}
-
+	order := "-rank"
+	myRelease := strings.TrimSpace(r.FormValue("myRelease"))
+	if myRelease != "" {
+		order = "-optime"
+	}
 	if page_size == -1 {
-		if err := db.DB(DB_NAME).C(C_REPOSITORY).Find(Q).Sort("-rank").Select(bson.M{COL_REPNAME: "1", COL_CREATE_USER: "1", COL_REP_COOPERATOR: "1"}).All(&rep); err != nil {
+		if err := db.DB(DB_NAME).C(C_REPOSITORY).Find(Q).Sort(order).Select(bson.M{COL_REPNAME: "1", COL_CREATE_USER: "1", COL_REP_COOPERATOR: "1"}).All(&rep); err != nil {
 			return rsp.Json(400, ErrDataBase(err))
 		}
 	} else {
-		err := db.DB(DB_NAME).C(C_REPOSITORY).Find(Q).Sort("-rank").Select(bson.M{COL_REPNAME: "1", COL_CREATE_USER: "1", COL_REP_COOPERATOR: "1"}).Skip((page_index - 1) * page_size).Limit(page_size).All(&rep)
+		err := db.DB(DB_NAME).C(C_REPOSITORY).Find(Q).Sort(order).Select(bson.M{COL_REPNAME: "1", COL_CREATE_USER: "1", COL_REP_COOPERATOR: "1"}).Skip((page_index - 1) * page_size).Limit(page_size).All(&rep)
 		if err != nil {
 			return rsp.Json(400, ErrDataBase(err))
 		}
