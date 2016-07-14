@@ -862,19 +862,19 @@ func updateSelectLabelHandler(r *http.Request, rsp *Rsp, param martini.Params, d
 
 	u := bson.M{}
 	if s.NewLabelName != "" {
-		u[COL_SELECT_LABEL] = s.NewLabelName
+		u[COL_SELECT_LABEL] = strings.TrimSpace(s.NewLabelName)
 	}
 	if s.Order > 0 {
 		u[COL_SELECT_ORDER] = s.Order
 	}
 	if s.Icon_Phone != "" {
-		u[COL_SELECT_ICON] = s.Icon_Phone
+		u[COL_SELECT_ICON] = strings.TrimSpace(s.Icon_Phone)
 	}
 	if s.Icon_Web != "" {
-		u[COL_SELECT_ICON_WEB] = s.Icon_Web
+		u[COL_SELECT_ICON_WEB] = strings.TrimSpace(s.Icon_Web)
 	}
 	if s.Icon_Web_Hover != "" {
-		u[COL_SELECT_ICON_WEB_HOVER] = s.Icon_Web_Hover
+		u[COL_SELECT_ICON_WEB_HOVER] = strings.TrimSpace(s.Icon_Web_Hover)
 	}
 
 	if len(u) == 0 {
