@@ -141,7 +141,7 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	if err != nil {
 		Log.Error("read request body err:", err)
 	}
-
+	fmt.Printf("%s\n", string(body))
 	rep := new(repository)
 	if len(body) == 0 {
 		return rsp.Json(400, ErrNoParameter(""))
