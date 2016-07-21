@@ -27,18 +27,19 @@ type Label struct {
 }
 
 type repository struct {
-	Repository_name string      `json:"-"`
-	Create_user     string      `json:"create_user,omitempty"`
-	Repaccesstype   string      `json:"repaccesstype,omitempty"`
-	Comment         string      `json:"comment"`
-	Optime          string      `json:"optime,omitempty"`
-	Items           int         `json:"items"`
-	CooperateItems  int         `json:"cooperateitems"`
-	Label           interface{} `json:"label"`
-	Ct              time.Time   `json:"-"`
-	St              time.Time   `bson:"st,omitempty", json:"-"`
-	Cooperate       interface{} `bson:"cooperators", json:"-"`
-	Rank            float32     `json:"-"`
+	Repository_name    string      `json:"-"`
+	Ch_Repository_name string      `bson:"ch_repname", json:"ch_repname"`
+	Create_user        string      `json:"create_user,omitempty"`
+	Repaccesstype      string      `json:"repaccesstype,omitempty"`
+	Comment            string      `json:"comment"`
+	Optime             string      `json:"optime,omitempty"`
+	Items              int         `json:"items"`
+	CooperateItems     int         `json:"cooperateitems"`
+	Label              interface{} `json:"label"`
+	Ct                 time.Time   `json:"-"`
+	St                 time.Time   `bson:"st,omitempty", json:"-"`
+	Cooperate          interface{} `bson:"cooperators", json:"-"`
+	Rank               float32     `json:"-"`
 }
 
 type Namelist []names
@@ -55,21 +56,22 @@ type search struct {
 }
 
 type dataItem struct {
-	Repository_name string      `json:"-"`
-	Dataitem_name   string      `json:"-"`
-	Create_user     string      `json:"create_user,omitempty"`
-	Itemaccesstype  string      `json:"itemaccesstype,omitempty"`
-	Price           interface{} `json:"price,omitempty"`
-	Optime          string      `json:"optime,omitempty"`
-	Meta            string      `bson:"-", json:"meta"`
-	Sample          string      `bson:"-", json:"sample"`
-	Comment         string      `json:"comment"`
-	Tags            int         `json:"tags"`
-	Label           interface{} `json:"label"`
-	Ct              time.Time   `json:"-"`
-	st              time.Time
-	Cooperate       bool    `json:"-"`
-	Rank            float32 `json:"-"`
+	Repository_name  string      `json:"-"`
+	Dataitem_name    string      `json:"-"`
+	Ch_Dataitem_name string      `bson:"ch_itemname", json:"ch_itemname"`
+	Create_user      string      `json:"create_user,omitempty"`
+	Itemaccesstype   string      `json:"itemaccesstype,omitempty"`
+	Price            interface{} `json:"price,omitempty"`
+	Optime           string      `json:"optime,omitempty"`
+	Meta             string      `bson:"-", json:"meta"`
+	Sample           string      `bson:"-", json:"sample"`
+	Comment          string      `json:"comment"`
+	Tags             int         `json:"tags"`
+	Label            interface{} `json:"label"`
+	Ct               time.Time   `json:"-"`
+	st               time.Time
+	Cooperate        bool    `json:"-"`
+	Rank             float32 `json:"-"`
 }
 
 type tag struct {

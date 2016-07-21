@@ -607,6 +607,10 @@ func cheParam(paramName, paramValue string) *Error {
 		paramLengthLimit = LIMIT_TAG_LENGTH
 	case PARAM_COMMENT_NAME:
 		paramLengthLimit = LIMIT_COMMENT_LENGTH
+	case PARAM_REP_CH_NAME:
+		paramLengthLimit = LIMIT_REP_CH_NAME_LENGTH
+	case PARAM_ITEM_CH_NAME:
+		paramLengthLimit = LIMIT_ITEM_CH_NAME_LENGTH
 	}
 
 	if len(paramValue) > paramLengthLimit {

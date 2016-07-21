@@ -49,11 +49,15 @@ const (
 	PAGE_SIZE_SELECT          = 10
 	LIMIT_TAG_LENGTH          = 100
 	LIMIT_ITEM_LENGTH         = 100
+	LIMIT_ITEM_CH_NAME_LENGTH = 100
 	LIMIT_REP_LENGTH          = 52
+	LIMIT_REP_CH_NAME_LENGTH  = 52
 	LIMIT_COMMENT_LENGTH      = 600
 	PARAM_TAG_NAME            = "tag"
 	PARAM_ITEM_NAME           = "itemname"
+	PARAM_ITEM_CH_NAME        = "ch_itemname"
 	PARAM_REP_NAME            = "repname"
+	PARAM_REP_CH_NAME         = "ch_repname"
 	PARAM_COMMENT_NAME        = "comment"
 	COL_ITEM_SYPPLY_STYLE     = "supply_style"
 	LABEL_NED_CHECK           = COL_ITEM_SYPPLY_STYLE
@@ -146,6 +150,9 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	}
 
 	if err := cheParam(PARAM_COMMENT_NAME, rep.Comment); err != nil {
+		return rsp.Json(400, err)
+	}
+	if err := cheParam(PARAM_REP_CH_NAME, rep.Ch_Repository_name); err != nil {
 		return rsp.Json(400, err)
 	}
 
@@ -383,6 +390,13 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		u[COL_COMMENT] = rep.Comment
 	}
 
+	if rep.Ch_Repository_name != "" {
+		if err := cheParam(PARAM_REP_CH_NAME, rep.Ch_Repository_name); err != nil {
+			return rsp.Json(400, err)
+		}
+		u[PARAM_REP_CH_NAME] = rep.Ch_Repository_name
+	}
+
 	if rep.Repaccesstype != "" {
 		if rep.Repaccesstype != ACCESS_PRIVATE && rep.Repaccesstype != ACCESS_PUBLIC {
 			return rsp.Json(400, ErrInvalidParameter("repaccesstype"))
@@ -600,6 +614,9 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	if err := cheParam(PARAM_COMMENT_NAME, d.Comment); err != nil {
 		return rsp.Json(400, err)
 	}
+	if err := cheParam(PARAM_ITEM_CH_NAME, d.Ch_Dataitem_name); err != nil {
+		return rsp.Json(400, err)
+	}
 
 	d.Repository_name = repname
 	d.Dataitem_name = itemname
@@ -712,6 +729,13 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 
 	if d.Dataitem_name != "" {
 		u[COL_ITEM_NAME] = d.Dataitem_name
+	}
+
+	if d.Ch_Dataitem_name != "" {
+		if err := cheParam(PARAM_ITEM_CH_NAME, d.Ch_Dataitem_name); err != nil {
+			return rsp.Json(400, err)
+		}
+		u[PARAM_ITEM_CH_NAME] = d.Ch_Dataitem_name
 	}
 
 	if d.Meta != "" {
