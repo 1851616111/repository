@@ -21,6 +21,7 @@ const (
 	COL_REP_ACC               = "repaccesstype"
 	COL_REP_ITEMS             = "items"
 	COL_ITEM_NAME             = "dataitem_name"
+	COL_CH_ITEM_NAME	  = "ch_itemname"
 	COL_ITEM_ACC              = "itemaccesstype"
 	COL_ITEM_TAGS             = "tags"
 	COL_COMMENT               = "comment"
@@ -89,7 +90,7 @@ const (
 
 var (
 	SUPPLY_STYLE_ALL     = []string{SUPPLY_STYLE_API, SUPPLY_STYLE_BATCH, SUPPLY_STYLE_FLOW}
-	SEARCH_DATAITEM_COLS = []string{COL_REPNAME, COL_ITEM_NAME, COL_COMMENT}
+	SEARCH_DATAITEM_COLS = []string{COL_REPNAME, COL_ITEM_NAME, COL_COMMENT, COL_CH_ITEM_NAME}
 )
 
 func getDetetedHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
