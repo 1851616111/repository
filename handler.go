@@ -153,6 +153,7 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	if err := cheParam(PARAM_COMMENT_NAME, rep.Comment); err != nil {
 		return rsp.Json(400, err)
 	}
+	fmt.Printf("%v\n", rep)
 	if err := cheParam(PARAM_REP_CH_NAME, rep.Ch_Repository_name); err != nil {
 		return rsp.Json(400, err)
 	}
