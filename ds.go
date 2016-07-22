@@ -28,7 +28,7 @@ type Label struct {
 
 type repository struct {
 	Repository_name    string      `json:"-"`
-	Ch_Repository_name string      `bson:"ch_repname", json:"ch_repname"`
+	Ch_Repository_name string      `bson:"ch_repname" json:"ch_repname"`
 	Create_user        string      `json:"create_user,omitempty"`
 	Repaccesstype      string      `json:"repaccesstype,omitempty"`
 	Comment            string      `json:"comment"`
@@ -58,7 +58,7 @@ type search struct {
 type dataItem struct {
 	Repository_name  string      `json:"-"`
 	Dataitem_name    string      `json:"-"`
-	Ch_Dataitem_name string      `bson:"ch_itemname", json:"ch_itemname"`
+	Ch_Dataitem_name string      `bson:"ch_itemname" json:"ch_itemname"`
 	Create_user      string      `json:"create_user,omitempty"`
 	Itemaccesstype   string      `json:"itemaccesstype,omitempty"`
 	Price            interface{} `json:"price,omitempty"`
