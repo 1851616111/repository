@@ -367,6 +367,11 @@ func (db *DB) deleteDataitemFunc(item dataItem, msg *Msg) error {
 		go func(msg *Msg, item m_item) {
 			msg.MqJson(MQ_TOPIC_TO_SUB, tmp)
 		}(msg, tmp)
+
+		tmp.Create_user = item.Create_user
+		go func(msg *Msg, item m_item) {
+			msg.MqJson(MQ_TOPIC_TO_HEART, tmp)
+		}(msg, tmp)
 	}
 
 	return nil

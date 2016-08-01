@@ -221,6 +221,7 @@ type m_item struct {
 	Repository_name interface{} `json:"repname"`
 	Dataitem_name   interface{} `json:"itemname"`
 	Time            string      `json:"time"`
+	Create_user     string      `json:"create_user,omitempty"`
 }
 
 type m_rep struct {
