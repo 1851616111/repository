@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+//查询dataitem的所有tags数量，更新到dataitem的tag数量字段中
 func (db *DB) getDStatis() {
 	items, err := db.getDataitems(0, SELECT_ALL, nil)
 	get(err)
@@ -30,6 +31,7 @@ func (db *DB) getDStatis() {
 	Log.Info("statis datitem over")
 }
 
+//查询repository的所有dataitem数量，更新到repository的dataitem数量字段中
 func (db *DB) getRStatis() {
 	reps, err := db.getRepositories(nil)
 	get(err)

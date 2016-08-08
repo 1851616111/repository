@@ -4,6 +4,8 @@ import (
 	"gopkg.in/mgo.v2"
 	"time"
 )
+// 这是一个批量更新的异步处理，负责与mongodb批量更新。
+// 负责更新（update）,创建（insert）,不存在时创建，存在时更新（upsert）
 
 const (
 	CHANNE_MAX_ZISE      = 20000
@@ -30,12 +32,15 @@ type Queue struct {
 	q chan Execute
 }
 
+//向需要异步更新的操作提供输入方法
 func (q *Queue) producer(e ...Execute) {
 	for _, v := range e {
 		queue <- v
 	}
 }
 
+//对于insert和upsert操作，立即进行mongodb操作
+//对于update操作，每隔500ms进行更新
 func (q *Queue) serve(db *DB) {
 	updates, upserts, inserts := execs{}, execs{}, execs{}
 	for {

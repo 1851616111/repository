@@ -142,6 +142,8 @@ func parseLabelParam(r *http.Request, reg *regexp.Regexp) []string {
 	return l
 }
 
+//label字段的操作，用于更新label的某个字段
+//对于label的每个字段都执行更新操作
 func (db *DB) optLabels(r *http.Request, reg []*regexp.Regexp, s interface{}, Q bson.M, optTp string) (int, *Error) {
 	loginName := r.Header.Get("User")
 	v := reflect.ValueOf(s)

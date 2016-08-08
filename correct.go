@@ -5,7 +5,9 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"time"
 )
-
+//这是一个更新用户repository使用量的模块
+//从repository集合中查询每个用户的公有repository数量和私有repository数量
+//掉用user quota api 更新用户的公有／私有 repository使用量
 func correctQuota(db *DB) {
 
 	aggregate := []bson.M{

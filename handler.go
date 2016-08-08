@@ -129,6 +129,8 @@ func getDetetedHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 
 	return rsp.Json(200, E(OK), dels)
 }
+
+//创建repository
 func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, login_name string, l Quota) (int, string) {
 	defer db.Close()
 	repname := param[PARAM_REP_NAME]
@@ -163,6 +165,7 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		rep.Repaccesstype = ACCESS_PUBLIC
 	}
 
+	//计算要创建的repository的类型（public/private）的目前使用量
 	var opt interface{}
 	has := db.countNum(C_REPOSITORY, bson.M{COL_CREATE_USER: login_name, COL_REP_ACC: rep.Repaccesstype})
 	max := 0
@@ -179,6 +182,7 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		}{has + 1}
 	}
 
+	//若现有的repository大于quota的最大量（quota从user quota 获取），则禁止创建
 	Log.Infof("createRHandler the result max %d\n", max)
 	if has >= max {
 		return rsp.Json(400, ErrRepOutOfLimit(max))
@@ -197,13 +201,14 @@ func createRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		return rsp.Json(400, ErrDataBase(err))
 	}
 
+	//更新user quota repository 使用量
 	token := r.Header.Get(AUTHORIZATION)
 	if _, err := updateUser(login_name, token, opt); err != nil {
 		Log.Errorf("create dataitem update User err: %s", err.Error())
 	}
 	return rsp.Json(200, E(OK))
 }
-
+//查询具体某个repository的信息包括dataitem
 func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	defer db.Close()
 	repname := strings.TrimSpace(param["repname"])
@@ -224,6 +229,7 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	}
 
 	user := r.Header.Get("User")
+	//是否查询dataitem信息
 	showItems := strings.TrimSpace(r.FormValue("items"))
 	relatedItems := strings.TrimSpace(r.FormValue("relatedItems"))
 	myRelease := strings.TrimSpace(r.FormValue("myRelease"))
@@ -240,6 +246,8 @@ func getRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	}
 	rep.Optime = buildTime(rep.Optime)
 
+	//若该repository是私有
+	//若查询用户不是创建者，且查询用户不在该repository的permission collection中，且用户用户也不是datahub@asiainfo.com管理员
 	if rep.Repaccesstype == ACCESS_PRIVATE {
 		Q = bson.M{COL_PERMIT_REPNAME: repname, COL_PERMIT_USER: user}
 		if user != "" {
@@ -362,6 +370,7 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		return rsp.Json(400, ErrNoParameter("repname"))
 	}
 
+/	//存在检查
 	Q := bson.M{COL_REPNAME: repname}
 	repo, err := db.getRepository(Q)
 	if err == mgo.ErrNotFound {
@@ -383,6 +392,7 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		return rsp.Json(400, ErrParseJson(err))
 	}
 
+	//用来mongo更新的结构，遍历请求的每个字段，做相应的检查后复合条件添加到u内
 	u := bson.M{}
 
 	if rep.Comment != "" {
@@ -406,9 +416,12 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		u[COL_REP_ACC] = rep.Repaccesstype
 	}
 
+	//若要更新rep的accesstype(public/private)字段，同时需要更新user服务的quota
 	if u[COL_REP_ACC] != "" {
 		token := r.Header.Get(AUTHORIZATION)
+		//从user服务查询出quota
 		quota := getUserQuota(token, loginName)
+		//计算出当前用户已有的public和private repository的数量
 		have_pub := db.countNum(C_REPOSITORY, bson.M{COL_CREATE_USER: loginName, COL_REP_ACC: ACCESS_PUBLIC})
 		have_pri := db.countNum(C_REPOSITORY, bson.M{COL_CREATE_USER: loginName, COL_REP_ACC: ACCESS_PRIVATE})
 
@@ -417,33 +430,45 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 			Private int `json:"private"`
 		}{}
 
+		//若将repository公有更改为私有
 		if repo.Repaccesstype == ACCESS_PUBLIC && u[COL_REP_ACC] == ACCESS_PRIVATE {
+			//检查已有私有repository数量与quota数量对比
 			if quota.Rep_Private <= have_pri {
 				return rsp.Json(400, ErrRepOutOfLimit(quota.Rep_Private))
 			}
 
+			//若repo有协作者切已有创建dataitem，则禁止修改repo的accesstype字段
 			if rep.CooperateItems > 0 {
 				return rsp.Json(400, E(ErrorCodeRepExistCooperateItem))
 			}
 
+			//清理历史的写作者名单
 			if err := db.delRepCooperator(repname); err != nil {
 				return rsp.Json(400, E(ErrorCodeDataBase))
 			}
 
+			//向订阅服务查询rep的订阅者
 			users := getSubscribers(Subscripters_By_Rep, repname, "", token)
 			if len(users) > 0 {
+				//由于之前是公有，改到私有后，需求是把所有订阅者加入到repo的白名单中
 				for _, user := range users {
 					putRepositoryPermission(repname, user, PERMISSION_READ)
 				}
 			}
+
+			//更新quota的repository饮用数量
 			opt.Public = have_pub - 1
 			opt.Private = have_pri + 1
 		}
 
+		//若私有改到公有
 		if repo.Repaccesstype == ACCESS_PRIVATE && u[COL_REP_ACC] == ACCESS_PUBLIC {
+			//数量检查
 			if quota.Rep_Public <= have_pub {
 				return rsp.Json(400, ErrRepOutOfLimit(quota.Rep_Private))
 			}
+
+			//改成公有后把白名单清除
 			exec := bson.M{
 				COL_REPNAME:      repname,
 				"opt_permission": bson.M{CMD_NOTEQUAL: PERMISSION_WRITE},
@@ -456,11 +481,13 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 			opt.Private = have_pri - 1
 		}
 
+		//更新用户的quota
 		if _, err := updateUser(loginName, token, opt); err != nil {
 			Log.Errorf("update repository User err: %s", err.Error())
 		}
 	}
 
+	//若发现有效的更新，才进行更新
 	if len(u) > 0 {
 		selector := bson.M{COL_REPNAME: repname}
 		u[COL_OPTIME] = time.Now().String()
@@ -480,6 +507,8 @@ func updateRHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 }
 
 //curl http://127.0.0.1:8089/repositories
+//根据请求Header中User信息查询该user的repository
+//该接口可以查询某个用户param＝username的repository信息，还可以查询自己的repository信息
 func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	defer db.Close()
 	page_index, page_size := PAGE_INDEX, PAGE_SIZE
@@ -498,6 +527,7 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 	targetName := strings.TrimSpace(r.FormValue("username"))
 	loginName := r.Header.Get("User")
 	Q := bson.M{}
+	//loginName != ""用户已经登陆，并查询自己具有查看权限的repository（自己的repository或协作者的repository）
 	if (loginName != "" && targetName == "") || (loginName != "" && targetName == loginName) { //login already and search myrepositories
 		Q = bson.M{
 			CMD_OR: []bson.M{
@@ -509,12 +539,15 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 				},
 			},
 		}
-	} else if loginName == "" && targetName != "" { // no login nd search targetName
+	//若没有登陆切要查询targetName的repository，所以只能查看targetName的公有repository
+	} else if loginName == "" && targetName != "" { // no login and search targetName
 		Q = bson.M{COL_CREATE_USER: targetName, COL_REP_ACC: ACCESS_PUBLIC}
+	//若已经登陆切要查询targetName的repository，所以先要查看repository的permission collection查看是否有查询私有repository的权限
 	} else if loginName != "" && targetName != "" && loginName != targetName { //loging and search targetName
 		q := []bson.M{}
 		p_reps, _ := db.getPermits(C_REPOSITORY_PERMISSION, bson.M{COL_PERMIT_USER: loginName})
 		l := []string{}
+		//具有查询权限
 		if l_p_reps, ok := p_reps.([]Rep_Permission); ok {
 			if len(l_p_reps) > 0 {
 				for _, v := range p_reps.([]Rep_Permission) {
@@ -524,6 +557,7 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 				q_private[COL_REPNAME] = bson.M{CMD_IN: l}
 				q_private[COL_CREATE_USER] = targetName
 				q_private[COL_REP_ACC] = ACCESS_PRIVATE
+				//将私有的查询条件加到总查询条件中
 				q = append(q, q_private)
 			}
 		}
@@ -531,6 +565,7 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 		q_public := bson.M{COL_CREATE_USER: targetName, COL_REP_ACC: ACCESS_PUBLIC}
 
 		q = append(q, q_public)
+		//若总查询的条件长度为1，意味着只能查询公有的repository
 		switch len(q) {
 		case 1:
 			Q = q_public
@@ -556,6 +591,8 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 		}
 	}
 	l := []names{}
+	//同时需要向前段展示该login用户对于查询的repository的协作状态，
+	// 若login在repository的协作用户中，则显示｀写作中｀，否则显示｀协作｀
 	for _, v := range rep {
 		status := ""
 		if cooperates, ok := v.Cooperate.([]interface{}); ok {
@@ -573,6 +610,7 @@ func getRsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int,
 	return rsp.Json(200, E(OK), l)
 }
 
+//创建dataitem
 func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, loginName string) (int, string) {
 	defer db.Close()
 
@@ -584,17 +622,20 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		return rsp.Json(400, err)
 	}
 
+	//验证repository是否存在
 	Q := bson.M{COL_REPNAME: repname}
 	rep, err := db.getRepository(Q)
 	if err == mgo.ErrNotFound {
 		return rsp.Json(400, ErrRepositoryNotFound(repname))
 	}
 
+	//若创建dataitem的用户既不是repository的创建者又不在repository的写作者中，则禁止创建
 	cooperate := ifCooperate(rep.Cooperate, loginName)
 	if rep.Create_user != loginName && !cooperate {
 		return rsp.Json(400, E(ErrorCodePermissionDenied))
 	}
 
+	//检查现有dataitem的数量
 	if n, _ := db.DB(DB_NAME).C(C_DATAITEM).Find(bson.M{COL_REPNAME: repname}).Count(); n > 200 {
 		return rsp.Json(400, E(ErrorCodeItemOutOfLimit))
 	}
@@ -613,6 +654,7 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		return rsp.Json(400, ErrParseJson(err))
 	}
 
+	//参数检查
 	if err := cheParam(PARAM_COMMENT_NAME, d.Comment); err != nil {
 		return rsp.Json(400, err)
 	}
@@ -666,7 +708,7 @@ func createDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 	if rep.Create_user != loginName {
 		update["cooperateitems"] = 1
 	}
-
+	//异步更新
 	exec := Execute{
 		Collection: C_REPOSITORY,
 		Selector:   bson.M{COL_REPNAME: repname},
@@ -782,6 +824,7 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		go asynExec(exec...)
 	}
 
+	//公有改私有，将订阅者加入到dataitem的白名单中
 	if item.Itemaccesstype == ACCESS_PUBLIC && u[COL_ITEM_ACC] == ACCESS_PRIVATE {
 		token := r.Header.Get(AUTHORIZATION)
 		users := getSubscribers(Subscripters_By_Item, repname, itemname, token)
@@ -792,6 +835,7 @@ func updateDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, log
 		}
 	}
 
+	//私有改公有，清除dataitem的白名单
 	if item.Itemaccesstype == ACCESS_PRIVATE && u[COL_ITEM_ACC] == ACCESS_PUBLIC {
 		if err := db.delPermit(C_DATAITEM_PERMISSION, selector); err != nil {
 			return rsp.Json(400, ErrDataBase(err))
@@ -992,12 +1036,14 @@ func createTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, l
 
 	exec := []Execute{
 		{
+			//更新repository的optime字段
 			Collection: C_REPOSITORY,
 			Selector:   bson.M{COL_REPNAME: repname},
 			Update:     bson.M{CMD_SET: bson.M{COL_OPTIME: now}},
 			Type:       Exec_Type_Update,
 		},
 		{
+			//更新dataitem的tags数量字段
 			Collection: C_DATAITEM,
 			Selector:   Q,
 			Update:     bson.M{CMD_INC: bson.M{"tags": 1}, CMD_SET: bson.M{COL_OPTIME: now}},
@@ -1008,6 +1054,7 @@ func createTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, l
 	go asynExec(exec...)
 
 	if msg != nil {
+		//向kafka发送创建tag消息
 		go func(msg *Msg, t tag) {
 			m_t := m_tag{Type: MQ_TYPE_ADD_TAG, Repository_name: t.Repository_name, Dataitem_name: t.Dataitem_name, Tag: t.Tag, Time: t.Optime}
 			msg.MqJson(MQ_TOPIC_TO_SUB, m_t)
@@ -1171,6 +1218,7 @@ func delTagHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB, logi
 }
 
 //curl http://127.0.0.1:8089/repositories/mobile/app
+//查询某个dataitem
 func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	defer db.Close()
 	repname := param["repname"]
@@ -1199,12 +1247,14 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 		abstract = true
 	}
 
+	//先验证dataitem所属的repository是否存在
 	Q := bson.M{COL_REPNAME: repname}
 	rep, err := db.getRepository(Q)
 	if err != nil && err == mgo.ErrNotFound {
 		return rsp.Json(400, ErrRepositoryNotFound(repname))
 	}
 
+	//在验证dataitem是否存在
 	Q = bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname}
 	item, err := db.getDataitem(Q, abstract)
 	if err != nil && err == mgo.ErrNotFound {
@@ -1212,7 +1262,11 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	}
 
 	user := r.Header.Get("User")
+	//若用户登陆
 	if user != "" {
+		//若repository是私有
+		//若登陆者不是创建者，也不是管理员datahub@asiainfo.com
+		//则无权限查看
 		if rep.Repaccesstype == ACCESS_PRIVATE {
 			if user != rep.Create_user && user != item.Create_user && user != "datahub@asiainfo.com" { //如果是rep的创建者或者是item的创建者,或者是管理员"datahub@asiainfo.com",可以查看私有
 				Q := bson.M{COL_PERMIT_REPNAME: rep.Repository_name, COL_PERMIT_USER: user} //如果不是,这需要查看是否在白名单中
@@ -1221,6 +1275,7 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 				}
 			}
 		}
+	//若用户未登陆且是私有，则无权限查询
 	} else {
 		if rep.Repaccesstype == ACCESS_PRIVATE {
 			return rsp.Json(400, E(ErrorCodePermissionDenied))
@@ -1236,7 +1291,7 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 	var res struct {
 		dataItem
 		Tags          []tag  `json:"taglist"`
-		Permisson     bool   `json:"permission"`
+		Permisson     bool   `json:"permission"` //前端和刘旭需要的字段，是否具有查询权限
 		Stat          string `json:"pricestate"`
 		StatCooperate string `json:"cooperatestate"`
 	}
@@ -1251,9 +1306,13 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 		return rsp.Json(200, E(OK), res)
 	}
 
+	//更新res.Permisson
+	//若登陆人为创建者，则permission＝true
 	if item.Create_user == user {
 		res.Permisson = true
 	} else {
+		//若item为公有，则permission＝true
+		//若item为私有，则查看dataitem的permission查看是否有权限
 		switch item.Itemaccesstype {
 		case ACCESS_PUBLIC:
 			res.Permisson = true
@@ -1263,6 +1322,7 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 		}
 	}
 
+	//查询dataitem的metadata
 	b_m, err := db.getFile(PREFIX_META, repname, itemname)
 	if err != nil {
 		if err != mgo.ErrNotFound {
@@ -1273,6 +1333,7 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 		item.Meta = strings.TrimSpace(string(b_m))
 	}
 
+	//查询dataitem的sample
 	b_s, err := db.getFile(PREFIX_SAMPLE, repname, itemname)
 	if err != nil {
 		if err != mgo.ErrNotFound {
@@ -1283,6 +1344,7 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 		item.Sample = strings.TrimSpace(string(b_s))
 	}
 
+	//查询dataitem的tags信息
 	Q = bson.M{COL_REPNAME: repname, COL_ITEM_NAME: itemname}
 	tags, err := db.getTags(page_index, page_size, Q)
 	get(err)
@@ -1297,6 +1359,8 @@ func getDHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, 
 }
 
 //curl http://127.0.0.1:8089/repositories/mobile/app/subpermission
+//查询dataitem是否有订阅权限，为刘旭的订阅结构提供遍
+//分别查询repository的permission和dataitem的permission。
 func getDWithPermissionHandler(r *http.Request, rsp *Rsp, param martini.Params, db *DB) (int, string) {
 	defer db.Close()
 	repname := param["repname"]
@@ -1509,6 +1573,10 @@ func setUsrPmtRepsHandler(r *http.Request, rsp *Rsp, param martini.Params, db *D
 	}
 	return rsp.Json(200, E(OK))
 }
+
+//页面搜索接口，查询匹配的字段为repository name， dataitem name及comment
+//提供分页查询功能 page为查询的页数，size为查询每页的大小
+//将参数text用空格分隔，分别把每个子text 查询出相应的匹配的dataitem并累加匹配的数量，显示的时候按照匹配分数由高到低的顺序显示
 func searchHandler(r *http.Request, rsp *Rsp, db *DB) (int, string) {
 	defer db.Close()
 	page_index, page_size := PAGE_INDEX, PAGE_SIZE_SEARCH

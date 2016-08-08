@@ -33,6 +33,8 @@ func pushMetaDataLoop(db *DB) {
 	}
 }
 
+//通过向kafka发送消息来向运维页面提供repository及dataitem的必要字段信息。
+//查询所有repository及dataitem
 func pushMetaData(src *DB, dst *Msg) {
 	defer src.Close()
 	reps, _ := src.getRepositories(nil)

@@ -136,6 +136,7 @@ func initDB() bool {
 	return true
 }
 
+//每隔5秒ping db，失败则刷新db链接
 func refreshDB() {
 
 	for {
